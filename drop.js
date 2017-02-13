@@ -8683,14 +8683,6 @@ var _elm_lang$http$Http$StringPart = F2(
 	});
 var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 
-var _user$project$Drop$decodeResponse = A2(
-	_elm_lang$core$Json_Decode$at,
-	{
-		ctor: '::',
-		_0: 'data',
-		_1: {ctor: '[]'}
-	},
-	_elm_lang$core$Json_Decode$string);
 var _user$project$Drop$postSettings = {
 	method: 'POST',
 	headers: {
@@ -8704,10 +8696,11 @@ var _user$project$Drop$postSettings = {
 	},
 	url: '',
 	body: _elm_lang$http$Http$emptyBody,
-	expect: _elm_lang$http$Http$expectJson(_user$project$Drop$decodeResponse),
+	expect: _elm_lang$http$Http$expectString,
 	timeout: _elm_lang$core$Maybe$Nothing,
 	withCredentials: false
 };
+var _user$project$Drop$decodeResponse = _elm_lang$core$Json_Decode$string;
 var _user$project$Drop$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
@@ -8722,10 +8715,7 @@ var _user$project$Drop$getFile = F2(
 	function (path, url) {
 		var settings = _elm_lang$core$Native_Utils.update(
 			_user$project$Drop$postSettings,
-			{
-				url: url,
-				expect: _elm_lang$http$Http$expectJson(_user$project$Drop$decodeResponse)
-			});
+			{url: url});
 		return A2(
 			_elm_lang$http$Http$send,
 			_user$project$Drop$Download,

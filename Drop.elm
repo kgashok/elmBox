@@ -91,18 +91,13 @@ subscriptions model =
 getFile : String -> String -> Cmd Msg
 getFile path url =
   let
-    settings = { postSettings | 
-        url    = url, 
-        expect = expectJson decodeResponse    
-    }
+    settings = { postSettings | url    = url }
   in
     Http.send Download (Http.request settings)
 
-
 decodeResponse : Decode.Decoder String
 decodeResponse =
-  Decode.at ["data"] Decode.string
-
+  Decode.string 
 
 postSettings = 
   { method  = "POST"
@@ -112,8 +107,8 @@ postSettings =
     -- , Http.header "Content-Type" "application/json"
     ]
   , url     = ""
-  , body    = emptyBody 
-  , expect  = expectJson decodeResponse
+  , body    = emptyBody
+  , expect  = expectString
   , timeout = Nothing
   , withCredentials = False
   }
