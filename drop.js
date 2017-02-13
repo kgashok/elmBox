@@ -10808,7 +10808,9 @@ var _user$project$Drop$update = F2(
 		if (_p0.ctor === 'Refresh') {
 			return {
 				ctor: '_Tuple2',
-				_0: model,
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{contents: ''}),
 				_1: A2(_user$project$Drop$getFile, model.filePath, model.dropURL)
 			};
 		} else {
