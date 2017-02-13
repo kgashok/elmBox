@@ -8,6 +8,7 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import Http exposing (..)
 import Json.Decode as Decode
+import ElmEscapeHtml exposing (..) 
 
 
 main : Program Never Model Msg
@@ -55,7 +56,10 @@ update msg model =
       (model, getFile model.filePath model.dropURL)
 
     Download (Ok contents) ->
-      (Model model.filePath model.dropURL contents, Cmd.none)
+      (Model 
+        model.filePath 
+        model.dropURL 
+        (unescape contents), Cmd.none)
 
     Download (Err error) ->
       (Model model.filePath model.dropURL (toString error), Cmd.none)
@@ -71,9 +75,15 @@ view model =
     [ h2 [] [text model.filePath]
     , button [ onClick Refresh ] [ text "Refresh!" ]
     , br [] []
-    , div [] [text model.contents ]
+    , div [] [viewContents model.contents ]
     ]
 
+viewContents: String -> Html Msg
+viewContents contents = 
+    contents 
+        |> String.split "\n"
+        |> List.map (\line -> p [] [text line])
+        |> div []
 
 
 -- SUBSCRIPTIONS
