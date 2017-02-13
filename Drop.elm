@@ -10,6 +10,7 @@ import Http exposing (..)
 import Json.Decode as Decode
 import ElmEscapeHtml exposing (..) 
 
+import Version exposing (..)
 
 main : Program Never Model Msg
 main =
@@ -81,6 +82,7 @@ view : Model -> Html Msg
 view model =
   div []
     [ h2 [] [text model.filePath]
+    , footer
     , button [ onClick Refresh ] [ text "Refresh!" ]
     , br [] []
     , input [ type_ "text", placeholder "Update?", onInput UpdateStatus ] []
@@ -95,6 +97,14 @@ viewContents contents =
         |> List.map (\line -> p [] [text line])
         |> div []
 
+footer : Html Msg
+footer = 
+  div [id "footer"]
+  [ a [href (gitRepo ++ "/issues/new"), 
+    target "_blank", 
+    rel "noopener noreferrer"] 
+    [text version]
+  ]
 
 -- SUBSCRIPTIONS
 
