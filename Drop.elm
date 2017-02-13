@@ -4,7 +4,7 @@ module Drop exposing (..)
 -- https://guide.elm-lang.org/architecture/effects/http.html
 
 import Html exposing (..)
--- import Html.Attributes exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http exposing (..)
 import Json.Decode as Decode
@@ -29,6 +29,7 @@ type alias Model =
   { filePath : String
   , dropURL : String
   , contents : String 
+  , status : String 
   }
 
 
@@ -36,6 +37,7 @@ init : String -> (Model, Cmd Msg)
 init path =
   ( Model path 
         "https://content.dropboxapi.com/2/files/download"
+        ""
         ""
   , getFile path "https://content.dropboxapi.com/2/files/download" 
   )
@@ -47,6 +49,9 @@ init path =
 type Msg
   = Refresh
   | Download (Result Http.Error String)
+  | AppendToFile 
+  | UpdateStatus String
+
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -56,14 +61,17 @@ update msg model =
       ({model|contents = ""}, getFile model.filePath model.dropURL)
 
     Download (Ok contents) ->
-      (Model 
-        model.filePath 
-        model.dropURL 
-        (unescape contents), Cmd.none)
+      {model|contents = unescape contents} ! [] 
 
     Download (Err error) ->
-      (Model model.filePath model.dropURL (toString error), Cmd.none)
+      {model|contents = toString error} ! [] 
 
+    AppendToFile -> 
+      {model|contents = model.status ++ "\n" ++ model.contents} ! 
+        [ {-- need to upload --}]
+
+    UpdateStatus s -> 
+      {model| status = s } ! []
 
 
 -- VIEW
@@ -75,6 +83,8 @@ view model =
     [ h2 [] [text model.filePath]
     , button [ onClick Refresh ] [ text "Refresh!" ]
     , br [] []
+    , input [ type_ "text", placeholder "Update?", onInput UpdateStatus ] []
+    , button [ onClick AppendToFile ] [ text "Append" ]
     , div [] [viewContents model.contents ]
     ]
 
