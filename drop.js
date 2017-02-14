@@ -11090,7 +11090,7 @@ var _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape = _marcosh$elm_html_to_u
 var _marcosh$elm_html_to_unicode$ElmEscapeHtml$escape = _marcosh$elm_html_to_unicode$ElmEscapeHtml$convert(_marcosh$elm_html_to_unicode$ElmEscapeHtml$escapeChars);
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v0.0-11-g2c570f8';
+var _user$project$Version$version = 'v0.0-12-gb131e5f';
 
 var _user$project$Drop$postSettings = {
 	method: 'POST',
@@ -11192,12 +11192,8 @@ var _user$project$Drop$sendFile = function (model) {
 		_0: A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao'),
 		_1: {
 			ctor: '::',
-			_0: A2(_elm_lang$http$Http$header, 'Dropbox-API-Arg', '{\"path\":\"/Apps/elmBox/body2.txt\"}'),
-			_1: {
-				ctor: '::',
-				_0: A2(_elm_lang$http$Http$header, 'Content-Type', 'application/octet-stream'),
-				_1: {ctor: '[]'}
-			}
+			_0: A2(_elm_lang$http$Http$header, 'Dropbox-API-Arg', '{\"path\":\"/Apps/elmBox/body.txt\", \"mode\":\"overwrite\"}'),
+			_1: {ctor: '[]'}
 		}
 	};
 	var settings = _elm_lang$core$Native_Utils.update(
@@ -11205,8 +11201,7 @@ var _user$project$Drop$sendFile = function (model) {
 		{
 			headers: headers,
 			url: 'https://content.dropboxapi.com/2/files/upload',
-			body: _elm_lang$http$Http$jsonBody(
-				_user$project$Drop$encodeContents(model.contents))
+			body: A2(_elm_lang$http$Http$stringBody, 'application/octet-stream', model.contents)
 		});
 	return A2(
 		_elm_lang$http$Http$send,

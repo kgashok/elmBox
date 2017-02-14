@@ -147,14 +147,15 @@ sendFile model =
   let 
     headers = 
       [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
-      , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body2.txt\"}"
-      , Http.header "Content-Type" "application/octet-stream"
+      , Http.header 
+        "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\", \"mode\":\"overwrite\"}"
+      -- , Http.header "Content-Type" "application/octet-stream"
       ]
 
     settings = { postSettings | 
                  headers = headers
                , url  = "https://content.dropboxapi.com/2/files/upload"
-               , body = jsonBody (encodeContents model.contents) 
+               , body = stringBody "application/octet-stream" model.contents 
                }
   in 
     Http.send UploadStatus (Http.request settings)
