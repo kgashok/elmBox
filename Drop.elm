@@ -9,6 +9,9 @@ import Html.Events exposing (..)
 import Http exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode 
+import Dom exposing (..) 
+import Task exposing (..) 
+import Result exposing (..)
 
 import ElmEscapeHtml exposing (..) 
 
@@ -56,7 +59,7 @@ type Msg
   | UpdateStatus String
   | Upload 
   | UploadStatus (Result Http.Error String)
-
+  | FocusDone (Result Dom.Error() ) 
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -73,7 +76,11 @@ update msg model =
 
     AppendToFile -> 
       {model|contents = model.status ++ "\n" ++ model.contents} ! 
-        [ {-- need to upload --}]
+        [ Task.attempt FocusDone (Dom.focus "update")]
+        -- [ Dom.focus "update"{-- need to upload --}]
+
+    FocusDone _-> 
+      model ! []
 
     UpdateStatus s -> 
       {model| status = s } ! []
@@ -82,7 +89,7 @@ update msg model =
       model ! [sendFile model]
 
     UploadStatus (Ok contents) -> 
-      model ! []
+      model ! [ Task.attempt FocusDone (Dom.focus "update")]
 
     UploadStatus (Err error) -> 
       { model|contents = toString error} ! []
@@ -104,7 +111,7 @@ view model =
         ]
     , div [id "titleContainer"] 
         [ hr [class "style8"] []
-        , input [ type_ "text", placeholder "Update?", onInput UpdateStatus ] []
+        , input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
         , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
         , button [ id "button3", onClick Upload] [text "Upload!"]
         ]

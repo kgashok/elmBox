@@ -6169,6 +6169,195 @@ var _elm_lang$core$Tuple$first = function (_p6) {
 	return _p7._0;
 };
 
+var _elm_lang$dom$Native_Dom = function() {
+
+var fakeNode = {
+	addEventListener: function() {},
+	removeEventListener: function() {}
+};
+
+var onDocument = on(typeof document !== 'undefined' ? document : fakeNode);
+var onWindow = on(typeof window !== 'undefined' ? window : fakeNode);
+
+function on(node)
+{
+	return function(eventName, decoder, toTask)
+	{
+		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+
+			function performTask(event)
+			{
+				var result = A2(_elm_lang$core$Json_Decode$decodeValue, decoder, event);
+				if (result.ctor === 'Ok')
+				{
+					_elm_lang$core$Native_Scheduler.rawSpawn(toTask(result._0));
+				}
+			}
+
+			node.addEventListener(eventName, performTask);
+
+			return function()
+			{
+				node.removeEventListener(eventName, performTask);
+			};
+		});
+	};
+}
+
+var rAF = typeof requestAnimationFrame !== 'undefined'
+	? requestAnimationFrame
+	: function(callback) { callback(); };
+
+function withNode(id, doStuff)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		rAF(function()
+		{
+			var node = document.getElementById(id);
+			if (node === null)
+			{
+				callback(_elm_lang$core$Native_Scheduler.fail({ ctor: 'NotFound', _0: id }));
+				return;
+			}
+			callback(_elm_lang$core$Native_Scheduler.succeed(doStuff(node)));
+		});
+	});
+}
+
+
+// FOCUS
+
+function focus(id)
+{
+	return withNode(id, function(node) {
+		node.focus();
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function blur(id)
+{
+	return withNode(id, function(node) {
+		node.blur();
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+
+// SCROLLING
+
+function getScrollTop(id)
+{
+	return withNode(id, function(node) {
+		return node.scrollTop;
+	});
+}
+
+function setScrollTop(id, desiredScrollTop)
+{
+	return withNode(id, function(node) {
+		node.scrollTop = desiredScrollTop;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function toBottom(id)
+{
+	return withNode(id, function(node) {
+		node.scrollTop = node.scrollHeight;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function getScrollLeft(id)
+{
+	return withNode(id, function(node) {
+		return node.scrollLeft;
+	});
+}
+
+function setScrollLeft(id, desiredScrollLeft)
+{
+	return withNode(id, function(node) {
+		node.scrollLeft = desiredScrollLeft;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function toRight(id)
+{
+	return withNode(id, function(node) {
+		node.scrollLeft = node.scrollWidth;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+
+// SIZE
+
+function width(options, id)
+{
+	return withNode(id, function(node) {
+		switch (options.ctor)
+		{
+			case 'Content':
+				return node.scrollWidth;
+			case 'VisibleContent':
+				return node.clientWidth;
+			case 'VisibleContentWithBorders':
+				return node.offsetWidth;
+			case 'VisibleContentWithBordersAndMargins':
+				var rect = node.getBoundingClientRect();
+				return rect.right - rect.left;
+		}
+	});
+}
+
+function height(options, id)
+{
+	return withNode(id, function(node) {
+		switch (options.ctor)
+		{
+			case 'Content':
+				return node.scrollHeight;
+			case 'VisibleContent':
+				return node.clientHeight;
+			case 'VisibleContentWithBorders':
+				return node.offsetHeight;
+			case 'VisibleContentWithBordersAndMargins':
+				var rect = node.getBoundingClientRect();
+				return rect.bottom - rect.top;
+		}
+	});
+}
+
+return {
+	onDocument: F3(onDocument),
+	onWindow: F3(onWindow),
+
+	focus: focus,
+	blur: blur,
+
+	getScrollTop: getScrollTop,
+	setScrollTop: F2(setScrollTop),
+	getScrollLeft: getScrollLeft,
+	setScrollLeft: F2(setScrollLeft),
+	toBottom: toBottom,
+	toRight: toRight,
+
+	height: F2(height),
+	width: F2(width)
+};
+
+}();
+
+var _elm_lang$dom$Dom$blur = _elm_lang$dom$Native_Dom.blur;
+var _elm_lang$dom$Dom$focus = _elm_lang$dom$Native_Dom.focus;
+var _elm_lang$dom$Dom$NotFound = function (a) {
+	return {ctor: 'NotFound', _0: a};
+};
+
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
 
@@ -11184,6 +11373,9 @@ var _user$project$Drop$Model = F4(
 	function (a, b, c, d) {
 		return {filePath: a, dropURL: b, contents: c, status: d};
 	});
+var _user$project$Drop$FocusDone = function (a) {
+	return {ctor: 'FocusDone', _0: a};
+};
 var _user$project$Drop$UploadStatus = function (a) {
 	return {ctor: 'UploadStatus', _0: a};
 };
@@ -11277,6 +11469,18 @@ var _user$project$Drop$update = F2(
 								model.status,
 								A2(_elm_lang$core$Basics_ops['++'], '\n', model.contents))
 						}),
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$core$Task$attempt,
+							_user$project$Drop$FocusDone,
+							_elm_lang$dom$Dom$focus('update')),
+						_1: {ctor: '[]'}
+					});
+			case 'FocusDone':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
 					{ctor: '[]'});
 			case 'UpdateStatus':
 				return A2(
@@ -11299,7 +11503,14 @@ var _user$project$Drop$update = F2(
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						model,
-						{ctor: '[]'});
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$core$Task$attempt,
+								_user$project$Drop$FocusDone,
+								_elm_lang$dom$Dom$focus('update')),
+							_1: {ctor: '[]'}
+						});
 				} else {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
@@ -11415,14 +11626,18 @@ var _user$project$Drop$view = function (model) {
 								_elm_lang$html$Html$input,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$type_('text'),
+									_0: _elm_lang$html$Html_Attributes$id('update'),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
+										_0: _elm_lang$html$Html_Attributes$type_('text'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
-											_1: {ctor: '[]'}
+											_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
+												_1: {ctor: '[]'}
+											}
 										}
 									}
 								},
