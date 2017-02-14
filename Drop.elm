@@ -83,10 +83,10 @@ view model =
   div [class "example example-dotted"]
     [ h2 [] [text model.filePath]
     , footer
-    , button [ onClick Refresh ] [ text "Refresh!" ]
+    , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
+    , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
     , br [] []
     , input [ type_ "text", placeholder "Update?", onInput UpdateStatus ] []
-    , button [ onClick AppendToFile ] [ text "Append" ]
     , div [] [viewContents model.contents ]
     ]
 

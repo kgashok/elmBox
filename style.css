@@ -30,6 +30,11 @@ p:hover {
   cursor: pointer;
 }
 
+#button1 , #button2 {
+display:inline-block;
+/**other codes**/
+}
+
 a {
   color: inherit;
 }

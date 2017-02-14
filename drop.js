@@ -11276,8 +11276,12 @@ var _user$project$Drop$view = function (model) {
 						_elm_lang$html$Html$button,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Refresh),
-							_1: {ctor: '[]'}
+							_0: _elm_lang$html$Html_Attributes$id('button1'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Refresh),
+								_1: {ctor: '[]'}
+							}
 						},
 						{
 							ctor: '::',
@@ -11287,41 +11291,45 @@ var _user$project$Drop$view = function (model) {
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$br,
-							{ctor: '[]'},
-							{ctor: '[]'}),
+							_elm_lang$html$Html$button,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$id('button2'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$AppendToFile),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Append'),
+								_1: {ctor: '[]'}
+							}),
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$input,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$type_('text'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
-											_1: {ctor: '[]'}
-										}
-									}
-								},
+								_elm_lang$html$Html$br,
+								{ctor: '[]'},
 								{ctor: '[]'}),
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$button,
+									_elm_lang$html$Html$input,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$AppendToFile),
-										_1: {ctor: '[]'}
+										_0: _elm_lang$html$Html_Attributes$type_('text'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
+												_1: {ctor: '[]'}
+											}
+										}
 									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Append'),
-										_1: {ctor: '[]'}
-									}),
+									{ctor: '[]'}),
 								_1: {
 									ctor: '::',
 									_0: A2(
