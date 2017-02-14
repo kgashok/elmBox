@@ -59,7 +59,7 @@ init path =
 
 type Msg
   = Refresh
-  | Download (Result Http.Error String)
+  | Download (Result Http.Error (Time, String))
   | AppendToFile 
   | UpdateStatus String
   | Upload 
@@ -74,8 +74,8 @@ update msg model =
       {model|contents = ""} ! 
         [ getFile model.filePath model.dropURL]
 
-    Download (Ok contents) ->
-      {model|contents = unescape contents} ! 
+    Download (Ok (time, contents)) ->
+      {model|contents = unescape contents, time = time} ! 
         [ Task.attempt FocusDone (Dom.focus "update")] 
 
     Download (Err error) ->
@@ -180,10 +180,17 @@ sendFile model =
                , url  = "https://content.dropboxapi.com/2/files/upload"
                , body = stringBody "application/octet-stream" model.contents 
                }
+
+    getTask = Http.toTask (Http.request settings)
+
   in 
-    Http.toTask (Http.request settings)
-      |> Task.andThen (\req -> Task.map (\t -> (t, req)) Time.now)
-      |> Task.attempt UploadStatus
+    Time.now
+      |> Task.andThen (\t -> Task.map ((,) t) getTask) 
+      |> Task.attempt UploadStatus 
+
+    -- Http.toTask (Http.request settings)
+    --   |> Task.andThen (\req -> Task.map (\t -> (t, req)) Time.now)
+    --   |> Task.attempt UploadStatus
 
 
 encodeContents : String -> Encode.Value        
@@ -196,8 +203,13 @@ getFile : String -> String -> Cmd Msg
 getFile path url =
   let
     settings = { postSettings | url    = url }
+    getTask = Http.toTask (Http.request settings)
   in
-    Http.send Download (Http.request settings)
+    Time.now 
+      |> Task.andThen (\t -> Task.map ((,) t) getTask)
+      |> Task.attempt Download 
+  
+  --  Http.send Download (Http.request settings)
 
 
 decodeResponse : Decode.Decoder String

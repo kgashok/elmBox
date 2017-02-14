@@ -11745,7 +11745,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-11-gf374b82';
+var _user$project$Version$version = 'v1.0-13-g2601fb4';
 
 var _user$project$Drop$postSettings = {
 	method: 'POST',
@@ -11872,21 +11872,23 @@ var _user$project$Drop$sendFile = function (model) {
 			url: 'https://content.dropboxapi.com/2/files/upload',
 			body: A2(_elm_lang$http$Http$stringBody, 'application/octet-stream', model.contents)
 		});
+	var getTask = _elm_lang$http$Http$toTask(
+		_elm_lang$http$Http$request(settings));
 	return A2(
 		_elm_lang$core$Task$attempt,
 		_user$project$Drop$UploadStatus,
 		A2(
 			_elm_lang$core$Task$andThen,
-			function (gif) {
+			function (t) {
 				return A2(
 					_elm_lang$core$Task$map,
-					function (t) {
-						return {ctor: '_Tuple2', _0: t, _1: gif};
-					},
-					_elm_lang$core$Time$now);
+					F2(
+						function (v0, v1) {
+							return {ctor: '_Tuple2', _0: v0, _1: v1};
+						})(t),
+					getTask);
 			},
-			_elm_lang$http$Http$toTask(
-				_elm_lang$http$Http$request(settings))));
+			_elm_lang$core$Time$now));
 };
 var _user$project$Drop$Upload = {ctor: 'Upload'};
 var _user$project$Drop$UpdateStatus = function (a) {
@@ -11901,10 +11903,23 @@ var _user$project$Drop$getFile = F2(
 		var settings = _elm_lang$core$Native_Utils.update(
 			_user$project$Drop$postSettings,
 			{url: url});
-		return A2(
-			_elm_lang$http$Http$send,
-			_user$project$Drop$Download,
+		var getTask = _elm_lang$http$Http$toTask(
 			_elm_lang$http$Http$request(settings));
+		return A2(
+			_elm_lang$core$Task$attempt,
+			_user$project$Drop$Download,
+			A2(
+				_elm_lang$core$Task$andThen,
+				function (t) {
+					return A2(
+						_elm_lang$core$Task$map,
+						F2(
+							function (v0, v1) {
+								return {ctor: '_Tuple2', _0: v0, _1: v1};
+							})(t),
+						getTask);
+				},
+				_elm_lang$core$Time$now));
 	});
 var _user$project$Drop$init = function (path) {
 	return {
@@ -11935,7 +11950,8 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								contents: _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape(_p0._0._0)
+								contents: _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape(_p0._0._0._1),
+								time: _p0._0._0._0
 							}),
 						{
 							ctor: '::',

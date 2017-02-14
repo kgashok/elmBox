@@ -9,3 +9,7 @@ Important Links
 ### For Time stamping 
 https://elmlang.slack.com/files/pdamoc/F43D812JZ/full_code.hs
 https://github.com/mgold/elm-date-format/blob/master/README.md
+
+### Doing the timestamping prior to Http.request
+
+https://runelm.io/c/mbi 
