@@ -182,7 +182,7 @@ sendFile model =
                }
   in 
     Http.toTask (Http.request settings)
-      |> Task.andThen (\gif -> Task.map (\t -> (t, gif)) Time.now)
+      |> Task.andThen (\req -> Task.map (\t -> (t, req)) Time.now)
       |> Task.attempt UploadStatus
 
 
