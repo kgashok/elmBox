@@ -11090,7 +11090,7 @@ var _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape = _marcosh$elm_html_to_u
 var _marcosh$elm_html_to_unicode$ElmEscapeHtml$escape = _marcosh$elm_html_to_unicode$ElmEscapeHtml$convert(_marcosh$elm_html_to_unicode$ElmEscapeHtml$escapeChars);
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v0.0-6-g7228393';
+var _user$project$Version$version = 'v0.0-11-g2c570f8';
 
 var _user$project$Drop$postSettings = {
 	method: 'POST',
@@ -11110,6 +11110,18 @@ var _user$project$Drop$postSettings = {
 	withCredentials: false
 };
 var _user$project$Drop$decodeResponse = _elm_lang$core$Json_Decode$string;
+var _user$project$Drop$encodeContents = function (contents) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'data',
+				_1: _elm_lang$core$Json_Encode$string(contents)
+			},
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$Drop$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
@@ -11171,6 +11183,36 @@ var _user$project$Drop$Model = F4(
 	function (a, b, c, d) {
 		return {filePath: a, dropURL: b, contents: c, status: d};
 	});
+var _user$project$Drop$UploadStatus = function (a) {
+	return {ctor: 'UploadStatus', _0: a};
+};
+var _user$project$Drop$sendFile = function (model) {
+	var headers = {
+		ctor: '::',
+		_0: A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao'),
+		_1: {
+			ctor: '::',
+			_0: A2(_elm_lang$http$Http$header, 'Dropbox-API-Arg', '{\"path\":\"/Apps/elmBox/body2.txt\"}'),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_lang$http$Http$header, 'Content-Type', 'application/octet-stream'),
+				_1: {ctor: '[]'}
+			}
+		}
+	};
+	var settings = _elm_lang$core$Native_Utils.update(
+		_user$project$Drop$postSettings,
+		{
+			headers: headers,
+			url: 'https://content.dropboxapi.com/2/files/upload',
+			body: _elm_lang$http$Http$jsonBody(
+				_user$project$Drop$encodeContents(model.contents))
+		});
+	return A2(
+		_elm_lang$http$Http$send,
+		_user$project$Drop$UploadStatus,
+		_elm_lang$http$Http$request(settings));
+};
 var _user$project$Drop$Upload = {ctor: 'Upload'};
 var _user$project$Drop$UpdateStatus = function (a) {
 	return {ctor: 'UpdateStatus', _0: a};
@@ -11247,11 +11289,31 @@ var _user$project$Drop$update = F2(
 						model,
 						{status: _p0._0}),
 					{ctor: '[]'});
-			default:
+			case 'Upload':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
-					{ctor: '[]'});
+					{
+						ctor: '::',
+						_0: _user$project$Drop$sendFile(model),
+						_1: {ctor: '[]'}
+					});
+			default:
+				if (_p0._0.ctor === 'Ok') {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						model,
+						{ctor: '[]'});
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								contents: _elm_lang$core$Basics$toString(_p0._0._0)
+							}),
+						{ctor: '[]'});
+				}
 		}
 	});
 var _user$project$Drop$Refresh = {ctor: 'Refresh'};

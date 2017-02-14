@@ -8,6 +8,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http exposing (..)
 import Json.Decode as Decode
+import Json.Encode as Encode 
+
 import ElmEscapeHtml exposing (..) 
 
 import Version exposing (..)
@@ -53,6 +55,7 @@ type Msg
   | AppendToFile 
   | UpdateStatus String
   | Upload 
+  | UploadStatus (Result Http.Error String)
 
 
 
@@ -76,7 +79,13 @@ update msg model =
       {model| status = s } ! []
 
     Upload -> 
+      model ! [sendFile model]
+
+    UploadStatus (Ok contents) -> 
       model ! []
+
+    UploadStatus (Err error) -> 
+      { model|contents = toString error} ! []
 
 
 -- VIEW
@@ -99,12 +108,14 @@ view model =
         ]
     ]
 
+
 viewContents: String -> Html Msg
 viewContents contents = 
     contents 
         |> String.split "\n"
         |> List.map (\line -> p [class "answer"] [text line])
         |> div []
+
 
 footer : Html Msg
 footer = 
@@ -126,6 +137,34 @@ subscriptions model =
 
 -- HTTP
 
+{--
+Python code 
+r = requests.post(url, headers=headers, data=data)
+--}
+
+sendFile : Model -> Cmd Msg 
+sendFile model = 
+  let 
+    headers = 
+      [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
+      , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body2.txt\"}"
+      , Http.header "Content-Type" "application/octet-stream"
+      ]
+
+    settings = { postSettings | 
+                 headers = headers
+               , url  = "https://content.dropboxapi.com/2/files/upload"
+               , body = jsonBody (encodeContents model.contents) 
+               }
+  in 
+    Http.send UploadStatus (Http.request settings)
+
+
+encodeContents : String -> Encode.Value        
+encodeContents contents =
+  Encode.object 
+    [ ("data", Encode.string contents)]
+
 
 getFile : String -> String -> Cmd Msg
 getFile path url =
@@ -134,10 +173,20 @@ getFile path url =
   in
     Http.send Download (Http.request settings)
 
+
 decodeResponse : Decode.Decoder String
 decodeResponse =
   Decode.string 
 
+postSettings :
+    { body : Body
+    , expect : Expect String
+    , headers : List Header
+    , method : String
+    , timeout : Maybe a
+    , url : String
+    , withCredentials : Bool
+    }
 postSettings = 
   { method  = "POST"
   , headers = 
