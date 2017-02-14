@@ -14,6 +14,7 @@ import Task exposing (..)
 import Result exposing (..)
 import Time exposing (..) 
 import Date exposing (..)
+import Date.Format exposing (..) 
 
 import ElmEscapeHtml exposing (..) 
 
@@ -81,7 +82,7 @@ update msg model =
       {model|contents = toString error} ! [] 
 
     AppendToFile -> 
-      {model|contents = model.status ++ "\n" ++ model.contents} ! 
+      {model|contents = (timedStatus model) ++ model.contents} ! 
         [ Task.attempt FocusDone (Dom.focus "update")]
         -- [ Dom.focus "update"{-- need to upload --}]
 
@@ -101,6 +102,14 @@ update msg model =
     UploadStatus (Err error) -> 
       { model|contents = toString error} ! []
 
+timedStatus: Model -> String 
+timedStatus model = 
+  let 
+    fDate = 
+      fromTime model.time 
+        |> format "%a, %b/%d/%y, %I:%M%P "
+  in 
+    fDate ++ model.status ++ "\n"
 
 -- VIEW
 
@@ -118,7 +127,7 @@ view model =
         ]
     , div [id "titleContainer"] 
         [ hr [class "style8"] []
-        , h3 [] [text <| "received: " ++ (toString <| Date.fromTime model.time)]
+        --, h3 [] [text <| "received: " ++ (toString <| Date.fromTime model.time)]
         , input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
         , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
         , button [ id "button3", onClick Upload] [text "Upload!"]
@@ -175,7 +184,6 @@ sendFile model =
     Http.toTask (Http.request settings)
       |> Task.andThen (\gif -> Task.map (\t -> (t, gif)) Time.now)
       |> Task.attempt UploadStatus
-
 
 
 encodeContents : String -> Encode.Value        
