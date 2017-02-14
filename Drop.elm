@@ -116,6 +116,7 @@ view model =
         , input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
         , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
         , button [ id "button3", onClick Upload] [text "Upload!"]
+        , footer
         ]
     ]
 

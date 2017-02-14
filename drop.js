@@ -11688,7 +11688,11 @@ var _user$project$Drop$view = function (model) {
 											_0: _elm_lang$html$Html$text('Upload!'),
 											_1: {ctor: '[]'}
 										}),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: _user$project$Drop$footer,
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}
