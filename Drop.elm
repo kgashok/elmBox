@@ -116,6 +116,7 @@ viewContents contents =
     contents 
         |> String.split "\n"
         |> List.map (\line -> p [class "answer"] [text line])
+        |> List.reverse 
         |> div []
 
 
@@ -138,11 +139,6 @@ subscriptions model =
 
 
 -- HTTP
-
-{--
-Python code 
-r = requests.post(url, headers=headers, data=data)
---}
 
 sendFile : Model -> Cmd Msg 
 sendFile model = 

@@ -11161,23 +11161,24 @@ var _user$project$Drop$viewContents = function (contents) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
-		A2(
-			_elm_lang$core$List$map,
-			function (line) {
-				return A2(
-					_elm_lang$html$Html$p,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('answer'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(line),
-						_1: {ctor: '[]'}
-					});
-			},
-			A2(_elm_lang$core$String$split, '\n', contents)));
+		_elm_lang$core$List$reverse(
+			A2(
+				_elm_lang$core$List$map,
+				function (line) {
+					return A2(
+						_elm_lang$html$Html$p,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('answer'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(line),
+							_1: {ctor: '[]'}
+						});
+				},
+				A2(_elm_lang$core$String$split, '\n', contents))));
 };
 var _user$project$Drop$Model = F4(
 	function (a, b, c, d) {
