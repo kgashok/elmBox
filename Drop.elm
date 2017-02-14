@@ -95,16 +95,18 @@ view : Model -> Html Msg
 view model =
   div [] 
     [ div [class "example example-dotted"]
-        [ h3 [] [text model.filePath]
+        [ h1 [] [text "Daily Log"]
         , footer
+        , hr [class "style5"] []
         , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
-        , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
         , br [] []
-        , input [ type_ "text", placeholder "Update?", onInput UpdateStatus ] []
         , div [] [viewContents model.contents ]
         ]
-    , div [] 
-        [ button [id "button3", onClick Upload] [text "Upload!"]
+    , div [id "titleContainer"] 
+        [ hr [class "style8"] []
+        , input [ type_ "text", placeholder "Update?", onInput UpdateStatus ] []
+        , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
+        , button [ id "button3", onClick Upload] [text "Upload!"]
         ]
     ]
 

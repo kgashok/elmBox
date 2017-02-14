@@ -11090,7 +11090,7 @@ var _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape = _marcosh$elm_html_to_u
 var _marcosh$elm_html_to_unicode$ElmEscapeHtml$escape = _marcosh$elm_html_to_unicode$ElmEscapeHtml$convert(_marcosh$elm_html_to_unicode$ElmEscapeHtml$escapeChars);
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-0-g92f582d';
+var _user$project$Version$version = 'v1.0-2-g6b51381';
 
 var _user$project$Drop$postSettings = {
 	method: 'POST',
@@ -11328,11 +11328,11 @@ var _user$project$Drop$view = function (model) {
 				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$h3,
+						_elm_lang$html$Html$h1,
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text(model.filePath),
+							_0: _elm_lang$html$Html$text('Daily Log'),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
@@ -11341,21 +11341,91 @@ var _user$project$Drop$view = function (model) {
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$button,
+								_elm_lang$html$Html$hr,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$id('button1'),
+									_0: _elm_lang$html$Html_Attributes$class('style5'),
+									_1: {ctor: '[]'}
+								},
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$button,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$id('button1'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Refresh),
+											_1: {ctor: '[]'}
+										}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Refresh!'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$br,
+										{ctor: '[]'},
+										{ctor: '[]'}),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Refresh),
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: _user$project$Drop$viewContents(model.contents),
+												_1: {ctor: '[]'}
+											}),
 										_1: {ctor: '[]'}
 									}
-								},
+								}
+							}
+						}
+					}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$id('titleContainer'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$hr,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('style8'),
+								_1: {ctor: '[]'}
+							},
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$input,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('Refresh!'),
-									_1: {ctor: '[]'}
-								}),
+									_0: _elm_lang$html$Html_Attributes$type_('text'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
+											_1: {ctor: '[]'}
+										}
+									}
+								},
+								{ctor: '[]'}),
 							_1: {
 								ctor: '::',
 								_0: A2(
@@ -11377,69 +11447,25 @@ var _user$project$Drop$view = function (model) {
 								_1: {
 									ctor: '::',
 									_0: A2(
-										_elm_lang$html$Html$br,
-										{ctor: '[]'},
-										{ctor: '[]'}),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$input,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$type_('text'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
-														_1: {ctor: '[]'}
-													}
-												}
-											},
-											{ctor: '[]'}),
-										_1: {
+										_elm_lang$html$Html$button,
+										{
 											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$div,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: _user$project$Drop$viewContents(model.contents),
-													_1: {ctor: '[]'}
-												}),
+											_0: _elm_lang$html$Html_Attributes$id('button3'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Upload),
+												_1: {ctor: '[]'}
+											}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Upload!'),
 											_1: {ctor: '[]'}
-										}
-									}
+										}),
+									_1: {ctor: '[]'}
 								}
 							}
 						}
-					}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$button,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$id('button3'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Upload),
-									_1: {ctor: '[]'}
-								}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('Upload!'),
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
 			}
