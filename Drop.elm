@@ -15,7 +15,7 @@ import Version exposing (..)
 main : Program Never Model Msg
 main =
   Html.program
-    { init = init "/Apps/Drafts/body.txt"
+    { init = init "/Apps/elmBox/body.txt"
     , view = view
     , update = update
     , subscriptions = subscriptions
@@ -81,7 +81,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div [class "example example-dotted"]
-    [ h2 [] [text model.filePath]
+    [ h3 [] [text model.filePath]
     , footer
     , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
     , button [ id "button2", onClick AppendToFile ] [ text "Append" ]

@@ -11260,7 +11260,7 @@ var _user$project$Drop$view = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$h2,
+				_elm_lang$html$Html$h3,
 				{ctor: '[]'},
 				{
 					ctor: '::',
@@ -11351,7 +11351,7 @@ var _user$project$Drop$view = function (model) {
 };
 var _user$project$Drop$main = _elm_lang$html$Html$program(
 	{
-		init: _user$project$Drop$init('/Apps/Drafts/body.txt'),
+		init: _user$project$Drop$init('/Apps/elmBox/body.txt'),
 		view: _user$project$Drop$view,
 		update: _user$project$Drop$update,
 		subscriptions: _user$project$Drop$subscriptions
