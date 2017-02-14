@@ -11154,7 +11154,11 @@ var _user$project$Drop$viewContents = function (contents) {
 			function (line) {
 				return A2(
 					_elm_lang$html$Html$p,
-					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('answer'),
+						_1: {ctor: '[]'}
+					},
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html$text(line),
@@ -11248,7 +11252,11 @@ var _user$project$Drop$Refresh = {ctor: 'Refresh'};
 var _user$project$Drop$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
-		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('example example-dotted'),
+			_1: {ctor: '[]'}
+		},
 		{
 			ctor: '::',
 			_0: A2(

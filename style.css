@@ -8,8 +8,26 @@ body {
   background-color: #eaeaea;
   color: #4f4f4f;
   font-family: "Helvetica Neue", "Helvetica", "Verdana", Arial, sans-serif;
-  line-height: .5em;
+  /*line-height: 1.0em;*/
 
+}
+
+p  {
+  /*background: #fa0;*/
+  /*height: 25px;*/
+  height: auto;
+  position: relative;
+  padding: 15px 30px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  font-size: 1.5em;
+}
+
+p:hover {
+  background: #fcfcfc;
+  /* background: #61a1bc; */
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
 }
 
 a {

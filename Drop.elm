@@ -80,7 +80,7 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-  div []
+  div [class "example example-dotted"]
     [ h2 [] [text model.filePath]
     , footer
     , button [ onClick Refresh ] [ text "Refresh!" ]
@@ -94,7 +94,7 @@ viewContents: String -> Html Msg
 viewContents contents = 
     contents 
         |> String.split "\n"
-        |> List.map (\line -> p [] [text line])
+        |> List.map (\line -> p [class "answer"] [text line])
         |> div []
 
 footer : Html Msg
