@@ -11745,7 +11745,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-13-g2601fb4';
+var _user$project$Version$version = 'v1.0-14-gef5c447';
 
 var _user$project$Drop$postSettings = {
 	method: 'POST',
@@ -11845,9 +11845,9 @@ var _user$project$Drop$timedStatus = function (model) {
 		fDate,
 		A2(_elm_lang$core$Basics_ops['++'], model.status, '\n'));
 };
-var _user$project$Drop$Model = F5(
-	function (a, b, c, d, e) {
-		return {filePath: a, dropURL: b, contents: c, status: d, time: e};
+var _user$project$Drop$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {filePath: a, dropURL: b, contents: c, status: d, time: e, errorMessage: f};
 	});
 var _user$project$Drop$FocusDone = function (a) {
 	return {ctor: 'FocusDone', _0: a};
@@ -11924,7 +11924,7 @@ var _user$project$Drop$getFile = F2(
 var _user$project$Drop$init = function (path) {
 	return {
 		ctor: '_Tuple2',
-		_0: A5(_user$project$Drop$Model, path, 'https://content.dropboxapi.com/2/files/download', '', '', 0),
+		_0: A6(_user$project$Drop$Model, path, 'https://content.dropboxapi.com/2/files/download', '', '', 0, 'Logger Ready'),
 		_1: A2(_user$project$Drop$getFile, path, 'https://content.dropboxapi.com/2/files/download')
 	};
 };
@@ -11967,7 +11967,7 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								contents: _elm_lang$core$Basics$toString(_p0._0._0)
+								errorMessage: _elm_lang$core$Basics$toString(_p0._0._0)
 							}),
 						{ctor: '[]'});
 				}
@@ -12032,7 +12032,7 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								contents: _elm_lang$core$Basics$toString(_p0._0._0)
+								errorMessage: _elm_lang$core$Basics$toString(_p0._0._0)
 							}),
 						{ctor: '[]'});
 				}
@@ -12138,65 +12138,76 @@ var _user$project$Drop$view = function (model) {
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$input,
+								_elm_lang$html$Html$h3,
+								{ctor: '[]'},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$id('update'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$type_('text'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								},
-								{ctor: '[]'}),
+									_0: _elm_lang$html$Html$text(model.errorMessage),
+									_1: {ctor: '[]'}
+								}),
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$button,
+									_elm_lang$html$Html$input,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$id('button2'),
+										_0: _elm_lang$html$Html_Attributes$id('update'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$AppendToFile),
-											_1: {ctor: '[]'}
+											_0: _elm_lang$html$Html_Attributes$type_('text'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
+													_1: {ctor: '[]'}
+												}
+											}
 										}
 									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Append'),
-										_1: {ctor: '[]'}
-									}),
+									{ctor: '[]'}),
 								_1: {
 									ctor: '::',
 									_0: A2(
 										_elm_lang$html$Html$button,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$id('button3'),
+											_0: _elm_lang$html$Html_Attributes$id('button2'),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Upload),
+												_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$AppendToFile),
 												_1: {ctor: '[]'}
 											}
 										},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('Upload!'),
+											_0: _elm_lang$html$Html$text('Append'),
 											_1: {ctor: '[]'}
 										}),
 									_1: {
 										ctor: '::',
-										_0: _user$project$Drop$footer,
-										_1: {ctor: '[]'}
+										_0: A2(
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$id('button3'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Upload),
+													_1: {ctor: '[]'}
+												}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('Upload!'),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _user$project$Drop$footer,
+											_1: {ctor: '[]'}
+										}
 									}
 								}
 							}

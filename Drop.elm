@@ -40,6 +40,7 @@ type alias Model =
   , contents : String 
   , status : String 
   , time : Time 
+  , errorMessage  : String
   }
 
 
@@ -50,6 +51,7 @@ init path =
         ""
         ""
         0
+        "Logger Ready"
   , getFile path "https://content.dropboxapi.com/2/files/download" 
   )
 
@@ -79,7 +81,7 @@ update msg model =
         [ Task.attempt FocusDone (Dom.focus "update")] 
 
     Download (Err error) ->
-      {model|contents = toString error} ! [] 
+      {model|errorMessage = (toString error) } ! [] 
 
     AppendToFile -> 
       {model|contents = (timedStatus model) ++ model.contents} ! 
@@ -100,7 +102,7 @@ update msg model =
         [ Task.attempt FocusDone (Dom.focus "update")]
 
     UploadStatus (Err error) -> 
-      { model|contents = toString error} ! []
+      { model|errorMessage = (toString error)} ! []
 
 timedStatus: Model -> String 
 timedStatus model = 
@@ -127,6 +129,7 @@ view model =
         ]
     , div [id "titleContainer"] 
         [ hr [class "style8"] []
+        , h3 [] [text <| model.errorMessage]
         --, h3 [] [text <| "received: " ++ (toString <| Date.fromTime model.time)]
         , input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
         , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
