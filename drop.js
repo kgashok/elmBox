@@ -11279,7 +11279,7 @@ var _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape = _marcosh$elm_html_to_u
 var _marcosh$elm_html_to_unicode$ElmEscapeHtml$escape = _marcosh$elm_html_to_unicode$ElmEscapeHtml$convert(_marcosh$elm_html_to_unicode$ElmEscapeHtml$escapeChars);
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-5-gf365933';
+var _user$project$Version$version = 'v1.0-6-gaeea1c2';
 
 var _user$project$Drop$postSettings = {
 	method: 'POST',
@@ -11431,13 +11431,16 @@ var _user$project$Drop$update = F2(
 		var _p0 = msg;
 		switch (_p0.ctor) {
 			case 'Refresh':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
 						model,
 						{contents: ''}),
-					_1: A2(_user$project$Drop$getFile, model.filePath, model.dropURL)
-				};
+					{
+						ctor: '::',
+						_0: A2(_user$project$Drop$getFile, model.filePath, model.dropURL),
+						_1: {ctor: '[]'}
+					});
 			case 'Download':
 				if (_p0._0.ctor === 'Ok') {
 					return A2(
@@ -11447,7 +11450,14 @@ var _user$project$Drop$update = F2(
 							{
 								contents: _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape(_p0._0._0)
 							}),
-						{ctor: '[]'});
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$core$Task$attempt,
+								_user$project$Drop$FocusDone,
+								_elm_lang$dom$Dom$focus('update')),
+							_1: {ctor: '[]'}
+						});
 				} else {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],

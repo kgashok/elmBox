@@ -66,10 +66,12 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Refresh ->
-      ({model|contents = ""}, getFile model.filePath model.dropURL)
+      {model|contents = ""} ! 
+        [ getFile model.filePath model.dropURL]
 
     Download (Ok contents) ->
-      {model|contents = unescape contents} ! [] 
+      {model|contents = unescape contents} ! 
+        [ Task.attempt FocusDone (Dom.focus "update")] 
 
     Download (Err error) ->
       {model|contents = toString error} ! [] 
