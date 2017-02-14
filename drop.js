@@ -11745,7 +11745,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-14-gef5c447';
+var _user$project$Version$version = 'v1.0-17-gf8eae9b';
 
 var _user$project$Drop$postSettings = {
 	method: 'POST',
@@ -11951,7 +11951,8 @@ var _user$project$Drop$update = F2(
 							model,
 							{
 								contents: _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape(_p0._0._0._1),
-								time: _p0._0._0._0
+								time: _p0._0._0._0,
+								errorMessage: 'Status OK'
 							}),
 						{
 							ctor: '::',
@@ -12017,7 +12018,7 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{time: _p0._0._0._0}),
+							{time: _p0._0._0._0, errorMessage: 'Status OK'}),
 						{
 							ctor: '::',
 							_0: A2(

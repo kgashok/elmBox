@@ -77,7 +77,7 @@ update msg model =
         [ getFile model.filePath model.dropURL]
 
     Download (Ok (time, contents)) ->
-      {model|contents = unescape contents, time = time} ! 
+      {model|contents = unescape contents, time = time, errorMessage = "Status OK"} ! 
         [ Task.attempt FocusDone (Dom.focus "update")] 
 
     Download (Err error) ->
@@ -98,7 +98,7 @@ update msg model =
       model ! [sendFile model]
 
     UploadStatus (Ok (time, contents)) -> 
-      { model | time = time } ! 
+      { model | time = time, errorMessage = "Status OK" } ! 
         [ Task.attempt FocusDone (Dom.focus "update")]
 
     UploadStatus (Err error) -> 
