@@ -52,6 +52,7 @@ type Msg
   | Download (Result Http.Error String)
   | AppendToFile 
   | UpdateStatus String
+  | Upload 
 
 
 
@@ -74,20 +75,28 @@ update msg model =
     UpdateStatus s -> 
       {model| status = s } ! []
 
+    Upload -> 
+      model ! []
+
 
 -- VIEW
 
 
 view : Model -> Html Msg
 view model =
-  div [class "example example-dotted"]
-    [ h3 [] [text model.filePath]
-    , footer
-    , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
-    , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
-    , br [] []
-    , input [ type_ "text", placeholder "Update?", onInput UpdateStatus ] []
-    , div [] [viewContents model.contents ]
+  div [] 
+    [ div [class "example example-dotted"]
+        [ h3 [] [text model.filePath]
+        , footer
+        , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
+        , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
+        , br [] []
+        , input [ type_ "text", placeholder "Update?", onInput UpdateStatus ] []
+        , div [] [viewContents model.contents ]
+        ]
+    , div [] 
+        [ button [id "button3", onClick Upload] [text "Upload!"]
+        ]
     ]
 
 viewContents: String -> Html Msg
