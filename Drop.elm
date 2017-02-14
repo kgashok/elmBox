@@ -12,6 +12,7 @@ import Json.Encode as Encode
 import Dom exposing (..) 
 import Task exposing (..) 
 import Result exposing (..)
+import Time exposing (..) 
 
 import ElmEscapeHtml exposing (..) 
 
@@ -36,6 +37,7 @@ type alias Model =
   , dropURL : String
   , contents : String 
   , status : String 
+  , time : Time 
   }
 
 
@@ -45,6 +47,7 @@ init path =
         "https://content.dropboxapi.com/2/files/download"
         ""
         ""
+        0
   , getFile path "https://content.dropboxapi.com/2/files/download" 
   )
 
