@@ -1,14 +1,9 @@
 module Drop exposing (..) 
 
--- Read more about this program in the official Elm guide:
--- https://guide.elm-lang.org/architecture/effects/http.html
-
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http exposing (..)
-import Json.Decode as Decode
-import Json.Encode as Encode 
 import Dom exposing (..) 
 import Task exposing (..) 
 import Result exposing (..)
@@ -43,9 +38,6 @@ type alias Model =
   , errorMessage  : String
   }
 
-filePath : String 
-filePath = "/Apps/elmBox/body.txt"
-
 dropboxAPI : String 
 dropboxAPI = "https://content.dropboxapi.com/2"
 
@@ -71,14 +63,14 @@ init =
 type Msg
   = Refresh
   | Download (Result Http.Error (Time, String))
-  | AppendToFile 
+  | Append 
+  | GetTimeAndAppend Time
   | UpdateStatus String
   | Upload 
   | UploadStatus (Result Http.Error (Time, String))
   | FocusDone (Result Dom.Error() ) 
   | GetTime 
   | NewTime Time 
-  | GetTimeAndAppend Time
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -96,28 +88,37 @@ update msg model =
             currentTime = Just time,
             errorMessage =  formatTime (Just time) ++ "Download successful!"
       }
-      ! [ Task.attempt FocusDone (Dom.focus "update")]
+      ! [ focusUpdate ]
 
     Download (Err error) ->
       { model|errorMessage = (toString error) } ! [] 
 
-    AppendToFile -> 
-      -- { model|contents = (timedStatus model) ++ model.contents} ! 
-      --   [ Task.perform NewTime Time.now ] 
+    Append -> 
       model ! [ Task.perform GetTimeAndAppend Time.now ]
+
+    GetTimeAndAppend time -> 
+      let 
+        model_ = {model | currentTime = Just time }
+      in 
+        { model | 
+            contents = (timedStatus model_) ++ model_.contents,
+            errorMessage =  formatTime (Just time) ++ "Append successful!" }
+        ! [ focusUpdate ] 
 
     FocusDone _-> 
       model ! []
 
     UpdateStatus s -> 
-      {model| status = s } ! []
+      { model| status = s } ! []
 
     Upload -> 
       model ! [sendFile model]
 
     UploadStatus (Ok (time, contents)) -> 
-      { model | time = time, errorMessage = "Status OK" } ! 
-        [ Task.attempt FocusDone (Dom.focus "update")]
+      { model 
+          | time = time, 
+            errorMessage = formatTime (Just time) ++ "Upload successful!" } 
+      ! [ focusUpdate ]
 
     UploadStatus (Err error) -> 
       { model|errorMessage = (toString error)} ! []
@@ -127,14 +128,12 @@ update msg model =
 
     NewTime time ->
       { model | currentTime = Just time} ! 
-        [Task.attempt FocusDone (Dom.focus "update")]
+        [ focusUpdate]
 
-    GetTimeAndAppend time -> 
-      let 
-        model_ = {model | currentTime = Just time }
-      in 
-        { model|contents = (timedStatus model_) ++ model_.contents} 
-        ! [Task.perform NewTime Time.now] 
+
+focusUpdate : Cmd Msg
+focusUpdate = 
+    Task.attempt FocusDone (Dom.focus "update")
 
 
 formatTime: Maybe Time -> String 
@@ -163,9 +162,8 @@ view model =
     , div [id "titleContainer"] 
         [ hr [class "style8"] []
         , h3 [] [text <| model.errorMessage]
-        --, h3 [] [text <| "received: " ++ (toString <| Date.fromTime model.time)]
         , input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
-        , button [ id "button2", onClick AppendToFile ] [ text "Append" ]
+        , button [ id "button2", onClick Append ] [ text "Append" ]
         , button [ id "button3", onClick Upload] [text "Upload!"]
         , footer
         ]
@@ -192,11 +190,9 @@ footer =
 
 -- SUBSCRIPTIONS
 
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.none
-
 
 
 -- HTTP
@@ -211,25 +207,21 @@ getFile model =
     Time.now 
       |> Task.andThen (\t -> Task.map ((,) t) getTask)
       |> Task.attempt Download 
-  
+
   --  Http.send Download (Http.request settings)
 
 
 sendFile : Model -> Cmd Msg 
 sendFile model = 
   let 
-    headers = 
-      [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
-      , Http.header 
-        "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\", \"mode\":\"overwrite\"}"
-      -- , Http.header "Content-Type" "application/octet-stream"
-      ]
-
-    settings = { postSettings | 
-                 headers = headers
-               , url  = "https://content.dropboxapi.com/2/files/upload"
-               , body = stringBody "application/octet-stream" model.contents 
-               }
+    uploadURL = dropboxAPI ++ "/files/upload"
+    
+    settings = 
+        { postSettings 
+          | url  = uploadURL
+          , headers = uploadHeaders
+          , body = stringBody "application/octet-stream" model.contents 
+        }
 
     getTask = Http.toTask (Http.request settings)
 
@@ -243,33 +235,29 @@ sendFile model =
     --   |> Task.attempt UploadStatus
 
 
-encodeContents : String -> Encode.Value        
-encodeContents contents =
-  Encode.object 
-    [ ("data", Encode.string contents)]
+filePath : String 
+filePath = "/Apps/elmBox/body.txt"
 
+downloadHeaders : List Header
+downloadHeaders = 
+  [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
+  , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\"}"
+  ]
 
+uploadHeaders : List Header
+uploadHeaders = 
+  [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
+  , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\", \"mode\":\"overwrite\" }"
+  ]
 
-decodeResponse : Decode.Decoder String
-decodeResponse =
-  Decode.string 
-
-postSettings :
-    { body : Body
-    , expect : Expect String
-    , headers : List Header
-    , method : String
-    , timeout : Maybe a
-    , url : String
-    , withCredentials : Bool
-    }
+postSettings : 
+  { body: Body, expect: Expect String, headers: List Header
+  , method: String, timeout : Maybe a, url: String
+  , withCredentials : Bool 
+  }
 postSettings = 
   { method  = "POST"
-  , headers = 
-    [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
-    , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\"}"
-    -- , Http.header "Content-Type" "application/json"
-    ]
+  , headers = downloadHeaders
   , url     = ""
   , body    = emptyBody
   , expect  = expectString
@@ -277,3 +265,16 @@ postSettings =
   , withCredentials = False
   }
 
+
+{-- 
+encodeContents : String -> Encode.Value        
+encodeContents contents =
+  Encode.object 
+    [ ("data", Encode.string contents)]
+
+
+decodeResponse : Decode.Decoder String
+decodeResponse =
+  Decode.string 
+
+--}

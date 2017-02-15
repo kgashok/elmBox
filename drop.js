@@ -11745,38 +11745,28 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-19-g758dd33';
+var _user$project$Version$version = 'v1.0-21-g61d5ed2';
 
-var _user$project$Drop$postSettings = {
-	method: 'POST',
-	headers: {
+var _user$project$Drop$uploadHeaders = {
+	ctor: '::',
+	_0: A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao'),
+	_1: {
 		ctor: '::',
-		_0: A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao'),
-		_1: {
-			ctor: '::',
-			_0: A2(_elm_lang$http$Http$header, 'Dropbox-API-Arg', '{\"path\":\"/Apps/elmBox/body.txt\"}'),
-			_1: {ctor: '[]'}
-		}
-	},
-	url: '',
-	body: _elm_lang$http$Http$emptyBody,
-	expect: _elm_lang$http$Http$expectString,
-	timeout: _elm_lang$core$Maybe$Nothing,
-	withCredentials: false
+		_0: A2(_elm_lang$http$Http$header, 'Dropbox-API-Arg', '{\"path\":\"/Apps/elmBox/body.txt\", \"mode\":\"overwrite\" }'),
+		_1: {ctor: '[]'}
+	}
 };
-var _user$project$Drop$decodeResponse = _elm_lang$core$Json_Decode$string;
-var _user$project$Drop$encodeContents = function (contents) {
-	return _elm_lang$core$Json_Encode$object(
-		{
-			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: 'data',
-				_1: _elm_lang$core$Json_Encode$string(contents)
-			},
-			_1: {ctor: '[]'}
-		});
+var _user$project$Drop$downloadHeaders = {
+	ctor: '::',
+	_0: A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao'),
+	_1: {
+		ctor: '::',
+		_0: A2(_elm_lang$http$Http$header, 'Dropbox-API-Arg', '{\"path\":\"/Apps/elmBox/body.txt\"}'),
+		_1: {ctor: '[]'}
+	}
 };
+var _user$project$Drop$postSettings = {method: 'POST', headers: _user$project$Drop$downloadHeaders, url: '', body: _elm_lang$http$Http$emptyBody, expect: _elm_lang$http$Http$expectString, timeout: _elm_lang$core$Maybe$Nothing, withCredentials: false};
+var _user$project$Drop$filePath = '/Apps/elmBox/body.txt';
 var _user$project$Drop$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
@@ -11849,15 +11839,11 @@ var _user$project$Drop$timedStatus = function (model) {
 		A2(_elm_lang$core$Basics_ops['++'], model.status, '\n'));
 };
 var _user$project$Drop$dropboxAPI = 'https://content.dropboxapi.com/2';
-var _user$project$Drop$filePath = '/Apps/elmBox/body.txt';
 var _user$project$Drop$Model = F7(
 	function (a, b, c, d, e, f, g) {
 		return {filePath: a, dropURL: b, contents: c, status: d, time: e, currentTime: f, errorMessage: g};
 	});
 var _user$project$Drop$initialModel = A7(_user$project$Drop$Model, _user$project$Drop$filePath, _user$project$Drop$dropboxAPI, '', '', 0, _elm_lang$core$Maybe$Nothing, 'Logger Ready');
-var _user$project$Drop$GetTimeAndAppend = function (a) {
-	return {ctor: 'GetTimeAndAppend', _0: a};
-};
 var _user$project$Drop$NewTime = function (a) {
 	return {ctor: 'NewTime', _0: a};
 };
@@ -11865,24 +11851,20 @@ var _user$project$Drop$GetTime = {ctor: 'GetTime'};
 var _user$project$Drop$FocusDone = function (a) {
 	return {ctor: 'FocusDone', _0: a};
 };
+var _user$project$Drop$focusUpdate = A2(
+	_elm_lang$core$Task$attempt,
+	_user$project$Drop$FocusDone,
+	_elm_lang$dom$Dom$focus('update'));
 var _user$project$Drop$UploadStatus = function (a) {
 	return {ctor: 'UploadStatus', _0: a};
 };
 var _user$project$Drop$sendFile = function (model) {
-	var headers = {
-		ctor: '::',
-		_0: A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao'),
-		_1: {
-			ctor: '::',
-			_0: A2(_elm_lang$http$Http$header, 'Dropbox-API-Arg', '{\"path\":\"/Apps/elmBox/body.txt\", \"mode\":\"overwrite\"}'),
-			_1: {ctor: '[]'}
-		}
-	};
+	var uploadURL = A2(_elm_lang$core$Basics_ops['++'], _user$project$Drop$dropboxAPI, '/files/upload');
 	var settings = _elm_lang$core$Native_Utils.update(
 		_user$project$Drop$postSettings,
 		{
-			headers: headers,
-			url: 'https://content.dropboxapi.com/2/files/upload',
+			url: uploadURL,
+			headers: _user$project$Drop$uploadHeaders,
 			body: A2(_elm_lang$http$Http$stringBody, 'application/octet-stream', model.contents)
 		});
 	var getTask = _elm_lang$http$Http$toTask(
@@ -11907,7 +11889,10 @@ var _user$project$Drop$Upload = {ctor: 'Upload'};
 var _user$project$Drop$UpdateStatus = function (a) {
 	return {ctor: 'UpdateStatus', _0: a};
 };
-var _user$project$Drop$AppendToFile = {ctor: 'AppendToFile'};
+var _user$project$Drop$GetTimeAndAppend = function (a) {
+	return {ctor: 'GetTimeAndAppend', _0: a};
+};
+var _user$project$Drop$Append = {ctor: 'Append'};
 var _user$project$Drop$Download = function (a) {
 	return {ctor: 'Download', _0: a};
 };
@@ -11976,10 +11961,7 @@ var _user$project$Drop$update = F2(
 							}),
 						{
 							ctor: '::',
-							_0: A2(
-								_elm_lang$core$Task$attempt,
-								_user$project$Drop$FocusDone,
-								_elm_lang$dom$Dom$focus('update')),
+							_0: _user$project$Drop$focusUpdate,
 							_1: {ctor: '[]'}
 						});
 				} else {
@@ -11992,13 +11974,40 @@ var _user$project$Drop$update = F2(
 							}),
 						{ctor: '[]'});
 				}
-			case 'AppendToFile':
+			case 'Append':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					{
 						ctor: '::',
 						_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$GetTimeAndAppend, _elm_lang$core$Time$now),
+						_1: {ctor: '[]'}
+					});
+			case 'GetTimeAndAppend':
+				var _p2 = _p0._0;
+				var model_ = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						currentTime: _elm_lang$core$Maybe$Just(_p2)
+					});
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							contents: A2(
+								_elm_lang$core$Basics_ops['++'],
+								_user$project$Drop$timedStatus(model_),
+								model_.contents),
+							errorMessage: A2(
+								_elm_lang$core$Basics_ops['++'],
+								_user$project$Drop$formatTime(
+									_elm_lang$core$Maybe$Just(_p2)),
+								'Append successful!')
+						}),
+					{
+						ctor: '::',
+						_0: _user$project$Drop$focusUpdate,
 						_1: {ctor: '[]'}
 					});
 			case 'FocusDone':
@@ -12024,17 +12033,22 @@ var _user$project$Drop$update = F2(
 					});
 			case 'UploadStatus':
 				if (_p0._0.ctor === 'Ok') {
+					var _p3 = _p0._0._0._0;
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{time: _p0._0._0._0, errorMessage: 'Status OK'}),
+							{
+								time: _p3,
+								errorMessage: A2(
+									_elm_lang$core$Basics_ops['++'],
+									_user$project$Drop$formatTime(
+										_elm_lang$core$Maybe$Just(_p3)),
+									'Upload successful!')
+							}),
 						{
 							ctor: '::',
-							_0: A2(
-								_elm_lang$core$Task$attempt,
-								_user$project$Drop$FocusDone,
-								_elm_lang$dom$Dom$focus('update')),
+							_0: _user$project$Drop$focusUpdate,
 							_1: {ctor: '[]'}
 						});
 				} else {
@@ -12056,7 +12070,7 @@ var _user$project$Drop$update = F2(
 						_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$NewTime, _elm_lang$core$Time$now),
 						_1: {ctor: '[]'}
 					});
-			case 'NewTime':
+			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -12066,31 +12080,7 @@ var _user$project$Drop$update = F2(
 						}),
 					{
 						ctor: '::',
-						_0: A2(
-							_elm_lang$core$Task$attempt,
-							_user$project$Drop$FocusDone,
-							_elm_lang$dom$Dom$focus('update')),
-						_1: {ctor: '[]'}
-					});
-			default:
-				var model_ = _elm_lang$core$Native_Utils.update(
-					model,
-					{
-						currentTime: _elm_lang$core$Maybe$Just(_p0._0)
-					});
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{
-							contents: A2(
-								_elm_lang$core$Basics_ops['++'],
-								_user$project$Drop$timedStatus(model_),
-								model_.contents)
-						}),
-					{
-						ctor: '::',
-						_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$NewTime, _elm_lang$core$Time$now),
+						_0: _user$project$Drop$focusUpdate,
 						_1: {ctor: '[]'}
 					});
 		}
@@ -12233,7 +12223,7 @@ var _user$project$Drop$view = function (model) {
 											_0: _elm_lang$html$Html_Attributes$id('button2'),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$AppendToFile),
+												_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Append),
 												_1: {ctor: '[]'}
 											}
 										},
