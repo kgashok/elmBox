@@ -73,7 +73,7 @@ type Msg
   | FocusDone (Result Dom.Error() ) 
   | GetTime 
   | NewTime Time 
-  | GetTimeAndAppend 
+  | GetTimeAndAppend Time
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -95,8 +95,9 @@ update msg model =
       {model|errorMessage = (toString error) } ! [] 
 
     AppendToFile -> 
-      {model|contents = (timedStatus model) ++ model.contents} ! 
-        [ Task.perform NewTime Time.now ] 
+      -- { model|contents = (timedStatus model) ++ model.contents} ! 
+      --   [ Task.perform NewTime Time.now ] 
+      model ! [ Task.perform GetTimeAndAppend Time.now ]
 
     FocusDone _-> 
       { model | errorMessage = 
@@ -123,9 +124,13 @@ update msg model =
       { model | currentTime = Just time} ! 
         [Task.attempt FocusDone (Dom.focus "update")]
 
-    GetTimeAndAppend -> 
-      model ! []
-      
+    GetTimeAndAppend time -> 
+      let 
+        model_ = {model | currentTime = Just time }
+      in 
+        { model|contents = (timedStatus model_) ++ model_.contents} 
+        ! [Task.perform NewTime Time.now] 
+
 
 formattedTime: Maybe Time -> String 
 formattedTime time = 

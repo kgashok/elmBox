@@ -11745,7 +11745,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-18-g04cee79';
+var _user$project$Version$version = 'v1.0-19-g758dd33';
 
 var _user$project$Drop$postSettings = {
 	method: 'POST',
@@ -11852,7 +11852,9 @@ var _user$project$Drop$Model = F7(
 	function (a, b, c, d, e, f, g) {
 		return {filePath: a, dropURL: b, contents: c, status: d, time: e, currentTime: f, errorMessage: g};
 	});
-var _user$project$Drop$GetTimeAndAppend = {ctor: 'GetTimeAndAppend'};
+var _user$project$Drop$GetTimeAndAppend = function (a) {
+	return {ctor: 'GetTimeAndAppend', _0: a};
+};
 var _user$project$Drop$NewTime = function (a) {
 	return {ctor: 'NewTime', _0: a};
 };
@@ -11987,17 +11989,10 @@ var _user$project$Drop$update = F2(
 			case 'AppendToFile':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{
-							contents: A2(
-								_elm_lang$core$Basics_ops['++'],
-								_user$project$Drop$timedStatus(model),
-								model.contents)
-						}),
+					model,
 					{
 						ctor: '::',
-						_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$NewTime, _elm_lang$core$Time$now),
+						_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$GetTimeAndAppend, _elm_lang$core$Time$now),
 						_1: {ctor: '[]'}
 					});
 			case 'FocusDone':
@@ -12079,10 +12074,26 @@ var _user$project$Drop$update = F2(
 						_1: {ctor: '[]'}
 					});
 			default:
+				var model_ = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						currentTime: _elm_lang$core$Maybe$Just(_p0._0)
+					});
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
-					{ctor: '[]'});
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							contents: A2(
+								_elm_lang$core$Basics_ops['++'],
+								_user$project$Drop$timedStatus(model_),
+								model_.contents)
+						}),
+					{
+						ctor: '::',
+						_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$NewTime, _elm_lang$core$Time$now),
+						_1: {ctor: '[]'}
+					});
 		}
 	});
 var _user$project$Drop$Refresh = {ctor: 'Refresh'};
