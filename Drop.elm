@@ -23,7 +23,7 @@ import Version exposing (..)
 main : Program Never Model Msg
 main =
   Html.program
-    { init = init "/Apps/elmBox/body.txt"
+    { init = init
     , view = view
     , update = update
     , subscriptions = subscriptions
@@ -32,7 +32,6 @@ main =
 
 
 -- MODEL
-
 
 type alias Model =
   { filePath : String
@@ -44,17 +43,23 @@ type alias Model =
   , errorMessage  : String
   }
 
+filePath : String 
+filePath = "/Apps/elmBox/body.txt"
 
-init : String -> (Model, Cmd Msg)
-init path =
-  ( Model path 
-        "https://content.dropboxapi.com/2/files/download"
-        ""
-        ""
-        0
-        Nothing
-        "Logger Ready"
-  , getFile path "https://content.dropboxapi.com/2/files/download"
+dropboxAPI : String 
+dropboxAPI = "https://content.dropboxapi.com/2"
+
+initialModel : Model 
+initialModel = 
+  Model filePath dropboxAPI 
+    "" ""
+    0 Nothing 
+    "Logger Ready" 
+
+init : (Model, Cmd Msg)
+init =
+  ( initialModel
+  , getFile initialModel
   --, Task.perform Refresh 
   --, Task.perform NewTime Time.now
   )
@@ -80,19 +85,21 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Refresh ->
-      { model|contents = ""} 
-      ! [ getFile model.filePath model.dropURL
+      { model | contents = ""} 
+      ! [ getFile model
         , Task.perform NewTime Time.now 
         ]
 
     Download (Ok (time, contents)) ->
-      { model | contents = unescape contents, 
-                currentTime = Just time, 
-                errorMessage = "Status OK"} 
-      ! [ Task.attempt FocusDone (Dom.focus "update")] 
+      { model 
+          | contents = unescape contents, 
+            currentTime = Just time,
+            errorMessage =  formatTime (Just time) ++ "Download successful!"
+      }
+      ! [ Task.attempt FocusDone (Dom.focus "update")]
 
     Download (Err error) ->
-      {model|errorMessage = (toString error) } ! [] 
+      { model|errorMessage = (toString error) } ! [] 
 
     AppendToFile -> 
       -- { model|contents = (timedStatus model) ++ model.contents} ! 
@@ -100,9 +107,7 @@ update msg model =
       model ! [ Task.perform GetTimeAndAppend Time.now ]
 
     FocusDone _-> 
-      { model | errorMessage = 
-            formattedTime model.currentTime ++ "Status OK" }
-      ! []
+      model ! []
 
     UpdateStatus s -> 
       {model| status = s } ! []
@@ -132,14 +137,14 @@ update msg model =
         ! [Task.perform NewTime Time.now] 
 
 
-formattedTime: Maybe Time -> String 
-formattedTime time = 
+formatTime: Maybe Time -> String 
+formatTime time = 
   time |> Maybe.withDefault 0 |> fromTime |> format "%a %b/%d/%y %H:%M:%S "
 
 
 timedStatus: Model -> String 
 timedStatus model = 
-    formattedTime model.currentTime ++ model.status ++ "\n"
+    formatTime model.currentTime ++ model.status ++ "\n"
 
 -- VIEW
 
@@ -196,6 +201,20 @@ subscriptions model =
 
 -- HTTP
 
+getFile : Model -> Cmd Msg
+getFile model =
+  let
+    downloadURL = model.dropURL ++ "/files/download"
+    settings    = { postSettings | url = downloadURL }
+    getTask     = Http.toTask (Http.request settings)
+  in
+    Time.now 
+      |> Task.andThen (\t -> Task.map ((,) t) getTask)
+      |> Task.attempt Download 
+  
+  --  Http.send Download (Http.request settings)
+
+
 sendFile : Model -> Cmd Msg 
 sendFile model = 
   let 
@@ -229,18 +248,6 @@ encodeContents contents =
   Encode.object 
     [ ("data", Encode.string contents)]
 
-
-getFile : String -> String -> Cmd Msg
-getFile path url =
-  let
-    settings = { postSettings | url    = url }
-    getTask = Http.toTask (Http.request settings)
-  in
-    Time.now 
-      |> Task.andThen (\t -> Task.map ((,) t) getTask)
-      |> Task.attempt Download 
-  
-  --  Http.send Download (Http.request settings)
 
 
 decodeResponse : Decode.Decoder String

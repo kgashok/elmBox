@@ -11835,7 +11835,7 @@ var _user$project$Drop$viewContents = function (contents) {
 				},
 				A2(_elm_lang$core$String$split, '\n', contents))));
 };
-var _user$project$Drop$formattedTime = function (time) {
+var _user$project$Drop$formatTime = function (time) {
 	return A2(
 		_mgold$elm_date_format$Date_Format$format,
 		'%a %b/%d/%y %H:%M:%S ',
@@ -11845,13 +11845,16 @@ var _user$project$Drop$formattedTime = function (time) {
 var _user$project$Drop$timedStatus = function (model) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
-		_user$project$Drop$formattedTime(model.currentTime),
+		_user$project$Drop$formatTime(model.currentTime),
 		A2(_elm_lang$core$Basics_ops['++'], model.status, '\n'));
 };
+var _user$project$Drop$dropboxAPI = 'https://content.dropboxapi.com/2';
+var _user$project$Drop$filePath = '/Apps/elmBox/body.txt';
 var _user$project$Drop$Model = F7(
 	function (a, b, c, d, e, f, g) {
 		return {filePath: a, dropURL: b, contents: c, status: d, time: e, currentTime: f, errorMessage: g};
 	});
+var _user$project$Drop$initialModel = A7(_user$project$Drop$Model, _user$project$Drop$filePath, _user$project$Drop$dropboxAPI, '', '', 0, _elm_lang$core$Maybe$Nothing, 'Logger Ready');
 var _user$project$Drop$GetTimeAndAppend = function (a) {
 	return {ctor: 'GetTimeAndAppend', _0: a};
 };
@@ -11908,35 +11911,33 @@ var _user$project$Drop$AppendToFile = {ctor: 'AppendToFile'};
 var _user$project$Drop$Download = function (a) {
 	return {ctor: 'Download', _0: a};
 };
-var _user$project$Drop$getFile = F2(
-	function (path, url) {
-		var settings = _elm_lang$core$Native_Utils.update(
-			_user$project$Drop$postSettings,
-			{url: url});
-		var getTask = _elm_lang$http$Http$toTask(
-			_elm_lang$http$Http$request(settings));
-		return A2(
-			_elm_lang$core$Task$attempt,
-			_user$project$Drop$Download,
-			A2(
-				_elm_lang$core$Task$andThen,
-				function (t) {
-					return A2(
-						_elm_lang$core$Task$map,
-						F2(
-							function (v0, v1) {
-								return {ctor: '_Tuple2', _0: v0, _1: v1};
-							})(t),
-						getTask);
-				},
-				_elm_lang$core$Time$now));
-	});
-var _user$project$Drop$init = function (path) {
-	return {
-		ctor: '_Tuple2',
-		_0: A7(_user$project$Drop$Model, path, 'https://content.dropboxapi.com/2/files/download', '', '', 0, _elm_lang$core$Maybe$Nothing, 'Logger Ready'),
-		_1: A2(_user$project$Drop$getFile, path, 'https://content.dropboxapi.com/2/files/download')
-	};
+var _user$project$Drop$getFile = function (model) {
+	var downloadURL = A2(_elm_lang$core$Basics_ops['++'], model.dropURL, '/files/download');
+	var settings = _elm_lang$core$Native_Utils.update(
+		_user$project$Drop$postSettings,
+		{url: downloadURL});
+	var getTask = _elm_lang$http$Http$toTask(
+		_elm_lang$http$Http$request(settings));
+	return A2(
+		_elm_lang$core$Task$attempt,
+		_user$project$Drop$Download,
+		A2(
+			_elm_lang$core$Task$andThen,
+			function (t) {
+				return A2(
+					_elm_lang$core$Task$map,
+					F2(
+						function (v0, v1) {
+							return {ctor: '_Tuple2', _0: v0, _1: v1};
+						})(t),
+					getTask);
+			},
+			_elm_lang$core$Time$now));
+};
+var _user$project$Drop$init = {
+	ctor: '_Tuple2',
+	_0: _user$project$Drop$initialModel,
+	_1: _user$project$Drop$getFile(_user$project$Drop$initialModel)
 };
 var _user$project$Drop$update = F2(
 	function (msg, model) {
@@ -11950,7 +11951,7 @@ var _user$project$Drop$update = F2(
 						{contents: ''}),
 					{
 						ctor: '::',
-						_0: A2(_user$project$Drop$getFile, model.filePath, model.dropURL),
+						_0: _user$project$Drop$getFile(model),
 						_1: {
 							ctor: '::',
 							_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$NewTime, _elm_lang$core$Time$now),
@@ -11959,14 +11960,19 @@ var _user$project$Drop$update = F2(
 					});
 			case 'Download':
 				if (_p0._0.ctor === 'Ok') {
+					var _p1 = _p0._0._0._0;
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
 								contents: _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape(_p0._0._0._1),
-								currentTime: _elm_lang$core$Maybe$Just(_p0._0._0._0),
-								errorMessage: 'Status OK'
+								currentTime: _elm_lang$core$Maybe$Just(_p1),
+								errorMessage: A2(
+									_elm_lang$core$Basics_ops['++'],
+									_user$project$Drop$formatTime(
+										_elm_lang$core$Maybe$Just(_p1)),
+									'Download successful!')
 							}),
 						{
 							ctor: '::',
@@ -11998,14 +12004,7 @@ var _user$project$Drop$update = F2(
 			case 'FocusDone':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{
-							errorMessage: A2(
-								_elm_lang$core$Basics_ops['++'],
-								_user$project$Drop$formattedTime(model.currentTime),
-								'Status OK')
-						}),
+					model,
 					{ctor: '[]'});
 			case 'UpdateStatus':
 				return A2(
@@ -12276,12 +12275,7 @@ var _user$project$Drop$view = function (model) {
 		});
 };
 var _user$project$Drop$main = _elm_lang$html$Html$program(
-	{
-		init: _user$project$Drop$init('/Apps/elmBox/body.txt'),
-		view: _user$project$Drop$view,
-		update: _user$project$Drop$update,
-		subscriptions: _user$project$Drop$subscriptions
-	})();
+	{init: _user$project$Drop$init, view: _user$project$Drop$view, update: _user$project$Drop$update, subscriptions: _user$project$Drop$subscriptions})();
 
 var Elm = {};
 Elm['Drop'] = Elm['Drop'] || {};
