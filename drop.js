@@ -11745,7 +11745,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-17-gf8eae9b';
+var _user$project$Version$version = 'v1.0-18-g04cee79';
 
 var _user$project$Drop$postSettings = {
 	method: 'POST',
@@ -11835,20 +11835,28 @@ var _user$project$Drop$viewContents = function (contents) {
 				},
 				A2(_elm_lang$core$String$split, '\n', contents))));
 };
-var _user$project$Drop$timedStatus = function (model) {
-	var fDate = A2(
+var _user$project$Drop$formattedTime = function (time) {
+	return A2(
 		_mgold$elm_date_format$Date_Format$format,
-		'%a, %b/%d/%y, %I:%M%P ',
-		_elm_lang$core$Date$fromTime(model.time));
+		'%a %b/%d/%y %H:%M:%S ',
+		_elm_lang$core$Date$fromTime(
+			A2(_elm_lang$core$Maybe$withDefault, 0, time)));
+};
+var _user$project$Drop$timedStatus = function (model) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
-		fDate,
+		_user$project$Drop$formattedTime(model.currentTime),
 		A2(_elm_lang$core$Basics_ops['++'], model.status, '\n'));
 };
-var _user$project$Drop$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {filePath: a, dropURL: b, contents: c, status: d, time: e, errorMessage: f};
+var _user$project$Drop$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {filePath: a, dropURL: b, contents: c, status: d, time: e, currentTime: f, errorMessage: g};
 	});
+var _user$project$Drop$GetTimeAndAppend = {ctor: 'GetTimeAndAppend'};
+var _user$project$Drop$NewTime = function (a) {
+	return {ctor: 'NewTime', _0: a};
+};
+var _user$project$Drop$GetTime = {ctor: 'GetTime'};
 var _user$project$Drop$FocusDone = function (a) {
 	return {ctor: 'FocusDone', _0: a};
 };
@@ -11924,7 +11932,7 @@ var _user$project$Drop$getFile = F2(
 var _user$project$Drop$init = function (path) {
 	return {
 		ctor: '_Tuple2',
-		_0: A6(_user$project$Drop$Model, path, 'https://content.dropboxapi.com/2/files/download', '', '', 0, 'Logger Ready'),
+		_0: A7(_user$project$Drop$Model, path, 'https://content.dropboxapi.com/2/files/download', '', '', 0, _elm_lang$core$Maybe$Nothing, 'Logger Ready'),
 		_1: A2(_user$project$Drop$getFile, path, 'https://content.dropboxapi.com/2/files/download')
 	};
 };
@@ -11941,7 +11949,11 @@ var _user$project$Drop$update = F2(
 					{
 						ctor: '::',
 						_0: A2(_user$project$Drop$getFile, model.filePath, model.dropURL),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$NewTime, _elm_lang$core$Time$now),
+							_1: {ctor: '[]'}
+						}
 					});
 			case 'Download':
 				if (_p0._0.ctor === 'Ok') {
@@ -11951,7 +11963,7 @@ var _user$project$Drop$update = F2(
 							model,
 							{
 								contents: _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape(_p0._0._0._1),
-								time: _p0._0._0._0,
+								currentTime: _elm_lang$core$Maybe$Just(_p0._0._0._0),
 								errorMessage: 'Status OK'
 							}),
 						{
@@ -11985,16 +11997,20 @@ var _user$project$Drop$update = F2(
 						}),
 					{
 						ctor: '::',
-						_0: A2(
-							_elm_lang$core$Task$attempt,
-							_user$project$Drop$FocusDone,
-							_elm_lang$dom$Dom$focus('update')),
+						_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$NewTime, _elm_lang$core$Time$now),
 						_1: {ctor: '[]'}
 					});
 			case 'FocusDone':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							errorMessage: A2(
+								_elm_lang$core$Basics_ops['++'],
+								_user$project$Drop$formattedTime(model.currentTime),
+								'Status OK')
+						}),
 					{ctor: '[]'});
 			case 'UpdateStatus':
 				return A2(
@@ -12012,7 +12028,7 @@ var _user$project$Drop$update = F2(
 						_0: _user$project$Drop$sendFile(model),
 						_1: {ctor: '[]'}
 					});
-			default:
+			case 'UploadStatus':
 				if (_p0._0.ctor === 'Ok') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
@@ -12037,6 +12053,36 @@ var _user$project$Drop$update = F2(
 							}),
 						{ctor: '[]'});
 				}
+			case 'GetTime':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{
+						ctor: '::',
+						_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$NewTime, _elm_lang$core$Time$now),
+						_1: {ctor: '[]'}
+					});
+			case 'NewTime':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							currentTime: _elm_lang$core$Maybe$Just(_p0._0)
+						}),
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$core$Task$attempt,
+							_user$project$Drop$FocusDone,
+							_elm_lang$dom$Dom$focus('update')),
+						_1: {ctor: '[]'}
+					});
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'});
 		}
 	});
 var _user$project$Drop$Refresh = {ctor: 'Refresh'};

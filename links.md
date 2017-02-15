@@ -27,4 +27,11 @@ https://github.com/mgold/elm-date-format/blob/master/README.md
 
 ### Doing the timestamping prior to Http.request
 
-https://runelm.io/c/mbi 
+- https://runelm.io/c/mbi 
+- from SO http://stackoverflow.com/questions/38021777/how-do-i-get-the-current-time-in-elm-0-17-0-18
+- https://runelm.io/c/j3b 
+
+### What might be needed 
+
+https://www.reddit.com/r/elm/comments/4avsh1/how_do_you_chain_tasks/
+

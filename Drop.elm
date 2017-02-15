@@ -40,6 +40,7 @@ type alias Model =
   , contents : String 
   , status : String 
   , time : Time 
+  , currentTime : Maybe Time
   , errorMessage  : String
   }
 
@@ -51,8 +52,11 @@ init path =
         ""
         ""
         0
+        Nothing
         "Logger Ready"
-  , getFile path "https://content.dropboxapi.com/2/files/download" 
+  , getFile path "https://content.dropboxapi.com/2/files/download"
+  --, Task.perform Refresh 
+  --, Task.perform NewTime Time.now
   )
 
 
@@ -67,29 +71,37 @@ type Msg
   | Upload 
   | UploadStatus (Result Http.Error (Time, String))
   | FocusDone (Result Dom.Error() ) 
+  | GetTime 
+  | NewTime Time 
+  | GetTimeAndAppend 
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Refresh ->
-      {model|contents = ""} ! 
-        [ getFile model.filePath model.dropURL]
+      { model|contents = ""} 
+      ! [ getFile model.filePath model.dropURL
+        , Task.perform NewTime Time.now 
+        ]
 
     Download (Ok (time, contents)) ->
-      {model|contents = unescape contents, time = time, errorMessage = "Status OK"} ! 
-        [ Task.attempt FocusDone (Dom.focus "update")] 
+      { model | contents = unescape contents, 
+                currentTime = Just time, 
+                errorMessage = "Status OK"} 
+      ! [ Task.attempt FocusDone (Dom.focus "update")] 
 
     Download (Err error) ->
       {model|errorMessage = (toString error) } ! [] 
 
     AppendToFile -> 
       {model|contents = (timedStatus model) ++ model.contents} ! 
-        [ Task.attempt FocusDone (Dom.focus "update")]
-        -- [ Dom.focus "update"{-- need to upload --}]
+        [ Task.perform NewTime Time.now ] 
 
     FocusDone _-> 
-      model ! []
+      { model | errorMessage = 
+            formattedTime model.currentTime ++ "Status OK" }
+      ! []
 
     UpdateStatus s -> 
       {model| status = s } ! []
@@ -104,14 +116,25 @@ update msg model =
     UploadStatus (Err error) -> 
       { model|errorMessage = (toString error)} ! []
 
+    GetTime ->
+      model ! [ Task.perform NewTime Time.now ]
+
+    NewTime time ->
+      { model | currentTime = Just time} ! 
+        [Task.attempt FocusDone (Dom.focus "update")]
+
+    GetTimeAndAppend -> 
+      model ! []
+      
+
+formattedTime: Maybe Time -> String 
+formattedTime time = 
+  time |> Maybe.withDefault 0 |> fromTime |> format "%a %b/%d/%y %H:%M:%S "
+
+
 timedStatus: Model -> String 
 timedStatus model = 
-  let 
-    fDate = 
-      fromTime model.time 
-        |> format "%a, %b/%d/%y, %I:%M%P "
-  in 
-    fDate ++ model.status ++ "\n"
+    formattedTime model.currentTime ++ model.status ++ "\n"
 
 -- VIEW
 
