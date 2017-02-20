@@ -11884,7 +11884,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-25-g042c624';
+var _user$project$Version$version = 'v1.0-26-g398918d';
 
 var _user$project$Drop$uploadHeaders = {
 	ctor: '::',
