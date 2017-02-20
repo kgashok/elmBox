@@ -144,7 +144,7 @@ formatTime time =
 
 timedStatus: Model -> String 
 timedStatus model = 
-    model.status ++ "\n" ++  formatTime model.currentTime ++ "\n"
+    model.status ++ "\t" ++  formatTime model.currentTime ++ "\n"
 
 -- VIEW
 
@@ -175,10 +175,11 @@ viewContents: String -> Html Msg
 viewContents contents = 
     contents 
         |> String.split "\n"
-        --|> List.map (\line -> p [class "answer"] [text line] )
-        |> List.map (\line -> Markdown.toHtml [class "answer"] line )
         |> List.take 26
         |> List.reverse 
+        --|> String.split "\t"
+        --|> List.map (\line -> p [class "answer"] [text line] )
+        |> List.map (\line -> Markdown.toHtml [class "answer"] line )
         |> div []
 
 
