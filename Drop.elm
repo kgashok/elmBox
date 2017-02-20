@@ -175,6 +175,7 @@ viewContents contents =
     contents 
         |> String.split "\n"
         |> List.map (\line -> p [class "answer"] [text line])
+        |> List.take 26
         |> List.reverse 
         |> div []
 

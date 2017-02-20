@@ -11745,7 +11745,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-21-g61d5ed2';
+var _user$project$Version$version = 'v1.0-22-ge6f8d83';
 
 var _user$project$Drop$uploadHeaders = {
 	ctor: '::',
@@ -11808,22 +11808,25 @@ var _user$project$Drop$viewContents = function (contents) {
 		{ctor: '[]'},
 		_elm_lang$core$List$reverse(
 			A2(
-				_elm_lang$core$List$map,
-				function (line) {
-					return A2(
-						_elm_lang$html$Html$p,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('answer'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(line),
-							_1: {ctor: '[]'}
-						});
-				},
-				A2(_elm_lang$core$String$split, '\n', contents))));
+				_elm_lang$core$List$take,
+				26,
+				A2(
+					_elm_lang$core$List$map,
+					function (line) {
+						return A2(
+							_elm_lang$html$Html$p,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('answer'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(line),
+								_1: {ctor: '[]'}
+							});
+					},
+					A2(_elm_lang$core$String$split, '\n', contents)))));
 };
 var _user$project$Drop$formatTime = function (time) {
 	return A2(
