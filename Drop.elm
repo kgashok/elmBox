@@ -164,6 +164,7 @@ view model =
         [ hr [class "style8"] []
         , h3 [] [text <| model.errorMessage]
         , input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
+        -- , input [ id "update", type_ "textarea", {--cols 10, rows 3,--} placeholder "Update?", onInput UpdateStatus ] []
         , button [ id "button2", onClick Append ] [ text "Append" ]
         , button [ id "button3", onClick Upload] [text "Upload!"]
         , footer
@@ -173,13 +174,27 @@ view model =
 
 viewContents: String -> Html Msg
 viewContents contents = 
+  let
+    render material =
+      let 
+        tuple = String.split "\t" material
+      in 
+        case tuple of 
+          line :: [ts] ->
+            div [] 
+              [ 
+                ul [] [text ts]
+              , Markdown.toHtml [class "answer"] line
+              ]
+          _ -> 
+            Markdown.toHtml [class "answer"] material
+          
+  in 
     contents 
         |> String.split "\n"
-        |> List.take 26
+        |> List.map render 
+        |> List.take 46
         |> List.reverse 
-        --|> String.split "\t"
-        --|> List.map (\line -> p [class "answer"] [text line] )
-        |> List.map (\line -> Markdown.toHtml [class "answer"] line )
         |> div []
 
 
