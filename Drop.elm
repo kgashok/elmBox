@@ -12,6 +12,7 @@ import Date exposing (..)
 import Date.Format exposing (..) 
 
 import ElmEscapeHtml exposing (..) 
+import Markdown exposing (..)
 
 import Version exposing (..)
 
@@ -143,7 +144,7 @@ formatTime time =
 
 timedStatus: Model -> String 
 timedStatus model = 
-    formatTime model.currentTime ++ model.status ++ "\n"
+    model.status ++ "\n" ++  formatTime model.currentTime ++ "\n"
 
 -- VIEW
 
@@ -174,7 +175,8 @@ viewContents: String -> Html Msg
 viewContents contents = 
     contents 
         |> String.split "\n"
-        |> List.map (\line -> p [class "answer"] [text line])
+        --|> List.map (\line -> p [class "answer"] [text line] )
+        |> List.map (\line -> Markdown.toHtml [class "answer"] line )
         |> List.take 26
         |> List.reverse 
         |> div []
