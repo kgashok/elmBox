@@ -19,14 +19,17 @@
       
           // receive something from Elm
           app.ports.adjustTextAreaHeight.subscribe(function (className) { 
-            console.log ("adjusting height"); 
             
             var textArea = document.querySelector('.' + className); 
-              
-            textArea.style = "height: 14px"; // hack to get the real height of the text 
+            textArea.style = "height: 1px"; // hack to get the real height of the text 
             var scrollHeight = textArea.scrollHeight;
-        
-            textArea.style = "height: " + scrollHeight + "px;"; 
+            textArea.style = "height: " + scrollHeight + "px;";
+            
+            
+            /*console.log ("adjusting height"); 
+            var s_height = document.getElementById(className).scrollHeight;
+            document.getElementById(className).setAttribute('style','height:'+s_height+'px');
+            */
           });
         }(document, Elm)); 
     </script>

@@ -73,38 +73,35 @@ type Msg
   | GetTime 
   | NewTime Time 
 
+port adjustTextAreaHeight : String -> Cmd msg 
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Refresh ->
       { model | contents = ""} 
-      ! [ getFile model
-        , Task.perform NewTime Time.now 
-        ]
+      ! [ getFile model, Task.perform NewTime Time.now ]
 
     Download (Ok (time, contents)) ->
-      { model 
-          | contents = unescape contents, 
-            currentTime = Just time,
-            errorMessage =  formatTime (Just time) ++ "Download successful!"
-      }
-      ! [ focusUpdate ]
+      (model
+        |> updateContents contents 
+        |> setTime time 
+        |> setFlashMessage (formatTime (Just time) ++ "Download successful!")
+      ) ! [ focusUpdate ]
 
     Download (Err error) ->
-      { model|errorMessage = (toString error) } ! [] 
+      setFlashMessage (toString error) model ! [] 
 
     Append -> 
       model ! [ Task.perform GetTimeAndAppend Time.now ]
 
     GetTimeAndAppend time -> 
-      let 
-        model_ = {model | currentTime = Just time }
-      in 
-        { model | 
-            contents = (timedStatus model_) ++ model_.contents,
-            errorMessage =  formatTime (Just time) ++ "Append successful!" }
-        ! [ focusUpdate ] 
+      (model 
+        |> setTime time 
+        |> appendStatus 
+        |> setFlashMessage (formatTime (Just time) ++ "Append successful!")
+      ) ! [ focusUpdate ] 
 
     FocusDone _-> 
       model ! []
@@ -117,21 +114,34 @@ update msg model =
       model ! [sendFile model]
 
     UploadStatus (Ok (time, contents)) -> 
-      { model 
-          | time = time, 
-            errorMessage = formatTime (Just time) ++ "Upload successful!" } 
-      ! [ focusUpdate ]
+      (model 
+        |> setTime time 
+        |> setFlashMessage (formatTime (Just time) ++ "Upload successful!")
+      ) ! [ focusUpdate ] 
 
     UploadStatus (Err error) -> 
-      { model|errorMessage = (toString error)} ! []
+      setFlashMessage (toString error) model ! []
 
     GetTime ->
       model ! [ Task.perform NewTime Time.now ]
 
     NewTime time ->
-      { model | currentTime = Just time} ! 
-        [ focusUpdate]
+      setTime time model ! [ focusUpdate]
 
+
+setFlashMessage : String -> Model -> Model
+setFlashMessage message model = { model|errorMessage = message}  
+
+setTime : Time -> Model -> Model 
+setTime time model = { model | currentTime = Just time}
+
+appendStatus : Model -> Model 
+appendStatus model = 
+  { model | contents = (timedStatus model) ++ model.contents }
+
+updateContents : String -> Model -> Model 
+updateContents contents model = 
+  { model | contents = unescape contents } 
 
 focusUpdate : Cmd Msg
 focusUpdate = 
@@ -149,7 +159,6 @@ timedStatus model =
 
 -- VIEW
 
-port adjustTextAreaHeight : String -> Cmd msg 
 
 view : Model -> Html Msg
 view model =
@@ -183,19 +192,19 @@ viewContents contents =
       in 
         case tuple of 
           ts :: [line] ->
-            div [] 
+            div [class "answer"] 
               [ 
                 ul [] [text ts]
-              , Markdown.toHtml [class "answer"] line
+              , Markdown.toHtml [ ] line
               ]
           _ -> 
             Markdown.toHtml [class "answer"] material
-          
+    
   in 
     contents 
         |> String.split "@@@\n"
         |> List.map render 
-        |> List.take 40 
+        |> List.take 46 
         |> List.reverse 
         |> div []
 
