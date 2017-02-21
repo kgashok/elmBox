@@ -35,7 +35,7 @@ type alias Model =
   , contents : String 
   , status : String 
   , currentTime : Maybe Time
-  , errorMessage  : String
+  , flashMessage  : String
   }
 
 dropboxAPI : String 
@@ -129,7 +129,7 @@ update msg model =
 
 
 setFlashMessage : String -> Model -> Model
-setFlashMessage message model = { model|errorMessage = message}  
+setFlashMessage message model = { model|flashMessage = message}  
 
 setTime : Time -> Model -> Model 
 setTime time model = { model | currentTime = Just time}
@@ -172,7 +172,7 @@ view model =
         ]
     , div [id "titleContainer"] 
         [ hr [class "style8"] []
-        , h3 [] [text <| model.errorMessage]
+        , h3 [] [text <| model.flashMessage]
         --, input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
         , textarea [ class "height-adjusting-textarea", id "update", placeholder "Update?", onInput UpdateStatus ] []
         , button [ id "button2", onClick Append ] [ text "Append" ]
