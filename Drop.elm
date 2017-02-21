@@ -34,7 +34,6 @@ type alias Model =
   , dropURL : String
   , contents : String 
   , status : String 
-  , time : Time 
   , currentTime : Maybe Time
   , errorMessage  : String
   }
@@ -46,7 +45,7 @@ initialModel : Model
 initialModel = 
   Model filePath dropboxAPI 
     "" ""
-    0 Nothing 
+    Nothing 
     "Logger Ready" 
 
 init : (Model, Cmd Msg)
