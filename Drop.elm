@@ -1,4 +1,4 @@
-module Drop exposing (..) 
+port module Drop exposing (..) 
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -22,7 +22,7 @@ main =
     { init = init
     , view = view
     , update = update
-    , subscriptions = subscriptions
+    , subscriptions = \_ -> Sub.none -- subscriptions
     }
 
 
@@ -110,7 +110,8 @@ update msg model =
       model ! []
 
     UpdateStatus s -> 
-      { model| status = s } ! []
+      { model| status = s } 
+      ! [adjustTextAreaHeight "height-adjusting-textarea"]
 
     Upload -> 
       model ! [sendFile model]
@@ -144,10 +145,11 @@ formatTime time =
 
 timedStatus: Model -> String 
 timedStatus model = 
-    model.status ++ "\t" ++  formatTime model.currentTime ++ "\n"
+    formatTime model.currentTime ++ "\t" ++ model.status ++ " @@@\n"  
 
 -- VIEW
 
+port adjustTextAreaHeight : String -> Cmd msg 
 
 view : Model -> Html Msg
 view model =
@@ -163,13 +165,13 @@ view model =
     , div [id "titleContainer"] 
         [ hr [class "style8"] []
         , h3 [] [text <| model.errorMessage]
-        , input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
-        -- , input [ id "update", type_ "textarea", {--cols 10, rows 3,--} placeholder "Update?", onInput UpdateStatus ] []
+        --, input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
+        , textarea [ class "height-adjusting-textarea", id "update", placeholder "Update?", onInput UpdateStatus ] []
         , button [ id "button2", onClick Append ] [ text "Append" ]
         , button [ id "button3", onClick Upload] [text "Upload!"]
         , footer
         ]
-    ]
+    ] 
 
 
 viewContents: String -> Html Msg
@@ -180,7 +182,7 @@ viewContents contents =
         tuple = String.split "\t" material
       in 
         case tuple of 
-          line :: [ts] ->
+          ts :: [line] ->
             div [] 
               [ 
                 ul [] [text ts]
@@ -191,9 +193,9 @@ viewContents contents =
           
   in 
     contents 
-        |> String.split "\n"
+        |> String.split "@@@\n"
         |> List.map render 
-        |> List.take 40
+        |> List.take 40 
         |> List.reverse 
         |> div []
 

@@ -9,8 +9,26 @@
 
   </head>
   <body>
+    <main></main>
     <script>
-        Elm.Drop.fullscreen();
+        // Elm.Drop.fullscreen();
+        
+        (function(document, Elm) { 
+          var main = document.querySelector("main"); 
+          var app = Elm.Drop.embed(main);
+      
+          // receive something from Elm
+          app.ports.adjustTextAreaHeight.subscribe(function (className) { 
+            console.log ("adjusting height"); 
+            
+            var textArea = document.querySelector('.' + className); 
+              
+            textArea.style = "height: 14px"; // hack to get the real height of the text 
+            var scrollHeight = textArea.scrollHeight;
+        
+            textArea.style = "height: " + scrollHeight + "px;"; 
+          });
+        }(document, Elm)); 
     </script>
   </body>
 </html>

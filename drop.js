@@ -11956,7 +11956,7 @@ var _user$project$Drop$viewContents = function (contents) {
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text(_p0._1._0),
+							_0: _elm_lang$html$Html$text(_p0._0),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
@@ -11968,7 +11968,7 @@ var _user$project$Drop$viewContents = function (contents) {
 								_0: _elm_lang$html$Html_Attributes$class('answer'),
 								_1: {ctor: '[]'}
 							},
-							_p0._0),
+							_p0._1._0),
 						_1: {ctor: '[]'}
 					}
 				});
@@ -11993,7 +11993,7 @@ var _user$project$Drop$viewContents = function (contents) {
 				A2(
 					_elm_lang$core$List$map,
 					render,
-					A2(_elm_lang$core$String$split, '\n', contents)))));
+					A2(_elm_lang$core$String$split, '@@@\n', contents)))));
 };
 var _user$project$Drop$formatTime = function (time) {
 	return A2(
@@ -12005,16 +12005,18 @@ var _user$project$Drop$formatTime = function (time) {
 var _user$project$Drop$timedStatus = function (model) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
-		model.status,
+		_user$project$Drop$formatTime(model.currentTime),
 		A2(
 			_elm_lang$core$Basics_ops['++'],
 			'\t',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				_user$project$Drop$formatTime(model.currentTime),
-				'\n')));
+			A2(_elm_lang$core$Basics_ops['++'], model.status, ' @@@\n')));
 };
 var _user$project$Drop$dropboxAPI = 'https://content.dropboxapi.com/2';
+var _user$project$Drop$adjustTextAreaHeight = _elm_lang$core$Native_Platform.outgoingPort(
+	'adjustTextAreaHeight',
+	function (v) {
+		return v;
+	});
 var _user$project$Drop$Model = F7(
 	function (a, b, c, d, e, f, g) {
 		return {filePath: a, dropURL: b, contents: c, status: d, time: e, currentTime: f, errorMessage: g};
@@ -12197,7 +12199,11 @@ var _user$project$Drop$update = F2(
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{status: _p1._0}),
-					{ctor: '[]'});
+					{
+						ctor: '::',
+						_0: _user$project$Drop$adjustTextAreaHeight('height-adjusting-textarea'),
+						_1: {ctor: '[]'}
+					});
 			case 'Upload':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -12371,13 +12377,13 @@ var _user$project$Drop$view = function (model) {
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$input,
+									_elm_lang$html$Html$textarea,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$id('update'),
+										_0: _elm_lang$html$Html_Attributes$class('height-adjusting-textarea'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$type_('text'),
+											_0: _elm_lang$html$Html_Attributes$id('update'),
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
@@ -12441,7 +12447,14 @@ var _user$project$Drop$view = function (model) {
 		});
 };
 var _user$project$Drop$main = _elm_lang$html$Html$program(
-	{init: _user$project$Drop$init, view: _user$project$Drop$view, update: _user$project$Drop$update, subscriptions: _user$project$Drop$subscriptions})();
+	{
+		init: _user$project$Drop$init,
+		view: _user$project$Drop$view,
+		update: _user$project$Drop$update,
+		subscriptions: function (_p5) {
+			return _elm_lang$core$Platform_Sub$none;
+		}
+	})();
 
 var Elm = {};
 Elm['Drop'] = Elm['Drop'] || {};

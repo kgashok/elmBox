@@ -2,6 +2,7 @@ html,
 body {
   margin: 8px;
   padding: 0;
+  /*height: 100%; */
 }
 
 body {
@@ -11,6 +12,22 @@ body {
   /*line-height: 1.0em;*/
 
 }
+
+textarea {
+  padding: 10px;
+  width: 100%;
+  font-size: 1.5em;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+
+  resize: none;
+  overflow: hidden;
+  min-height: 50px;
+  max-height: 100px; 
+  height: 100%;
+}
+
 
 p  {
   /*background: #fa0;*/
