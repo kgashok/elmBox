@@ -87,12 +87,12 @@ update msg model =
     case msg of
         Refresh ->
             { model | contents = "" }
-                ! [ getFile model, Task.perform NewTime Time.now ]
+                ! [ getFile model, getTimeTask ]
 
         Download (Ok ( time, contents )) ->
             (model
-                |> updateContents contents
                 |> setTime time
+                |> updateContents contents
                 |> setFlashMessage "Download successful!"
             )
                 ! [ focusUpdate ]
@@ -101,7 +101,7 @@ update msg model =
             setFlashMessage (toString error) model ! []
 
         Append ->
-            model ! [ Task.perform GetTimeAndAppend Time.now ]
+            model ! [ getTimeTask ]
 
         GetTimeAndAppend time ->
             (model
@@ -132,13 +132,17 @@ update msg model =
                 ! []
 
         GetTime ->
-            model ! [ Task.perform NewTime Time.now ]
+            model ! [ getTimeTask ]
 
         NewTime time ->
-            setTime time model ! [ focusUpdate ]
+            (model |> setTime time) ! [ focusUpdate ]
 
         FocusDone _ ->
             model ! []
+
+
+getTimeTask =
+    Task.perform NewTime Time.now
 
 
 focusUpdate : Cmd Msg
