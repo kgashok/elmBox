@@ -141,6 +141,7 @@ update msg model =
             model ! []
 
 
+getTimeTask : Cmd Msg
 getTimeTask =
     Task.perform NewTime Time.now
 
@@ -226,7 +227,6 @@ viewContents contents =
                             [ ul [] [ text ts ]
                             , Markdown.toHtml [] line
                             ]
-
                     _ ->
                         Markdown.toHtml [ class "answer" ] material
     in
@@ -331,6 +331,7 @@ stringify =
     Json.Encode.object >> Json.Encode.encode 0
 
 
+authorizationHeader : Header
 authorizationHeader =
     Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
 
