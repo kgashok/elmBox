@@ -110,9 +110,6 @@ update msg model =
             )
                 ! [ focusUpdate ]
 
-        FocusDone _ ->
-            model ! []
-
         UpdateStatus s ->
             { model | status = s }
                 ! [ adjustTextAreaHeight "height-adjusting-textarea" ]
@@ -139,6 +136,14 @@ update msg model =
         NewTime time ->
             setTime time model ! [ focusUpdate ]
 
+        FocusDone _ ->
+            model ! []
+
+
+focusUpdate : Cmd Msg
+focusUpdate =
+    Task.attempt FocusDone (Dom.focus "update")
+
 
 setFlashMessage : String -> Model -> Model
 setFlashMessage message model =
@@ -158,11 +163,6 @@ appendStatus model =
 updateContents : String -> Model -> Model
 updateContents contents model =
     { model | contents = unescape contents }
-
-
-focusUpdate : Cmd Msg
-focusUpdate =
-    Task.attempt FocusDone (Dom.focus "update")
 
 
 formatTime : Maybe Time -> String
@@ -193,7 +193,13 @@ view model =
         , div [ id "titleContainer" ]
             [ hr [ class "style8" ] []
             , h3 [] [ text <| formatTime model.currentTime ++ model.flashMessage ]
-            , textarea [ class "height-adjusting-textarea", id "update", placeholder "Update?", onInput UpdateStatus ] []
+            , textarea
+                [ class "height-adjusting-textarea"
+                , id "update"
+                , placeholder "Update?"
+                , onInput UpdateStatus
+                ]
+                []
             , button [ id "button2", onClick Append ] [ text "Append" ]
             , button [ id "button3", onClick Upload ] [ text "Upload!" ]
             , footer
