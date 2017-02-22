@@ -92,7 +92,7 @@ update msg model =
             (model
                 |> updateContents contents
                 |> setTime time
-                |> setFlashMessage (formatTime (Just time) ++ "Download successful!")
+                |> setFlashMessage "Download successful!"
             )
                 ! [ focusUpdate ]
 
@@ -106,7 +106,7 @@ update msg model =
             (model
                 |> setTime time
                 |> appendStatus
-                |> setFlashMessage (formatTime (Just time) ++ "Append successful!")
+                |> setFlashMessage "Append successful!"
             )
                 ! [ focusUpdate ]
 
@@ -123,12 +123,15 @@ update msg model =
         UploadStatus (Ok ( time, contents )) ->
             (model
                 |> setTime time
-                |> setFlashMessage (formatTime (Just time) ++ "Upload successful!")
+                |> setFlashMessage "Upload successful!"
             )
                 ! [ focusUpdate ]
 
         UploadStatus (Err error) ->
-            setFlashMessage (toString error) model ! []
+            (model
+                |> setFlashMessage (toString error)
+            )
+                ! []
 
         GetTime ->
             model ! [ Task.perform NewTime Time.now ]
@@ -189,7 +192,7 @@ view model =
             ]
         , div [ id "titleContainer" ]
             [ hr [ class "style8" ] []
-            , h3 [] [ text <| model.flashMessage ]
+            , h3 [] [ text <| formatTime model.currentTime ++ model.flashMessage ]
             , textarea [ class "height-adjusting-textarea", id "update", placeholder "Update?", onInput UpdateStatus ] []
             , button [ id "button2", onClick Append ] [ text "Append" ]
             , button [ id "button3", onClick Upload ] [ text "Upload!" ]
