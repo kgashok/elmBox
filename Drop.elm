@@ -13,6 +13,7 @@ import Date.Format exposing (..)
 import ElmEscapeHtml exposing (..)
 import Markdown exposing (..)
 import Version exposing (..)
+import Json.Encode exposing (..) 
 
 
 main : Program Never Model Msg
@@ -310,18 +311,28 @@ filePath : String
 filePath =
     "/Apps/elmBox/body.txt"
 
+downloadArgs : List (String, Value) 
+downloadArgs = [("path", string filePath)] 
+
+uploadArgs : List (String, Value) 
+uploadArgs = 
+  downloadArgs ++ [("mode", string "overwrite")]
+
+stringify: List ( String, Value ) -> String
+stringify = 
+  Json.Encode.object >> Json.Encode.encode 0 
 
 downloadHeaders : List Header
 downloadHeaders =
     [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
-    , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\"}"
+    , Http.header "Dropbox-API-Arg" (stringify downloadArgs)
     ]
 
 
 uploadHeaders : List Header
 uploadHeaders =
     [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
-    , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\", \"mode\":\"overwrite\" }"
+    , Http.header "Dropbox-API-Arg" (stringify uploadArgs)
     ]
 
 
