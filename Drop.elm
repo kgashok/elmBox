@@ -13,7 +13,7 @@ import Date.Format exposing (..)
 import ElmEscapeHtml exposing (..)
 import Markdown exposing (..)
 import Version exposing (..)
-import Json.Encode exposing (..) 
+import Json.Encode exposing (..)
 
 
 main : Program Never Model Msg
@@ -311,16 +311,21 @@ filePath : String
 filePath =
     "/Apps/elmBox/body.txt"
 
-downloadArgs : List (String, Value) 
-downloadArgs = [("path", string filePath)] 
 
-uploadArgs : List (String, Value) 
-uploadArgs = 
-  downloadArgs ++ [("mode", string "overwrite")]
+downloadArgs : List ( String, Value )
+downloadArgs =
+    [ ( "path", string filePath ) ]
 
-stringify: List ( String, Value ) -> String
-stringify = 
-  Json.Encode.object >> Json.Encode.encode 0 
+
+uploadArgs : List ( String, Value )
+uploadArgs =
+    downloadArgs ++ [ ( "mode", string "overwrite" ) ]
+
+
+stringify : List ( String, Value ) -> String
+stringify =
+    Json.Encode.object >> Json.Encode.encode 0
+
 
 downloadHeaders : List Header
 downloadHeaders =
