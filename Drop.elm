@@ -101,7 +101,7 @@ update msg model =
             setFlashMessage (toString error) model ! []
 
         Append ->
-            model ! [ getTimeTask ]
+            model ! [ Task.perform GetTimeAndAppend Time.now ]
 
         GetTimeAndAppend time ->
             (model
@@ -170,14 +170,14 @@ updateContents contents model =
     { model | contents = unescape contents }
 
 
-formatTime : Maybe Time -> String
-formatTime time =
-    time |> Maybe.withDefault 0 |> fromTime |> format "%a %b/%d/%y %H:%M:%S "
-
-
 timedStatus : Model -> String
 timedStatus model =
     formatTime model.currentTime ++ "\t" ++ model.status ++ " @@@\n"
+
+
+formatTime : Maybe Time -> String
+formatTime time =
+    time |> Maybe.withDefault 0 |> fromTime |> format "%a %b/%d/%y %H:%M:%S "
 
 
 
