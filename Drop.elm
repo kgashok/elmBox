@@ -327,16 +327,20 @@ stringify =
     Json.Encode.object >> Json.Encode.encode 0
 
 
+authorizationHeader =
+    Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
+
+
 downloadHeaders : List Header
 downloadHeaders =
-    [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
+    [ authorizationHeader
     , Http.header "Dropbox-API-Arg" (stringify downloadArgs)
     ]
 
 
 uploadHeaders : List Header
 uploadHeaders =
-    [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
+    [ authorizationHeader
     , Http.header "Dropbox-API-Arg" (stringify uploadArgs)
     ]
 
