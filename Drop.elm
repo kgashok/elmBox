@@ -1,309 +1,351 @@
-port module Drop exposing (..) 
+port module Drop exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http exposing (..)
-import Dom exposing (..) 
-import Task exposing (..) 
+import Dom exposing (..)
+import Task exposing (..)
 import Result exposing (..)
-import Time exposing (..) 
+import Time exposing (..)
 import Date exposing (..)
-import Date.Format exposing (..) 
-
-import ElmEscapeHtml exposing (..) 
+import Date.Format exposing (..)
+import ElmEscapeHtml exposing (..)
 import Markdown exposing (..)
-
 import Version exposing (..)
+
 
 main : Program Never Model Msg
 main =
-  Html.program
-    { init = init
-    , view = view
-    , update = update
-    , subscriptions = \_ -> Sub.none -- subscriptions
-    }
+    Html.program
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
 
 
 
 -- MODEL
 
+
 type alias Model =
-  { filePath : String
-  , dropURL : String
-  , contents : String 
-  , status : String 
-  , currentTime : Maybe Time
-  , flashMessage  : String
-  }
+    { filePath : String
+    , dropURL : String
+    , contents : String
+    , status : String
+    , currentTime : Maybe Time
+    , flashMessage : String
+    }
 
-dropboxAPI : String 
-dropboxAPI = "https://content.dropboxapi.com/2"
 
-initialModel : Model 
-initialModel = 
-  Model filePath dropboxAPI 
-    "" ""
-    Nothing 
-    "Logger Ready" 
+dropboxAPI : String
+dropboxAPI =
+    "https://content.dropboxapi.com/2"
 
-init : (Model, Cmd Msg)
+
+initialModel : Model
+initialModel =
+    Model filePath
+        dropboxAPI
+        ""
+        ""
+        Nothing
+        "Logger Ready"
+
+
+init : ( Model, Cmd Msg )
 init =
-  ( initialModel
-  , getFile initialModel
-  --, Task.perform Refresh 
-  --, Task.perform NewTime Time.now
-  )
+    ( initialModel
+    , getFile initialModel
+    )
+
 
 
 -- UPDATE
 
 
 type Msg
-  = Refresh
-  | Download (Result Http.Error (Time, String))
-  | Append 
-  | GetTimeAndAppend Time
-  | UpdateStatus String
-  | Upload 
-  | UploadStatus (Result Http.Error (Time, String))
-  | FocusDone (Result Dom.Error() ) 
-  | GetTime 
-  | NewTime Time 
-
-port adjustTextAreaHeight : String -> Cmd msg 
+    = Refresh
+    | Download (Result Http.Error ( Time, String ))
+    | Append
+    | GetTimeAndAppend Time
+    | UpdateStatus String
+    | Upload
+    | UploadStatus (Result Http.Error ( Time, String ))
+    | FocusDone (Result Dom.Error ())
+    | GetTime
+    | NewTime Time
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+port adjustTextAreaHeight : String -> Cmd msg
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    Refresh ->
-      { model | contents = ""} 
-      ! [ getFile model, Task.perform NewTime Time.now ]
+    case msg of
+        Refresh ->
+            { model | contents = "" }
+                ! [ getFile model, Task.perform NewTime Time.now ]
 
-    Download (Ok (time, contents)) ->
-      (model
-        |> updateContents contents 
-        |> setTime time 
-        |> setFlashMessage (formatTime (Just time) ++ "Download successful!")
-      ) ! [ focusUpdate ]
+        Download (Ok ( time, contents )) ->
+            (model
+                |> updateContents contents
+                |> setTime time
+                |> setFlashMessage (formatTime (Just time) ++ "Download successful!")
+            )
+                ! [ focusUpdate ]
 
-    Download (Err error) ->
-      setFlashMessage (toString error) model ! [] 
+        Download (Err error) ->
+            setFlashMessage (toString error) model ! []
 
-    Append -> 
-      model ! [ Task.perform GetTimeAndAppend Time.now ]
+        Append ->
+            model ! [ Task.perform GetTimeAndAppend Time.now ]
 
-    GetTimeAndAppend time -> 
-      (model 
-        |> setTime time 
-        |> appendStatus 
-        |> setFlashMessage (formatTime (Just time) ++ "Append successful!")
-      ) ! [ focusUpdate ] 
+        GetTimeAndAppend time ->
+            (model
+                |> setTime time
+                |> appendStatus
+                |> setFlashMessage (formatTime (Just time) ++ "Append successful!")
+            )
+                ! [ focusUpdate ]
 
-    FocusDone _-> 
-      model ! []
+        FocusDone _ ->
+            model ! []
 
-    UpdateStatus s -> 
-      { model| status = s } 
-      ! [adjustTextAreaHeight "height-adjusting-textarea"]
+        UpdateStatus s ->
+            { model | status = s }
+                ! [ adjustTextAreaHeight "height-adjusting-textarea" ]
 
-    Upload -> 
-      model ! [sendFile model]
+        Upload ->
+            model ! [ sendFile model ]
 
-    UploadStatus (Ok (time, contents)) -> 
-      (model 
-        |> setTime time 
-        |> setFlashMessage (formatTime (Just time) ++ "Upload successful!")
-      ) ! [ focusUpdate ] 
+        UploadStatus (Ok ( time, contents )) ->
+            (model
+                |> setTime time
+                |> setFlashMessage (formatTime (Just time) ++ "Upload successful!")
+            )
+                ! [ focusUpdate ]
 
-    UploadStatus (Err error) -> 
-      setFlashMessage (toString error) model ! []
+        UploadStatus (Err error) ->
+            setFlashMessage (toString error) model ! []
 
-    GetTime ->
-      model ! [ Task.perform NewTime Time.now ]
+        GetTime ->
+            model ! [ Task.perform NewTime Time.now ]
 
-    NewTime time ->
-      setTime time model ! [ focusUpdate]
+        NewTime time ->
+            setTime time model ! [ focusUpdate ]
 
 
 setFlashMessage : String -> Model -> Model
-setFlashMessage message model = { model|flashMessage = message}  
+setFlashMessage message model =
+    { model | flashMessage = message }
 
-setTime : Time -> Model -> Model 
-setTime time model = { model | currentTime = Just time}
 
-appendStatus : Model -> Model 
-appendStatus model = 
-  { model | contents = (timedStatus model) ++ model.contents }
+setTime : Time -> Model -> Model
+setTime time model =
+    { model | currentTime = Just time }
 
-updateContents : String -> Model -> Model 
-updateContents contents model = 
-  { model | contents = unescape contents } 
+
+appendStatus : Model -> Model
+appendStatus model =
+    { model | contents = (timedStatus model) ++ model.contents }
+
+
+updateContents : String -> Model -> Model
+updateContents contents model =
+    { model | contents = unescape contents }
+
 
 focusUpdate : Cmd Msg
-focusUpdate = 
+focusUpdate =
     Task.attempt FocusDone (Dom.focus "update")
 
 
-formatTime: Maybe Time -> String 
-formatTime time = 
-  time |> Maybe.withDefault 0 |> fromTime |> format "%a %b/%d/%y %H:%M:%S "
+formatTime : Maybe Time -> String
+formatTime time =
+    time |> Maybe.withDefault 0 |> fromTime |> format "%a %b/%d/%y %H:%M:%S "
 
 
-timedStatus: Model -> String 
-timedStatus model = 
-    formatTime model.currentTime ++ "\t" ++ model.status ++ " @@@\n"  
+timedStatus : Model -> String
+timedStatus model =
+    formatTime model.currentTime ++ "\t" ++ model.status ++ " @@@\n"
+
+
 
 -- VIEW
 
 
 view : Model -> Html Msg
 view model =
-  div [] 
-    [ div [class "example example-dotted"]
-        [ h1 [] [text "Daily Log"]
-        , footer
-        , hr [class "style5"] []
-        , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
-        , br [] []
-        , div [] [viewContents model.contents ]
+    div []
+        [ div [ class "example example-dotted" ]
+            [ h1 [] [ text "Daily Log" ]
+            , footer
+            , hr [ class "style5" ] []
+            , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
+            , br [] []
+            , div [] [ viewContents model.contents ]
+            ]
+        , div [ id "titleContainer" ]
+            [ hr [ class "style8" ] []
+            , h3 [] [ text <| model.flashMessage ]
+            , textarea [ class "height-adjusting-textarea", id "update", placeholder "Update?", onInput UpdateStatus ] []
+            , button [ id "button2", onClick Append ] [ text "Append" ]
+            , button [ id "button3", onClick Upload ] [ text "Upload!" ]
+            , footer
+            ]
         ]
-    , div [id "titleContainer"] 
-        [ hr [class "style8"] []
-        , h3 [] [text <| model.flashMessage]
-        --, input [ id "update", type_ "text", placeholder "Update?", onInput UpdateStatus ] []
-        , textarea [ class "height-adjusting-textarea", id "update", placeholder "Update?", onInput UpdateStatus ] []
-        , button [ id "button2", onClick Append ] [ text "Append" ]
-        , button [ id "button3", onClick Upload] [text "Upload!"]
-        , footer
-        ]
-    ] 
 
 
-viewContents: String -> Html Msg
-viewContents contents = 
-  let
-    render material =
-      let 
-        tuple = String.split "\t" material
-      in 
-        case tuple of 
-          ts :: [line] ->
-            div [class "answer"] 
-              [ 
-                ul [] [text ts]
-              , Markdown.toHtml [ ] line
-              ]
-          _ -> 
-            Markdown.toHtml [class "answer"] material
-    
-  in 
-    contents 
-        |> String.split "@@@\n"
-        |> List.map render 
-        |> List.take 46 
-        |> List.reverse 
-        |> div []
+viewContents : String -> Html Msg
+viewContents contents =
+    let
+        render material =
+            let
+                tuple =
+                    String.split "\t" material
+            in
+                case tuple of
+                    ts :: [ line ] ->
+                        div [ class "answer" ]
+                            [ ul [] [ text ts ]
+                            , Markdown.toHtml [] line
+                            ]
+
+                    _ ->
+                        Markdown.toHtml [ class "answer" ] material
+    in
+        contents
+            |> String.split "@@@\n"
+            |> List.map render
+            |> List.take 46
+            |> List.reverse
+            >> div []
 
 
 footer : Html Msg
-footer = 
-  div [id "footer"]
-  [ a [href (gitRepo ++ "/issues/new"), 
-    target "_blank", 
-    rel "noopener noreferrer"] 
-    [text version]
-  ]
+footer =
+    div [ id "footer" ]
+        [ a
+            [ href (gitRepo ++ "/issues/new")
+            , target "_blank"
+            , rel "noopener noreferrer"
+            ]
+            [ text version ]
+        ]
+
+
 
 -- SUBSCRIPTIONS
 
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Sub.none
+    Sub.none
+
 
 
 -- HTTP
 
+
 getFile : Model -> Cmd Msg
 getFile model =
-  let
-    downloadURL = model.dropURL ++ "/files/download"
-    settings    = { postSettings | url = downloadURL }
-    getTask     = Http.toTask (Http.request settings)
-  in
-    Time.now 
-      |> Task.andThen (\t -> Task.map ((,) t) getTask)
-      |> Task.attempt Download 
+    let
+        downloadURL =
+            model.dropURL ++ "/files/download"
 
-  --  Http.send Download (Http.request settings)
+        settings =
+            { postSettings | url = downloadURL }
 
-
-sendFile : Model -> Cmd Msg 
-sendFile model = 
-  let 
-    uploadURL = dropboxAPI ++ "/files/upload"
-    
-    settings = 
-        { postSettings 
-          | url  = uploadURL
-          , headers = uploadHeaders
-          , body = stringBody "application/octet-stream" model.contents 
-        }
-
-    getTask = Http.toTask (Http.request settings)
-
-  in 
-    Time.now
-      |> Task.andThen (\t -> Task.map ((,) t) getTask) 
-      |> Task.attempt UploadStatus 
-
-    -- Http.toTask (Http.request settings)
-    --   |> Task.andThen (\req -> Task.map (\t -> (t, req)) Time.now)
-    --   |> Task.attempt UploadStatus
+        getTask =
+            Http.toTask (Http.request settings)
+    in
+        Time.now
+            |> Task.andThen (\t -> Task.map ((,) t) getTask)
+            |> Task.attempt Download
 
 
-filePath : String 
-filePath = "/Apps/elmBox/body.txt"
+
+--  Http.send Download (Http.request settings)
+
+
+sendFile : Model -> Cmd Msg
+sendFile model =
+    let
+        uploadURL =
+            dropboxAPI ++ "/files/upload"
+
+        settings =
+            { postSettings
+                | url = uploadURL
+                , headers = uploadHeaders
+                , body = stringBody "application/octet-stream" model.contents
+            }
+
+        getTask =
+            Http.toTask (Http.request settings)
+    in
+        Time.now
+            |> Task.andThen (\t -> Task.map ((,) t) getTask)
+            |> Task.attempt UploadStatus
+
+
+
+-- Http.toTask (Http.request settings)
+--   |> Task.andThen (\req -> Task.map (\t -> (t, req)) Time.now)
+--   |> Task.attempt UploadStatus
+
+
+filePath : String
+filePath =
+    "/Apps/elmBox/body.txt"
+
 
 downloadHeaders : List Header
-downloadHeaders = 
-  [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
-  , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\"}"
-  ]
+downloadHeaders =
+    [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
+    , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\"}"
+    ]
+
 
 uploadHeaders : List Header
-uploadHeaders = 
-  [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
-  , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\", \"mode\":\"overwrite\" }"
-  ]
-
-postSettings : 
-  { body: Body, expect: Expect String, headers: List Header
-  , method: String, timeout : Maybe a, url: String
-  , withCredentials : Bool 
-  }
-postSettings = 
-  { method  = "POST"
-  , headers = downloadHeaders
-  , url     = ""
-  , body    = emptyBody
-  , expect  = expectString
-  , timeout = Nothing
-  , withCredentials = False
-  }
+uploadHeaders =
+    [ Http.header "Authorization" "Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao"
+    , Http.header "Dropbox-API-Arg" "{\"path\":\"/Apps/elmBox/body.txt\", \"mode\":\"overwrite\" }"
+    ]
 
 
-{-- 
-encodeContents : String -> Encode.Value        
+postSettings :
+    { body : Body
+    , expect : Expect String
+    , headers : List Header
+    , method : String
+    , timeout : Maybe a
+    , url : String
+    , withCredentials : Bool
+    }
+postSettings =
+    { method = "POST"
+    , headers = downloadHeaders
+    , url = ""
+    , body = emptyBody
+    , expect = expectString
+    , timeout = Nothing
+    , withCredentials = False
+    }
+
+
+
+{--
+encodeContents : String -> Encode.Value
 encodeContents contents =
-  Encode.object 
+  Encode.object
     [ ("data", Encode.string contents)]
 
 
 decodeResponse : Decode.Decoder String
 decodeResponse =
-  Decode.string 
+  Decode.string
 
 --}
