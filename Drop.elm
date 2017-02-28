@@ -37,6 +37,8 @@ type alias Model =
     , status : String
     , currentTime : Maybe Time
     , flashMessage : String
+    , downloadSuccess : Bool
+    , downloadFirst : Bool
     }
 
 
@@ -53,12 +55,15 @@ initialModel =
         ""
         Nothing
         "Logger Ready"
+        False 
+        False 
 
 
 init : ( Model, Cmd Msg )
 init =
     ( initialModel
-    , getFile initialModel
+    -- , getFile initialModel
+    , getTimeTask 
     )
 
 
@@ -69,6 +74,7 @@ init =
 type Msg
     = Refresh
     | Download (Result Http.Error ( Time, String ))
+    | DownloadAndAppend (Result Http.Error ( Time, String ))
     | Append
     | GetTimeAndAppend Time
     | UpdateStatus String
@@ -87,41 +93,92 @@ update msg model =
     case msg of
         Refresh ->
             { model | contents = "" }
-                ! [ getFile model, getTimeTask ]
+                ! [ getFileTask model, getTimeTask ]
 
         Download (Ok ( time, contents )) ->
+          case (model.downloadFirst, model.downloadSuccess) of 
+            (False, _) -> 
+              (model
+                  |> setTime time
+                  |> updateContents contents
+                  |> setFlashMessage "Download successful!"
+                  |> setFlag True 
+              )
+                  ! [ focusUpdate ]
+            (True, False) -> 
+              (model
+                  |> setTime time
+                  |> updateContents contents
+                  |> appendStatus 
+                  |> setFlashMessage "Download successful!"
+                  |> setFlag True 
+              )
+                  ! [ focusUpdate, sendFileTask model ]
+            (True, True) -> 
+              (model
+                  |> setTime time
+                  |> updateContents contents
+                  |> setFlashMessage "Download successful!"
+                  |> setFlag True 
+              )
+                  ! [ focusUpdate, sendFileTask model ]
+
+
+        Download (Err error) ->
+          let 
+            model_ = { model | downloadSuccess = False, downloadFirst = False  }
+          in 
+            setFlashMessage (toString error) model_ ! []
+
+
+        DownloadAndAppend (Ok ( time, contents )) ->
             (model
                 |> setTime time
                 |> updateContents contents
-                |> setFlashMessage "Download successful!"
+                |> appendStatus
+                |> setFlashMessage "Download/Append successful!"
+                |> setFlag True 
             )
                 ! [ focusUpdate ]
 
-        Download (Err error) ->
+        DownloadAndAppend (Err error) ->
             setFlashMessage (toString error) model ! []
 
         Append ->
             model ! [ Task.perform GetTimeAndAppend Time.now ]
 
         GetTimeAndAppend time ->
-            (model
-                |> setTime time
-                |> appendStatus
-                |> setFlashMessage "Append successful!"
-            )
-                ! [ focusUpdate ]
+        --  case model.downloadSuccess of 
+        --    True -> 
+              (model
+                  |> setTime time
+                  |> appendStatus
+                  |> setFlashMessage "Append successful!"
+              )
+                  ! [ focusUpdate ]
+        --    False -> 
+        --      model ! [getFileAndAppend model]
 
         UpdateStatus s ->
             { model | status = s }
                 ! [ adjustTextAreaHeight "height-adjusting-textarea" ]
 
         Upload ->
-            model ! [ sendFile model ]
+          case model.downloadSuccess of 
+              True -> 
+                  ( model 
+                    --  |> appendStatus 
+                  ) 
+                  ! [ sendFileTask model ]
+              False -> 
+                  { model | downloadFirst = True } 
+                  ! [ getFileTask model ]
 
         UploadStatus (Ok ( time, contents )) ->
             (model
                 |> setTime time
                 |> setFlashMessage "Upload successful!"
+                |> setDownloadFirst False 
             )
                 ! [ focusUpdate ]
 
@@ -160,6 +217,13 @@ setTime : Time -> Model -> Model
 setTime time model =
     { model | currentTime = Just time }
 
+setFlag : Bool -> Model -> Model
+setFlag flag model =  
+    { model | downloadSuccess = flag}
+
+setDownloadFirst : Bool -> Model -> Model
+setDownloadFirst flag model =  
+    { model | downloadFirst = flag}
 
 appendStatus : Model -> Model
 appendStatus model =
@@ -262,29 +326,42 @@ subscriptions model =
 
 -- HTTP
 
-
-getFile : Model -> Cmd Msg
-getFile model =
+getFile : Model -> Http.Request String
+getFile model = 
     let
         downloadURL =
             model.dropURL ++ "/files/download"
 
         settings =
             { postSettings | url = downloadURL }
+    in 
+        Http.request settings
 
-        getTask =
-            Http.toTask (Http.request settings)
+
+getFileTask : Model -> Cmd Msg
+getFileTask model =
+    let 
+        getTask = Http.toTask (getFile model)
     in
         Time.now
             |> Task.andThen (\t -> Task.map ((,) t) getTask)
             |> Task.attempt Download
 
 
+getFileAndAppend : Model -> Cmd Msg
+getFileAndAppend model =
+    let
+        getTask = Http.toTask (getFile model)
+    in
+        Time.now
+            |> Task.andThen (\t -> Task.map ((,) t) getTask)
+            |> Task.attempt DownloadAndAppend
+
 
 --  Http.send Download (Http.request settings)
 
 
-sendFile : Model -> Cmd Msg
+sendFile : Model -> Http.Request String 
 sendFile model =
     let
         uploadURL =
@@ -297,11 +374,18 @@ sendFile model =
                 , body = stringBody "application/octet-stream" model.contents
             }
 
-        getTask =
-            Http.toTask (Http.request settings)
+    in 
+        Http.request settings
+
+
+sendFileTask : Model -> Cmd Msg
+sendFileTask model =
+    let
+        sendTask =
+            Http.toTask (sendFile model)
     in
         Time.now
-            |> Task.andThen (\t -> Task.map ((,) t) getTask)
+            |> Task.andThen (\t -> Task.map ((,) t) sendTask)
             |> Task.attempt UploadStatus
 
 
