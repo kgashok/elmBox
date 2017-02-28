@@ -55,15 +55,15 @@ initialModel =
         ""
         Nothing
         "Logger Ready"
-        False 
-        False 
+        False
+        False
 
 
 init : ( Model, Cmd Msg )
 init =
     ( initialModel
-    -- , getFile initialModel
-    , getTimeTask 
+      -- , getFile initialModel
+    , getTimeTask
     )
 
 
@@ -96,40 +96,41 @@ update msg model =
                 ! [ getFileTask model, getTimeTask ]
 
         Download (Ok ( time, contents )) ->
-          case (model.downloadFirst, model.downloadSuccess) of 
-            (False, _) -> 
-              (model
-                  |> setTime time
-                  |> updateContents contents
-                  |> setFlashMessage "Download successful!"
-                  |> setFlag True 
-              )
-                  ! [ focusUpdate ]
-            (True, False) -> 
-              (model
-                  |> setTime time
-                  |> updateContents contents
-                  |> appendStatus 
-                  |> setFlashMessage "Download successful!"
-                  |> setFlag True 
-              )
-                  ! [ focusUpdate, sendFileTask model ]
-            (True, True) -> 
-              (model
-                  |> setTime time
-                  |> updateContents contents
-                  |> setFlashMessage "Download successful!"
-                  |> setFlag True 
-              )
-                  ! [ focusUpdate, sendFileTask model ]
+            case ( model.downloadFirst, model.downloadSuccess ) of
+                ( False, _ ) ->
+                    (model
+                        |> setTime time
+                        |> updateContents contents
+                        |> setFlashMessage "Download successful!"
+                        |> setFlag True
+                    )
+                        ! [ focusUpdate ]
 
+                ( True, False ) ->
+                    (model
+                        |> setTime time
+                        |> updateContents contents
+                        |> appendStatus
+                        |> setFlashMessage "Download successful!"
+                        |> setFlag True
+                    )
+                        ! [ focusUpdate, sendFileTask model ]
+
+                ( True, True ) ->
+                    (model
+                        |> setTime time
+                        |> updateContents contents
+                        |> setFlashMessage "Download successful!"
+                        |> setFlag True
+                    )
+                        ! [ focusUpdate, sendFileTask model ]
 
         Download (Err error) ->
-          let 
-            model_ = { model | downloadSuccess = False, downloadFirst = False  }
-          in 
-            setFlashMessage (toString error) model_ ! []
-
+            let
+                model_ =
+                    { model | downloadSuccess = False, downloadFirst = False }
+            in
+                setFlashMessage (toString error) model_ ! []
 
         DownloadAndAppend (Ok ( time, contents )) ->
             (model
@@ -137,7 +138,7 @@ update msg model =
                 |> updateContents contents
                 |> appendStatus
                 |> setFlashMessage "Download/Append successful!"
-                |> setFlag True 
+                |> setFlag True
             )
                 ! [ focusUpdate ]
 
@@ -148,37 +149,38 @@ update msg model =
             model ! [ Task.perform GetTimeAndAppend Time.now ]
 
         GetTimeAndAppend time ->
-        --  case model.downloadSuccess of 
-        --    True -> 
-              (model
-                  |> setTime time
-                  |> appendStatus
-                  |> setFlashMessage "Append successful!"
-              )
-                  ! [ focusUpdate ]
-        --    False -> 
-        --      model ! [getFileAndAppend model]
+            --  case model.downloadSuccess of
+            --    True ->
+            (model
+                |> setTime time
+                |> appendStatus
+                |> setFlashMessage "Append successful!"
+            )
+                ! [ focusUpdate ]
 
+        --    False ->
+        --      model ! [getFileAndAppend model]
         UpdateStatus s ->
             { model | status = s }
                 ! [ adjustTextAreaHeight "height-adjusting-textarea" ]
 
         Upload ->
-          case model.downloadSuccess of 
-              True -> 
-                  ( model 
-                    --  |> appendStatus 
-                  ) 
-                  ! [ sendFileTask model ]
-              False -> 
-                  { model | downloadFirst = True } 
-                  ! [ getFileTask model ]
+            case model.downloadSuccess of
+                True ->
+                    (model
+                     --  |> appendStatus
+                    )
+                        ! [ sendFileTask model ]
+
+                False ->
+                    { model | downloadFirst = True }
+                        ! [ getFileTask model ]
 
         UploadStatus (Ok ( time, contents )) ->
             (model
                 |> setTime time
                 |> setFlashMessage "Upload successful!"
-                |> setDownloadFirst False 
+                |> setDownloadFirst False
             )
                 ! [ focusUpdate ]
 
@@ -217,13 +219,16 @@ setTime : Time -> Model -> Model
 setTime time model =
     { model | currentTime = Just time }
 
+
 setFlag : Bool -> Model -> Model
-setFlag flag model =  
-    { model | downloadSuccess = flag}
+setFlag flag model =
+    { model | downloadSuccess = flag }
+
 
 setDownloadFirst : Bool -> Model -> Model
-setDownloadFirst flag model =  
-    { model | downloadFirst = flag}
+setDownloadFirst flag model =
+    { model | downloadFirst = flag }
+
 
 appendStatus : Model -> Model
 appendStatus model =
@@ -291,6 +296,7 @@ viewContents contents =
                             [ ul [] [ text ts ]
                             , Markdown.toHtml [] line
                             ]
+
                     _ ->
                         Markdown.toHtml [ class "answer" ] material
     in
@@ -326,22 +332,24 @@ subscriptions model =
 
 -- HTTP
 
+
 getFile : Model -> Http.Request String
-getFile model = 
+getFile model =
     let
         downloadURL =
             model.dropURL ++ "/files/download"
 
         settings =
             { postSettings | url = downloadURL }
-    in 
+    in
         Http.request settings
 
 
 getFileTask : Model -> Cmd Msg
 getFileTask model =
-    let 
-        getTask = Http.toTask (getFile model)
+    let
+        getTask =
+            Http.toTask (getFile model)
     in
         Time.now
             |> Task.andThen (\t -> Task.map ((,) t) getTask)
@@ -351,17 +359,19 @@ getFileTask model =
 getFileAndAppend : Model -> Cmd Msg
 getFileAndAppend model =
     let
-        getTask = Http.toTask (getFile model)
+        getTask =
+            Http.toTask (getFile model)
     in
         Time.now
             |> Task.andThen (\t -> Task.map ((,) t) getTask)
             |> Task.attempt DownloadAndAppend
 
 
+
 --  Http.send Download (Http.request settings)
 
 
-sendFile : Model -> Http.Request String 
+sendFile : Model -> Http.Request String
 sendFile model =
     let
         uploadURL =
@@ -373,8 +383,7 @@ sendFile model =
                 , headers = uploadHeaders
                 , body = stringBody "application/octet-stream" model.contents
             }
-
-    in 
+    in
         Http.request settings
 
 
