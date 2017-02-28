@@ -11884,7 +11884,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.0-41-g3498c52';
+var _user$project$Version$version = 'v1.5-0-g5eace3e';
 
 var _user$project$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
 var _user$project$Drop$stringify = function (_p0) {
@@ -12062,15 +12062,38 @@ var _user$project$Drop$updateContents = F2(
 				contents: _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape(contents)
 			});
 	});
-var _user$project$Drop$appendStatus = function (model) {
+var _user$project$Drop$appendStatuses = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{
-			contents: A2(
-				_elm_lang$core$Basics_ops['++'],
-				_user$project$Drop$timedStatus(model),
-				model.contents)
+			contents: A2(_elm_lang$core$Basics_ops['++'], model.appendContents, model.contents),
+			appendContents: ''
 		});
+};
+var _user$project$Drop$appendStatus = function (model) {
+	var _p3 = model.downloadSuccess;
+	if (_p3 === true) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				contents: A2(
+					_elm_lang$core$Basics_ops['++'],
+					_user$project$Drop$timedStatus(model),
+					model.contents)
+			});
+	} else {
+		var model_ = _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				appendContents: A2(
+					_elm_lang$core$Basics_ops['++'],
+					_user$project$Drop$timedStatus(model),
+					model.appendContents)
+			});
+		return _elm_lang$core$Native_Utils.update(
+			model_,
+			{contents: model_.appendContents});
+	}
 };
 var _user$project$Drop$setDownloadFirst = F2(
 	function (flag, model) {
@@ -12115,11 +12138,11 @@ var _user$project$Drop$adjustTextAreaHeight = _elm_lang$core$Native_Platform.out
 	function (v) {
 		return v;
 	});
-var _user$project$Drop$Model = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {filePath: a, dropURL: b, contents: c, status: d, currentTime: e, flashMessage: f, downloadSuccess: g, downloadFirst: h};
+var _user$project$Drop$Model = F9(
+	function (a, b, c, d, e, f, g, h, i) {
+		return {filePath: a, dropURL: b, contents: c, appendContents: d, status: e, currentTime: f, flashMessage: g, downloadSuccess: h, downloadFirst: i};
 	});
-var _user$project$Drop$initialModel = A8(_user$project$Drop$Model, _user$project$Drop$filePath, _user$project$Drop$dropboxAPI, '', '', _elm_lang$core$Maybe$Nothing, 'Logger Ready', false, false);
+var _user$project$Drop$initialModel = A9(_user$project$Drop$Model, _user$project$Drop$filePath, _user$project$Drop$dropboxAPI, '', '', '', _elm_lang$core$Maybe$Nothing, 'Logger Ready', false, false);
 var _user$project$Drop$NewTime = function (a) {
 	return {ctor: 'NewTime', _0: a};
 };
@@ -12209,8 +12232,8 @@ var _user$project$Drop$getFileTask = function (model) {
 };
 var _user$project$Drop$update = F2(
 	function (msg, model) {
-		var _p3 = msg;
-		switch (_p3.ctor) {
+		var _p4 = msg;
+		switch (_p4.ctor) {
 			case 'Refresh':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -12227,11 +12250,11 @@ var _user$project$Drop$update = F2(
 						}
 					});
 			case 'Download':
-				if (_p3._0.ctor === 'Ok') {
-					var _p6 = _p3._0._0._0;
-					var _p5 = _p3._0._0._1;
-					var _p4 = {ctor: '_Tuple2', _0: model.downloadFirst, _1: model.downloadSuccess};
-					if (_p4._0 === false) {
+				if (_p4._0.ctor === 'Ok') {
+					var _p7 = _p4._0._0._0;
+					var _p6 = _p4._0._0._1;
+					var _p5 = {ctor: '_Tuple2', _0: model.downloadFirst, _1: model.downloadSuccess};
+					if (_p5._0 === false) {
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
 							A2(
@@ -12242,15 +12265,15 @@ var _user$project$Drop$update = F2(
 									'Download successful!',
 									A2(
 										_user$project$Drop$updateContents,
-										_p5,
-										A2(_user$project$Drop$setTime, _p6, model)))),
+										_p6,
+										A2(_user$project$Drop$setTime, _p7, model)))),
 							{
 								ctor: '::',
 								_0: _user$project$Drop$focusUpdate,
 								_1: {ctor: '[]'}
 							});
 					} else {
-						if (_p4._1 === false) {
+						if (_p5._1 === false) {
 							return A2(
 								_elm_lang$core$Platform_Cmd_ops['!'],
 								A2(
@@ -12259,11 +12282,11 @@ var _user$project$Drop$update = F2(
 									A2(
 										_user$project$Drop$setFlashMessage,
 										'Download successful!',
-										_user$project$Drop$appendStatus(
+										_user$project$Drop$appendStatuses(
 											A2(
 												_user$project$Drop$updateContents,
-												_p5,
-												A2(_user$project$Drop$setTime, _p6, model))))),
+												_p6,
+												A2(_user$project$Drop$setTime, _p7, model))))),
 								{
 									ctor: '::',
 									_0: _user$project$Drop$focusUpdate,
@@ -12284,8 +12307,8 @@ var _user$project$Drop$update = F2(
 										'Download successful!',
 										A2(
 											_user$project$Drop$updateContents,
-											_p5,
-											A2(_user$project$Drop$setTime, _p6, model)))),
+											_p6,
+											A2(_user$project$Drop$setTime, _p7, model)))),
 								{
 									ctor: '::',
 									_0: _user$project$Drop$focusUpdate,
@@ -12305,12 +12328,12 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
 							_user$project$Drop$setFlashMessage,
-							_elm_lang$core$Basics$toString(_p3._0._0),
+							_elm_lang$core$Basics$toString(_p4._0._0),
 							model_),
 						{ctor: '[]'});
 				}
 			case 'DownloadAndAppend':
-				if (_p3._0.ctor === 'Ok') {
+				if (_p4._0.ctor === 'Ok') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
@@ -12322,8 +12345,8 @@ var _user$project$Drop$update = F2(
 								_user$project$Drop$appendStatus(
 									A2(
 										_user$project$Drop$updateContents,
-										_p3._0._0._1,
-										A2(_user$project$Drop$setTime, _p3._0._0._0, model))))),
+										_p4._0._0._1,
+										A2(_user$project$Drop$setTime, _p4._0._0._0, model))))),
 						{
 							ctor: '::',
 							_0: _user$project$Drop$focusUpdate,
@@ -12334,7 +12357,7 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
 							_user$project$Drop$setFlashMessage,
-							_elm_lang$core$Basics$toString(_p3._0._0),
+							_elm_lang$core$Basics$toString(_p4._0._0),
 							model),
 						{ctor: '[]'});
 				}
@@ -12354,7 +12377,7 @@ var _user$project$Drop$update = F2(
 						_user$project$Drop$setFlashMessage,
 						'Append successful!',
 						_user$project$Drop$appendStatus(
-							A2(_user$project$Drop$setTime, _p3._0, model))),
+							A2(_user$project$Drop$setTime, _p4._0, model))),
 					{
 						ctor: '::',
 						_0: _user$project$Drop$focusUpdate,
@@ -12365,18 +12388,18 @@ var _user$project$Drop$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{status: _p3._0}),
+						{status: _p4._0}),
 					{
 						ctor: '::',
 						_0: _user$project$Drop$adjustTextAreaHeight('height-adjusting-textarea'),
 						_1: {ctor: '[]'}
 					});
 			case 'Upload':
-				var _p7 = model.downloadSuccess;
-				if (_p7 === true) {
+				var _p8 = model.downloadSuccess;
+				if (_p8 === true) {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						model,
+						_user$project$Drop$appendStatus(model),
 						{
 							ctor: '::',
 							_0: _user$project$Drop$sendFileTask(model),
@@ -12395,7 +12418,7 @@ var _user$project$Drop$update = F2(
 						});
 				}
 			case 'UploadStatus':
-				if (_p3._0.ctor === 'Ok') {
+				if (_p4._0.ctor === 'Ok') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
@@ -12404,7 +12427,7 @@ var _user$project$Drop$update = F2(
 							A2(
 								_user$project$Drop$setFlashMessage,
 								'Upload successful!',
-								A2(_user$project$Drop$setTime, _p3._0._0._0, model))),
+								A2(_user$project$Drop$setTime, _p4._0._0._0, model))),
 						{
 							ctor: '::',
 							_0: _user$project$Drop$focusUpdate,
@@ -12415,7 +12438,7 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
 							_user$project$Drop$setFlashMessage,
-							_elm_lang$core$Basics$toString(_p3._0._0),
+							_elm_lang$core$Basics$toString(_p4._0._0),
 							model),
 						{ctor: '[]'});
 				}
@@ -12431,7 +12454,7 @@ var _user$project$Drop$update = F2(
 			case 'NewTime':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					A2(_user$project$Drop$setTime, _p3._0, model),
+					A2(_user$project$Drop$setTime, _p4._0, model),
 					{
 						ctor: '::',
 						_0: _user$project$Drop$focusUpdate,

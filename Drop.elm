@@ -34,6 +34,7 @@ type alias Model =
     { filePath : String
     , dropURL : String
     , contents : String
+    , appendContents : String 
     , status : String
     , currentTime : Maybe Time
     , flashMessage : String
@@ -51,8 +52,9 @@ initialModel : Model
 initialModel =
     Model filePath
         dropboxAPI
-        ""
-        ""
+        ""   -- contents
+        ""   -- appendContents
+        ""   -- status
         Nothing
         "Logger Ready"
         False 
@@ -109,7 +111,7 @@ update msg model =
               (model
                   |> setTime time
                   |> updateContents contents
-                  |> appendStatus 
+                  |> appendStatuses 
                   |> setFlashMessage "Download successful!"
                   |> setFlag True 
               )
@@ -148,7 +150,7 @@ update msg model =
             model ! [ Task.perform GetTimeAndAppend Time.now ]
 
         GetTimeAndAppend time ->
-        --  case model.downloadSuccess of 
+        --case model.downloadSuccess of 
         --    True -> 
               (model
                   |> setTime time
@@ -167,7 +169,7 @@ update msg model =
           case model.downloadSuccess of 
               True -> 
                   ( model 
-                    --  |> appendStatus 
+                    |> appendStatus 
                   ) 
                   ! [ sendFileTask model ]
               False -> 
@@ -227,7 +229,20 @@ setDownloadFirst flag model =
 
 appendStatus : Model -> Model
 appendStatus model =
-    { model | contents = (timedStatus model) ++ model.contents }
+    case model.downloadSuccess of
+      True -> 
+        { model | contents = (timedStatus model) ++ model.contents }
+      False -> 
+        let 
+          model_ = { model | appendContents = (timedStatus model) ++ model.appendContents}
+        in 
+          {model_ | contents = model_.appendContents }
+
+appendStatuses : Model -> Model
+appendStatuses model =
+    { model | contents = model.appendContents ++ model.contents,
+              appendContents = "" 
+    }
 
 
 updateContents : String -> Model -> Model
