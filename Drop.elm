@@ -34,7 +34,7 @@ type alias Model =
     { filePath : String
     , dropURL : String
     , contents : String
-    , appendContents : String 
+    , appendContents : String
     , status : String
     , currentTime : Maybe Time
     , flashMessage : String
@@ -52,9 +52,12 @@ initialModel : Model
 initialModel =
     Model filePath
         dropboxAPI
-        ""   -- contents
-        ""   -- appendContents
-        ""   -- status
+        ""
+        -- contents
+        ""
+        -- appendContents
+        ""
+        -- status
         Nothing
         "Logger Ready"
         False
@@ -98,33 +101,34 @@ update msg model =
                 ! [ getFileTask model, getTimeTask ]
 
         Download (Ok ( time, contents )) ->
-          case (model.downloadFirst, model.downloadSuccess) of 
-            (False, _) -> 
-              (model
-                  |> setTime time
-                  |> updateContents contents
-                  |> setFlashMessage "Download successful!"
-                  |> setFlag True 
-              )
-                  ! [ focusUpdate ]
-            (True, False) -> 
-              (model
-                  |> setTime time
-                  |> updateContents contents
-                  |> appendStatuses 
-                  |> setFlashMessage "Download successful!"
-                  |> setFlag True 
-              )
-                  ! [ focusUpdate, sendFileTask model ]
-            (True, True) -> 
-              (model
-                  |> setTime time
-                  |> updateContents contents
-                  |> setFlashMessage "Download successful!"
-                  |> setFlag True 
-              )
-                  ! [ focusUpdate, sendFileTask model ]
+            case ( model.downloadFirst, model.downloadSuccess ) of
+                ( False, _ ) ->
+                    (model
+                        |> setTime time
+                        |> updateContents contents
+                        |> setFlashMessage "Download successful!"
+                        |> setFlag True
+                    )
+                        ! [ focusUpdate ]
 
+                ( True, False ) ->
+                    (model
+                        |> setTime time
+                        |> updateContents contents
+                        |> appendStatuses
+                        |> setFlashMessage "Download successful!"
+                        |> setFlag True
+                    )
+                        ! [ focusUpdate, sendFileTask model ]
+
+                ( True, True ) ->
+                    (model
+                        |> setTime time
+                        |> updateContents contents
+                        |> setFlashMessage "Download successful!"
+                        |> setFlag True
+                    )
+                        ! [ focusUpdate, sendFileTask model ]
 
         Download (Err error) ->
             let
@@ -150,17 +154,17 @@ update msg model =
             model ! [ Task.perform GetTimeAndAppend Time.now ]
 
         GetTimeAndAppend time ->
-        --case model.downloadSuccess of 
-        --    True -> 
-              (model
-                  |> setTime time
-                  |> appendStatus
-                  |> setFlashMessage "Append successful!"
-              )
-                  ! [ focusUpdate ]
-        --    False -> 
-        --      model ! [getFileAndAppend model]
+            --case model.downloadSuccess of
+            --    True ->
+            (model
+                |> setTime time
+                |> appendStatus
+                |> setFlashMessage "Append successful!"
+            )
+                ! [ focusUpdate ]
 
+        --    False ->
+        --      model ! [getFileAndAppend model]
         --    False ->
         --      model ! [getFileAndAppend model]
         UpdateStatus s ->
@@ -168,15 +172,16 @@ update msg model =
                 ! [ adjustTextAreaHeight "height-adjusting-textarea" ]
 
         Upload ->
-          case model.downloadSuccess of 
-              True -> 
-                  ( model 
-                    |> appendStatus 
-                  ) 
-                  ! [ sendFileTask model ]
-              False -> 
-                  { model | downloadFirst = True } 
-                  ! [ getFileTask model ]
+            case model.downloadSuccess of
+                True ->
+                    (model
+                        |> appendStatus
+                    )
+                        ! [ sendFileTask model ]
+
+                False ->
+                    { model | downloadFirst = True }
+                        ! [ getFileTask model ]
 
         UploadStatus (Ok ( time, contents )) ->
             (model
@@ -235,18 +240,22 @@ setDownloadFirst flag model =
 appendStatus : Model -> Model
 appendStatus model =
     case model.downloadSuccess of
-      True -> 
-        { model | contents = (timedStatus model) ++ model.contents }
-      False -> 
-        let 
-          model_ = { model | appendContents = (timedStatus model) ++ model.appendContents}
-        in 
-          {model_ | contents = model_.appendContents }
+        True ->
+            { model | contents = (timedStatus model) ++ model.contents }
+
+        False ->
+            let
+                model_ =
+                    { model | appendContents = (timedStatus model) ++ model.appendContents }
+            in
+                { model_ | contents = model_.appendContents }
+
 
 appendStatuses : Model -> Model
 appendStatuses model =
-    { model | contents = model.appendContents ++ model.contents,
-              appendContents = "" 
+    { model
+        | contents = model.appendContents ++ model.contents
+        , appendContents = ""
     }
 
 
