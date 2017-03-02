@@ -175,7 +175,7 @@ update msg model =
             case model.downloadSuccess of
                 True ->
                     (model
-                        |> appendStatus
+                        --|> appendStatus
                     )
                         ! [ sendFileTask model ]
 
