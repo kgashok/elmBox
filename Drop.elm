@@ -29,6 +29,17 @@ main =
 
 -- MODEL
 
+type Content
+    = NoContent 
+    | FileContent String 
+    | FileContentToUpload String (List Post)
+    
+    
+type alias Post = 
+    { timestamp : Time 
+    , message : String 
+    }
+    
 
 type alias Model =
     { filePath : String
@@ -106,29 +117,31 @@ update msg model =
                     (model
                         |> setTime time
                         |> updateContents contents
-                        |> setFlashMessage "Download successful!"
+                        |> setFlashMessage "Download successful! (case 1)" 
                         |> setFlag True
                     )
                         ! [ focusUpdate ]
 
                 ( True, False ) ->
-                    (model
-                        |> setTime time
-                        |> updateContents contents
-                        |> appendStatuses
-                        |> setFlashMessage "Download successful!"
-                        |> setFlag True
-                    )
-                        ! [ focusUpdate, sendFileTask model ]
+                    let 
+                        model_ = 
+                            model
+                                |> setTime time
+                                |> updateContents contents
+                                |> appendStatuses
+                                |> setFlashMessage "Download successful! (case 2)"
+                                |> setFlag True
+                    in 
+                        model_ ! [ sendFileTask model_ ]
 
-                ( True, True ) ->
+                ( _, True ) ->
                     (model
                         |> setTime time
                         |> updateContents contents
-                        |> setFlashMessage "Download successful!"
+                        |> setFlashMessage "Download successful! (case 3)"
                         |> setFlag True
                     )
-                        ! [ focusUpdate, sendFileTask model ]
+                        ! [ sendFileTask model ]
 
         Download (Err error) ->
             let
