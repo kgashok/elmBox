@@ -182,7 +182,7 @@ update msg model =
         --      model ! [getFileAndAppend model]
         UpdateStatus s ->
             { model | status = s }
-                ! [ adjustTextAreaHeight "height-adjusting-textarea" ]
+                ! [ focusUpdate, adjustTextAreaHeight "height-adjusting-textarea" ]
 
         Upload ->
             case model.downloadSuccess of
@@ -218,6 +218,7 @@ update msg model =
 
         FocusDone _ ->
             model ! []
+            
 
 
 getTimeTask : Cmd Msg
@@ -310,10 +311,12 @@ view model =
                 , id "update"
                 , placeholder "Update?"
                 , onInput UpdateStatus
+                , value model.status
                 ]
                 []
             , button [ id "button2", onClick Append ] [ text "Append" ]
             , button [ id "button3", onClick Upload ] [ text "Upload!" ]
+            , button [ id "button3", onClick (UpdateStatus "") ] [ text "Clear" ]
             , footer
             ]
         ]
