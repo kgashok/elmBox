@@ -45,7 +45,7 @@ type alias Model =
     { filePath : String
     , dropURL : String
     , contents : String
-    , appendContents : String
+    , postsToUpload : Maybe String
     , status : String
     , currentTime : Maybe Time
     , flashMessage : String
@@ -65,8 +65,8 @@ initialModel =
         dropboxAPI
         ""
         -- contents
-        ""
-        -- appendContents
+        Nothing
+        -- postsToUpload
         ""
         -- status
         Nothing
@@ -128,7 +128,7 @@ update msg model =
                             model
                                 |> setTime time
                                 |> updateContents contents
-                                |> appendStatuses
+                                |> appendPosts
                                 |> setFlashMessage "Download successful! (case 2)"
                                 |> setFlag True
                     in 
@@ -255,21 +255,24 @@ appendStatus : Model -> Model
 appendStatus model =
     case model.downloadSuccess of
         True ->
-            { model | contents = (timedStatus model) ++ model.contents }
+            { model | contents = (timedPost model) ++ model.contents }
 
-        False ->
+        False -> 
             let
+                posts  = (timedPost model) ++ 
+                    (Maybe.withDefault "" model.postsToUpload )
                 model_ =
-                    { model | appendContents = (timedStatus model) ++ model.appendContents }
+                    { model | postsToUpload = Just posts}
             in
-                { model_ | contents = model_.appendContents }
+                --model_
+                { model_ | contents = Maybe.withDefault "" model_.postsToUpload }
 
 
-appendStatuses : Model -> Model
-appendStatuses model =
+appendPosts : Model -> Model
+appendPosts model =
     { model
-        | contents = model.appendContents ++ model.contents
-        , appendContents = ""
+        | contents = (Maybe.withDefault "" model.postsToUpload) ++ model.contents
+        , postsToUpload = Nothing
     }
 
 
@@ -278,8 +281,8 @@ updateContents contents model =
     { model | contents = unescape contents }
 
 
-timedStatus : Model -> String
-timedStatus model =
+timedPost : Model -> String
+timedPost model =
     formatTime model.currentTime ++ "\t" ++ model.status ++ " @@@\n"
 
 
@@ -411,17 +414,19 @@ getFileAndAppend model =
 --  Http.send Download (Http.request settings)
 
 
-sendFile : Model -> Http.Request String
-sendFile model =
+sendFile : Model -> Maybe String -> Http.Request String
+sendFile model posts =
     let
         uploadURL =
             dropboxAPI ++ "/files/upload"
+        contents = 
+            model.contents ++ (Maybe.withDefault "" posts)
 
         settings =
             { postSettings
                 | url = uploadURL
                 , headers = uploadHeaders
-                , body = stringBody "application/octet-stream" model.contents
+                , body = stringBody "application/octet-stream" contents
             }
     in
         Http.request settings
@@ -431,7 +436,7 @@ sendFileTask : Model -> Cmd Msg
 sendFileTask model =
     let
         sendTask =
-            Http.toTask (sendFile model)
+            Http.toTask (sendFile model Nothing)
     in
         Time.now
             |> Task.andThen (\t -> Task.map ((,) t) sendTask)

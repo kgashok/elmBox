@@ -11884,7 +11884,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.5-6-g744c2dd';
+var _user$project$Version$version = 'v1.5-7-ga6b075c';
 
 var _user$project$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
 var _user$project$Drop$stringify = function (_p0) {
@@ -12045,7 +12045,7 @@ var _user$project$Drop$formatTime = function (time) {
 		_elm_lang$core$Date$fromTime(
 			A2(_elm_lang$core$Maybe$withDefault, 0, time)));
 };
-var _user$project$Drop$timedStatus = function (model) {
+var _user$project$Drop$timedPost = function (model) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		_user$project$Drop$formatTime(model.currentTime),
@@ -12062,12 +12062,15 @@ var _user$project$Drop$updateContents = F2(
 				contents: _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape(contents)
 			});
 	});
-var _user$project$Drop$appendStatuses = function (model) {
+var _user$project$Drop$appendPosts = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{
-			contents: A2(_elm_lang$core$Basics_ops['++'], model.appendContents, model.contents),
-			appendContents: ''
+			contents: A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(_elm_lang$core$Maybe$withDefault, '', model.postsToUpload),
+				model.contents),
+			postsToUpload: _elm_lang$core$Maybe$Nothing
 		});
 };
 var _user$project$Drop$appendStatus = function (model) {
@@ -12078,21 +12081,24 @@ var _user$project$Drop$appendStatus = function (model) {
 			{
 				contents: A2(
 					_elm_lang$core$Basics_ops['++'],
-					_user$project$Drop$timedStatus(model),
+					_user$project$Drop$timedPost(model),
 					model.contents)
 			});
 	} else {
+		var posts = A2(
+			_elm_lang$core$Basics_ops['++'],
+			_user$project$Drop$timedPost(model),
+			A2(_elm_lang$core$Maybe$withDefault, '', model.postsToUpload));
 		var model_ = _elm_lang$core$Native_Utils.update(
 			model,
 			{
-				appendContents: A2(
-					_elm_lang$core$Basics_ops['++'],
-					_user$project$Drop$timedStatus(model),
-					model.appendContents)
+				postsToUpload: _elm_lang$core$Maybe$Just(posts)
 			});
 		return _elm_lang$core$Native_Utils.update(
 			model_,
-			{contents: model_.appendContents});
+			{
+				contents: A2(_elm_lang$core$Maybe$withDefault, '', model_.postsToUpload)
+			});
 	}
 };
 var _user$project$Drop$setDownloadFirst = F2(
@@ -12122,17 +12128,22 @@ var _user$project$Drop$setFlashMessage = F2(
 			{flashMessage: message});
 	});
 var _user$project$Drop$dropboxAPI = 'https://content.dropboxapi.com/2';
-var _user$project$Drop$sendFile = function (model) {
-	var uploadURL = A2(_elm_lang$core$Basics_ops['++'], _user$project$Drop$dropboxAPI, '/files/upload');
-	var settings = _elm_lang$core$Native_Utils.update(
-		_user$project$Drop$postSettings,
-		{
-			url: uploadURL,
-			headers: _user$project$Drop$uploadHeaders,
-			body: A2(_elm_lang$http$Http$stringBody, 'application/octet-stream', model.contents)
-		});
-	return _elm_lang$http$Http$request(settings);
-};
+var _user$project$Drop$sendFile = F2(
+	function (model, posts) {
+		var contents = A2(
+			_elm_lang$core$Basics_ops['++'],
+			model.contents,
+			A2(_elm_lang$core$Maybe$withDefault, '', posts));
+		var uploadURL = A2(_elm_lang$core$Basics_ops['++'], _user$project$Drop$dropboxAPI, '/files/upload');
+		var settings = _elm_lang$core$Native_Utils.update(
+			_user$project$Drop$postSettings,
+			{
+				url: uploadURL,
+				headers: _user$project$Drop$uploadHeaders,
+				body: A2(_elm_lang$http$Http$stringBody, 'application/octet-stream', contents)
+			});
+		return _elm_lang$http$Http$request(settings);
+	});
 var _user$project$Drop$adjustTextAreaHeight = _elm_lang$core$Native_Platform.outgoingPort(
 	'adjustTextAreaHeight',
 	function (v) {
@@ -12144,9 +12155,9 @@ var _user$project$Drop$Post = F2(
 	});
 var _user$project$Drop$Model = F9(
 	function (a, b, c, d, e, f, g, h, i) {
-		return {filePath: a, dropURL: b, contents: c, appendContents: d, status: e, currentTime: f, flashMessage: g, downloadSuccess: h, downloadFirst: i};
+		return {filePath: a, dropURL: b, contents: c, postsToUpload: d, status: e, currentTime: f, flashMessage: g, downloadSuccess: h, downloadFirst: i};
 	});
-var _user$project$Drop$initialModel = A9(_user$project$Drop$Model, _user$project$Drop$filePath, _user$project$Drop$dropboxAPI, '', '', '', _elm_lang$core$Maybe$Nothing, 'Logger Ready', false, false);
+var _user$project$Drop$initialModel = A9(_user$project$Drop$Model, _user$project$Drop$filePath, _user$project$Drop$dropboxAPI, '', _elm_lang$core$Maybe$Nothing, '', _elm_lang$core$Maybe$Nothing, 'Logger Ready', false, false);
 var _user$project$Drop$FileContentToUpload = F2(
 	function (a, b) {
 		return {ctor: 'FileContentToUpload', _0: a, _1: b};
@@ -12173,7 +12184,7 @@ var _user$project$Drop$UploadStatus = function (a) {
 };
 var _user$project$Drop$sendFileTask = function (model) {
 	var sendTask = _elm_lang$http$Http$toTask(
-		_user$project$Drop$sendFile(model));
+		A2(_user$project$Drop$sendFile, model, _elm_lang$core$Maybe$Nothing));
 	return A2(
 		_elm_lang$core$Task$attempt,
 		_user$project$Drop$UploadStatus,
@@ -12292,7 +12303,7 @@ var _user$project$Drop$update = F2(
 								A2(
 									_user$project$Drop$setFlashMessage,
 									'Download successful! (case 2)',
-									_user$project$Drop$appendStatuses(
+									_user$project$Drop$appendPosts(
 										A2(
 											_user$project$Drop$updateContents,
 											_p6,
