@@ -109,7 +109,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Refresh ->
-            { model | contents = "" }
+            { model | contents = "", flashMessage = "Downloading...be patient!" }
                 ! [ getFileTask model, getTimeTask ]
 
         Download (Ok ( time, contents )) ->
