@@ -29,17 +29,18 @@ main =
 
 -- MODEL
 
+
 type Content
-    = NoContent 
-    | FileContent String 
+    = NoContent
+    | FileContent String
     | FileContentToUpload String (List Post)
-    
-    
-type alias Post = 
-    { timestamp : Time 
-    , message : String 
+
+
+type alias Post =
+    { timestamp : Time
+    , message : String
     }
-    
+
 
 type alias Model =
     { filePath : String
@@ -117,21 +118,21 @@ update msg model =
                     (model
                         |> setTime time
                         |> updateContents contents
-                        |> setFlashMessage "Download successful! (case 1)" 
+                        |> setFlashMessage "Download successful! (case 1)"
                         |> setFlag True
                     )
                         ! [ focusUpdate ]
 
                 ( True, False ) ->
-                    let 
-                        model_ = 
+                    let
+                        model_ =
                             model
                                 |> setTime time
                                 |> updateContents contents
                                 |> appendPosts
                                 |> setFlashMessage "Download successful! (case 2)"
                                 |> setFlag True
-                    in 
+                    in
                         model_ ! [ sendFileTask model_ ]
 
                 ( _, True ) ->
@@ -167,8 +168,6 @@ update msg model =
             model ! [ Task.perform GetTimeAndAppend Time.now ]
 
         GetTimeAndAppend time ->
-            --case model.downloadSuccess of
-            --    True ->
             (model
                 |> setTime time
                 |> appendStatus
@@ -176,22 +175,19 @@ update msg model =
             )
                 ! [ focusUpdate ]
 
-        --    False ->
-        --      model ! [getFileAndAppend model]
-        --    False ->
-        --      model ! [getFileAndAppend model]
         UpdateStatus s ->
             { model | status = s }
                 ! [ focusUpdate, adjustTextAreaHeight "height-adjusting-textarea" ]
 
         Upload ->
             let
-                model_ = model |> setFlashMessage "Uploading...please be patient!"
-            in 
+                model_ =
+                    model |> setFlashMessage "Uploading...please be patient!"
+            in
                 case model_.downloadSuccess of
                     True ->
                         model_ ! [ sendFileTask model ]
-    
+
                     False ->
                         { model_ | downloadFirst = True }
                             ! [ getFileTask model_ ]
@@ -218,7 +214,6 @@ update msg model =
 
         FocusDone _ ->
             model ! []
-            
 
 
 getTimeTask : Cmd Msg
@@ -257,12 +252,14 @@ appendStatus model =
         True ->
             { model | contents = (timedPost model) ++ model.contents }
 
-        False -> 
+        False ->
             let
-                posts  = (timedPost model) ++ 
-                    (Maybe.withDefault "" model.postsToUpload )
+                posts =
+                    (timedPost model)
+                        ++ (Maybe.withDefault "" model.postsToUpload)
+
                 model_ =
-                    { model | postsToUpload = Just posts}
+                    { model | postsToUpload = Just posts }
             in
                 --model_
                 { model_ | contents = Maybe.withDefault "" model_.postsToUpload }
@@ -419,7 +416,8 @@ sendFile model posts =
     let
         uploadURL =
             dropboxAPI ++ "/files/upload"
-        contents = 
+
+        contents =
             model.contents ++ (Maybe.withDefault "" posts)
 
         settings =
