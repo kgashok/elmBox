@@ -185,16 +185,16 @@ update msg model =
                 ! [ focusUpdate, adjustTextAreaHeight "height-adjusting-textarea" ]
 
         Upload ->
-            case model.downloadSuccess of
-                True ->
-                    (model
-                        --|> appendStatus
-                    )
-                        ! [ sendFileTask model ]
-
-                False ->
-                    { model | downloadFirst = True }
-                        ! [ getFileTask model ]
+            let
+                model_ = model |> setFlashMessage "Uploading...please be patient!"
+            in 
+                case model_.downloadSuccess of
+                    True ->
+                        model_ ! [ sendFileTask model ]
+    
+                    False ->
+                        { model_ | downloadFirst = True }
+                            ! [ getFileTask model_ ]
 
         UploadStatus (Ok ( time, contents )) ->
             (model

@@ -12415,11 +12415,12 @@ var _user$project$Drop$update = F2(
 						}
 					});
 			case 'Upload':
-				var _p8 = model.downloadSuccess;
+				var model_ = A2(_user$project$Drop$setFlashMessage, 'Uploading...please be patient!', model);
+				var _p8 = model_.downloadSuccess;
 				if (_p8 === true) {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						model,
+						model_,
 						{
 							ctor: '::',
 							_0: _user$project$Drop$sendFileTask(model),
@@ -12429,11 +12430,11 @@ var _user$project$Drop$update = F2(
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
-							model,
+							model_,
 							{downloadFirst: true}),
 						{
 							ctor: '::',
-							_0: _user$project$Drop$getFileTask(model),
+							_0: _user$project$Drop$getFileTask(model_),
 							_1: {ctor: '[]'}
 						});
 				}
