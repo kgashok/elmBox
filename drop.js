@@ -11884,7 +11884,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.5-10-g8a7401d';
+var _user$project$Version$version = 'v1.5-11-g6e40bca';
 
 var _user$project$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
 var _user$project$Drop$stringify = function (_p0) {
@@ -12242,16 +12242,16 @@ var _user$project$Drop$getFileTask = function (model) {
 		_user$project$Drop$Download,
 		A2(
 			_elm_lang$core$Task$andThen,
-			function (t) {
+			function (result) {
 				return A2(
-					_elm_lang$core$Task$map,
-					F2(
-						function (v0, v1) {
-							return {ctor: '_Tuple2', _0: v0, _1: v1};
-						})(t),
-					getTask);
+					_elm_lang$core$Task$andThen,
+					function (time) {
+						return _elm_lang$core$Task$succeed(
+							{ctor: '_Tuple2', _0: time, _1: result});
+					},
+					_elm_lang$core$Time$now);
 			},
-			_elm_lang$core$Time$now));
+			getTask));
 };
 var _user$project$Drop$update = F2(
 	function (msg, model) {
@@ -12266,30 +12266,24 @@ var _user$project$Drop$update = F2(
 					{
 						ctor: '::',
 						_0: _user$project$Drop$getFileTask(model),
-						_1: {
-							ctor: '::',
-							_0: _user$project$Drop$getTimeTask,
-							_1: {ctor: '[]'}
-						}
+						_1: {ctor: '[]'}
 					});
 			case 'Download':
 				if (_p4._0.ctor === 'Ok') {
-					var _p7 = _p4._0._0._0;
-					var _p6 = _p4._0._0._1;
+					var model_ = A2(
+						_user$project$Drop$setFlag,
+						true,
+						A2(
+							_user$project$Drop$updateContents,
+							_p4._0._0._1,
+							A2(_user$project$Drop$setTime, _p4._0._0._0, model)));
 					var _p5 = {ctor: '_Tuple2', _0: model.downloadFirst, _1: model.downloadSuccess};
 					if (_p5._0 === false) {
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
-							A2(
-								_user$project$Drop$setFlag,
-								true,
-								A2(
-									_user$project$Drop$setFlashMessage,
-									'Download successful! (case 1)',
-									A2(
-										_user$project$Drop$updateContents,
-										_p6,
-										A2(_user$project$Drop$setTime, _p7, model)))),
+							_elm_lang$core$Native_Utils.update(
+								model_,
+								{flashMessage: 'Download successful (case 1)'}),
 							{
 								ctor: '::',
 								_0: _user$project$Drop$focusUpdate,
@@ -12297,38 +12291,24 @@ var _user$project$Drop$update = F2(
 							});
 					} else {
 						if (_p5._1 === false) {
-							var model_ = A2(
-								_user$project$Drop$setFlag,
-								true,
-								A2(
-									_user$project$Drop$setFlashMessage,
-									'Download successful! (case 2)',
-									_user$project$Drop$appendPosts(
-										A2(
-											_user$project$Drop$updateContents,
-											_p6,
-											A2(_user$project$Drop$setTime, _p7, model)))));
+							var model__ = A2(
+								_user$project$Drop$setFlashMessage,
+								'Download successful! (case 2)',
+								_user$project$Drop$appendPosts(model_));
 							return A2(
 								_elm_lang$core$Platform_Cmd_ops['!'],
-								model_,
+								model__,
 								{
 									ctor: '::',
-									_0: _user$project$Drop$sendFileTask(model_),
+									_0: _user$project$Drop$sendFileTask(model__),
 									_1: {ctor: '[]'}
 								});
 						} else {
 							return A2(
 								_elm_lang$core$Platform_Cmd_ops['!'],
-								A2(
-									_user$project$Drop$setFlag,
-									true,
-									A2(
-										_user$project$Drop$setFlashMessage,
-										'Download successful! (case 3)',
-										A2(
-											_user$project$Drop$updateContents,
-											_p6,
-											A2(_user$project$Drop$setTime, _p7, model)))),
+								_elm_lang$core$Native_Utils.update(
+									model_,
+									{flashMessage: 'Download successful (case 3)'}),
 								{
 									ctor: '::',
 									_0: _user$project$Drop$sendFileTask(model),
@@ -12416,8 +12396,8 @@ var _user$project$Drop$update = F2(
 					});
 			case 'Upload':
 				var model_ = A2(_user$project$Drop$setFlashMessage, 'Uploading...please be patient!', model);
-				var _p8 = model_.downloadSuccess;
-				if (_p8 === true) {
+				var _p6 = model_.downloadSuccess;
+				if (_p6 === true) {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						model_,

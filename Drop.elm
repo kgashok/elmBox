@@ -110,38 +110,32 @@ update msg model =
     case msg of
         Refresh ->
             { model | contents = "", flashMessage = "Downloading...be patient!" }
-                ! [ getFileTask model, getTimeTask ]
+                ! [ getFileTask model  ]
 
         Download (Ok ( time, contents )) ->
-            case ( model.downloadFirst, model.downloadSuccess ) of
-                ( False, _ ) ->
-                    (model
+            let 
+                model_ = 
+                    model 
                         |> setTime time
                         |> updateContents contents
-                        |> setFlashMessage "Download successful! (case 1)"
                         |> setFlag True
-                    )
+            in 
+                case ( model.downloadFirst, model.downloadSuccess ) of
+                    ( False, _ ) ->
+                        { model_ | flashMessage = "Download successful (case 1)" }
                         ! [ focusUpdate ]
-
-                ( True, False ) ->
-                    let
-                        model_ =
-                            model
-                                |> setTime time
-                                |> updateContents contents
-                                |> appendPosts
-                                |> setFlashMessage "Download successful! (case 2)"
-                                |> setFlag True
-                    in
-                        model_ ! [ sendFileTask model_ ]
-
-                ( _, True ) ->
-                    (model
-                        |> setTime time
-                        |> updateContents contents
-                        |> setFlashMessage "Download successful! (case 3)"
-                        |> setFlag True
-                    )
+    
+                    ( True, False ) ->
+                        let
+                            model__ =
+                                model_
+                                    |> appendPosts
+                                    |> setFlashMessage "Download successful! (case 2)"
+                        in
+                            model__ ! [ sendFileTask model__ ]
+    
+                    ( _, True ) ->
+                        { model_ | flashMessage = "Download successful (case 3)" }
                         ! [ sendFileTask model ]
 
         Download (Err error) ->
@@ -391,10 +385,16 @@ getFileTask model =
         getTask =
             Http.toTask (getFile model)
     in
-        Time.now
+        getTask
+            |> Task.andThen (\result -> Time.now 
+            |> Task.andThen (\time -> Task.succeed (time, result)) )
+            |> Task.attempt Download
+        
+
+        {--Time.now
             |> Task.andThen (\t -> Task.map ((,) t) getTask)
             |> Task.attempt Download
-
+        --}
 
 getFileAndAppend : Model -> Cmd Msg
 getFileAndAppend model =
