@@ -15,7 +15,40 @@ import Markdown exposing (..)
 import Version exposing (..)
 import Json.Encode exposing (..)
 
+port setStorage : Model -> Cmd msg
 
+port adjustTextAreaHeight : String -> Cmd msg
+
+port logExternalOut : String -> Cmd msg
+
+logExternal : a -> Cmd msg
+logExternal value =
+  logExternalOut (toString value)
+
+updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
+updateWithStorage msg model =
+  let
+    ( nextModel, nextCmd ) =
+      update msg model
+  in
+    ( nextModel
+    , Cmd.batch
+      [ setStorage model
+      -- , logExternal msg
+      , nextCmd
+      ]
+    )
+
+main : Program (Maybe Model) Model Msg
+main =
+  Html.programWithFlags
+    { init = init
+    , view = view
+    , update = updateWithStorage 
+    , subscriptions = subscriptions
+    }
+
+{--
 main : Program Never Model Msg
 main =
     Html.program
@@ -24,8 +57,7 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
-
-
+--}
 
 -- MODEL
 
@@ -76,6 +108,13 @@ initialModel =
         False
 
 
+init : Maybe Model -> ( Model, Cmd Msg )
+init savedModel =
+  ( Maybe.withDefault initialModel savedModel, 
+    getTimeTask)
+
+{--
+
 init : ( Model, Cmd Msg )
 init =
     ( initialModel
@@ -83,6 +122,7 @@ init =
     , getTimeTask
     )
 
+--}
 
 
 -- UPDATE
@@ -100,9 +140,6 @@ type Msg
     | FocusDone (Result Dom.Error ())
     | GetTime
     | NewTime Time
-
-
-port adjustTextAreaHeight : String -> Cmd msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
