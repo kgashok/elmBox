@@ -15,38 +15,46 @@ import Markdown exposing (..)
 import Version exposing (..)
 import Json.Encode exposing (..)
 
+
 port setStorage : Model -> Cmd msg
+
 
 port adjustTextAreaHeight : String -> Cmd msg
 
+
 port logExternalOut : String -> Cmd msg
+
 
 logExternal : a -> Cmd msg
 logExternal value =
-  logExternalOut (toString value)
+    logExternalOut (toString value)
+
 
 updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
 updateWithStorage msg model =
-  let
-    ( nextModel, nextCmd ) =
-      update msg model
-  in
-    ( nextModel
-    , Cmd.batch
-      [ setStorage model
-      -- , logExternal msg
-      , nextCmd
-      ]
-    )
+    let
+        ( nextModel, nextCmd ) =
+            update msg model
+    in
+        ( nextModel
+        , Cmd.batch
+            [ setStorage model
+              -- , logExternal msg
+            , nextCmd
+            ]
+        )
+
 
 main : Program (Maybe Model) Model Msg
 main =
-  Html.programWithFlags
-    { init = init
-    , view = view
-    , update = updateWithStorage 
-    , subscriptions = subscriptions
-    }
+    Html.programWithFlags
+        { init = init
+        , view = view
+        , update = updateWithStorage
+        , subscriptions = subscriptions
+        }
+
+
 
 {--
 main : Program Never Model Msg
@@ -58,7 +66,6 @@ main =
         , subscriptions = subscriptions
         }
 --}
-
 -- MODEL
 
 
@@ -110,8 +117,11 @@ initialModel =
 
 init : Maybe Model -> ( Model, Cmd Msg )
 init savedModel =
-  ( Maybe.withDefault initialModel savedModel, 
-    getTimeTask)
+    ( Maybe.withDefault initialModel savedModel
+    , getTimeTask
+    )
+
+
 
 {--
 
@@ -123,8 +133,6 @@ init =
     )
 
 --}
-
-
 -- UPDATE
 
 
@@ -330,7 +338,6 @@ view model =
             [ h1 [] [ text "Daily Log" ]
             , footer
             , hr [ class "style5" ] []
-            , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
             , br [] []
             , div [] [ viewContents model.contents ]
             ]
@@ -348,6 +355,7 @@ view model =
             , button [ id "button2", onClick Append ] [ text "Append" ]
             , button [ id "button3", onClick Upload ] [ text "Upload!" ]
             , button [ id "button3", onClick (UpdateStatus "") ] [ text "Clear" ]
+            , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
             , footer
             ]
         ]
