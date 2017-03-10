@@ -110,21 +110,21 @@ update msg model =
     case msg of
         Refresh ->
             { model | contents = "", flashMessage = "Downloading...be patient!" }
-                ! [ getFileTask model  ]
+                ! [ getFileTask model ]
 
         Download (Ok ( time, contents )) ->
-            let 
-                model_ = 
-                    model 
+            let
+                model_ =
+                    model
                         |> setTime time
                         |> updateContents contents
                         |> setFlag True
-            in 
+            in
                 case ( model.downloadFirst, model.downloadSuccess ) of
                     ( False, _ ) ->
                         { model_ | flashMessage = "Download successful (case 1)" }
-                        ! [ focusUpdate ]
-    
+                            ! [ focusUpdate ]
+
                     ( True, False ) ->
                         let
                             model__ =
@@ -133,10 +133,10 @@ update msg model =
                                     |> setFlashMessage "Download successful! (case 2)"
                         in
                             model__ ! [ sendFileTask model__ ]
-    
+
                     ( _, True ) ->
                         { model_ | flashMessage = "Download successful (case 3)" }
-                        ! [ sendFileTask model ]
+                            ! [ sendFileTask model ]
 
         Download (Err error) ->
             let
@@ -386,15 +386,20 @@ getFileTask model =
             Http.toTask (getFile model)
     in
         getTask
-            |> Task.andThen (\result -> Time.now 
-            |> Task.andThen (\time -> Task.succeed (time, result)) )
+            |> Task.andThen
+                (\result ->
+                    Time.now
+                        |> Task.andThen (\time -> Task.succeed ( time, result ))
+                )
             |> Task.attempt Download
-        
 
-        {--Time.now
+
+
+{--Time.now
             |> Task.andThen (\t -> Task.map ((,) t) getTask)
             |> Task.attempt Download
         --}
+
 
 getFileAndAppend : Model -> Cmd Msg
 getFileAndAppend model =
