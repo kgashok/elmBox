@@ -360,7 +360,14 @@ formatTime time =
 view : Model -> Html Msg
 view model =
     div []
-        [ div [ id "titleContainer" ]
+        [ div [ class "example example-dotted" ]
+            [ h1 [] [ text "Daily Log" ]
+            , footer
+            , hr [ class "style5" ] []
+            , br [] []
+            , div [] [ viewContents model.contents ]
+            ]
+        , div [ id "titleContainer" ]
             [ hr [ class "style8" ] []
             , h3 [] [ text <| formatTime model.currentTime ++ model.flashMessage ]
             , textarea
@@ -376,13 +383,6 @@ view model =
             , button [ id "button3", onClick (UpdateStatus "") ] [ text "Clear" ]
             , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
             , footer
-        ]
-        , div [ class "example example-dotted" ]
-            [ h1 [] [ text "Daily Log" ]
-            , footer
-            , hr [ class "style5" ] []
-            , br [] []
-            , div [] [ viewContents model.contents ]
             ]
         ]
 
@@ -390,6 +390,9 @@ view model =
 viewContents : String -> Html Msg
 viewContents contents =
     let
+        rendersimple material = 
+            div [class "answer"] [ ul[] [text material]]
+            
         render material =
             let
                 tuple =
@@ -407,9 +410,10 @@ viewContents contents =
     in
         contents
             |> String.split "@@@\n"
-            |> List.map render
-            --|> List.take 46
-            --|> List.reverse
+            |> List.take 46
+            |> List.map rendersimple 
+            -- |> List.map render
+            |> List.reverse
             >> div []
 
 
