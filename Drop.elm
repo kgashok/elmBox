@@ -360,14 +360,7 @@ formatTime time =
 view : Model -> Html Msg
 view model =
     div []
-        [ div [ class "example example-dotted" ]
-            [ h1 [] [ text "Daily Log" ]
-            , footer
-            , hr [ class "style5" ] []
-            , br [] []
-            , div [] [ viewContents model.contents ]
-            ]
-        , div [ id "titleContainer" ]
+        [ div [ id "titleContainer" ]
             [ hr [ class "style8" ] []
             , h3 [] [ text <| formatTime model.currentTime ++ model.flashMessage ]
             , textarea
@@ -383,6 +376,13 @@ view model =
             , button [ id "button3", onClick (UpdateStatus "") ] [ text "Clear" ]
             , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
             , footer
+        ]
+        , div [ class "example example-dotted" ]
+            [ h1 [] [ text "Daily Log" ]
+            , footer
+            , hr [ class "style5" ] []
+            , br [] []
+            , div [] [ viewContents model.contents ]
             ]
         ]
 
