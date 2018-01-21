@@ -11967,11 +11967,6 @@ var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
 var _user$project$Version$version = 'v1.5-15-g10edc4b';
 
 var _user$project$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
-var _user$project$Drop$metadataHeaders = {
-	ctor: '::',
-	_0: _user$project$Drop$authorizationHeader,
-	_1: {ctor: '[]'}
-};
 var _user$project$Drop$stringify = function (_p0) {
 	return A2(
 		_elm_lang$core$Json_Encode$encode,
@@ -12237,7 +12232,6 @@ var _user$project$Drop$sendFile = F2(
 			{
 				url: uploadURL,
 				headers: _user$project$Drop$uploadHeaders,
-				expect: _elm_lang$http$Http$expectString,
 				body: A2(_elm_lang$http$Http$stringBody, 'application/octet-stream', contents)
 			});
 		return _elm_lang$http$Http$request(settings);
@@ -12249,7 +12243,6 @@ var _user$project$Drop$setStorage = _elm_lang$core$Native_Platform.outgoingPort(
 			filePath: v.filePath,
 			dropURL: v.dropURL,
 			contents: v.contents,
-			rev: v.rev,
 			postsToUpload: (v.postsToUpload.ctor === 'Nothing') ? null : v.postsToUpload._0,
 			status: v.status,
 			currentTime: (v.currentTime.ctor === 'Nothing') ? null : v.currentTime._0,
@@ -12276,28 +12269,11 @@ var _user$project$Drop$Post = F2(
 	function (a, b) {
 		return {timestamp: a, message: b};
 	});
-var _user$project$Drop$Model = function (a) {
-	return function (b) {
-		return function (c) {
-			return function (d) {
-				return function (e) {
-					return function (f) {
-						return function (g) {
-							return function (h) {
-								return function (i) {
-									return function (j) {
-										return {filePath: a, dropURL: b, contents: c, rev: d, postsToUpload: e, status: f, currentTime: g, flashMessage: h, downloadSuccess: i, downloadFirst: j};
-									};
-								};
-							};
-						};
-					};
-				};
-			};
-		};
-	};
-};
-var _user$project$Drop$initialModel = _user$project$Drop$Model(_user$project$Drop$filePath)(_user$project$Drop$dropboxAPI)('')('')(_elm_lang$core$Maybe$Nothing)('')(_elm_lang$core$Maybe$Nothing)('Logger Ready')(false)(false);
+var _user$project$Drop$Model = F9(
+	function (a, b, c, d, e, f, g, h, i) {
+		return {filePath: a, dropURL: b, contents: c, postsToUpload: d, status: e, currentTime: f, flashMessage: g, downloadSuccess: h, downloadFirst: i};
+	});
+var _user$project$Drop$initialModel = A9(_user$project$Drop$Model, _user$project$Drop$filePath, _user$project$Drop$dropboxAPI, '', _elm_lang$core$Maybe$Nothing, '', _elm_lang$core$Maybe$Nothing, 'Logger Ready', false, false);
 var _user$project$Drop$FileInfo = F2(
 	function (a, b) {
 		return {rev: a, body: b};
@@ -12379,19 +12355,6 @@ var _user$project$Drop$metadataDecoder = A3(
 	'rev',
 	_elm_lang$core$Json_Decode$string,
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Drop$Metadata));
-var _user$project$Drop$getMetaData = function (model) {
-	var metadataURL = 'https://api.dropboxapi.com/2/files/get_metadata';
-	var settings = _elm_lang$core$Native_Utils.update(
-		_user$project$Drop$postSettings,
-		{
-			url: metadataURL,
-			headers: _user$project$Drop$metadataHeaders,
-			expect: _elm_lang$http$Http$expectJson(_user$project$Drop$metadataDecoder),
-			body: _elm_lang$http$Http$jsonBody(
-				_user$project$Drop$encodePath(model.filePath))
-		});
-	return _elm_lang$http$Http$request(settings);
-};
 var _user$project$Drop$metadataUpdate = function (response) {
 	var _p10 = A2(_elm_lang$core$Debug$log, 'metadata: ', response);
 	return A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Drop$metadataDecoder, response);
@@ -12404,14 +12367,6 @@ var _user$project$Drop$FileContent = function (a) {
 	return {ctor: 'FileContent', _0: a};
 };
 var _user$project$Drop$NoContent = {ctor: 'NoContent'};
-var _user$project$Drop$UpdateMetadata = function (a) {
-	return {ctor: 'UpdateMetadata', _0: a};
-};
-var _user$project$Drop$getMetaTask = function (model) {
-	var getTask = _elm_lang$http$Http$toTask(
-		_user$project$Drop$getMetaData(model));
-	return A2(_elm_lang$core$Task$attempt, _user$project$Drop$UpdateMetadata, getTask);
-};
 var _user$project$Drop$NewTime = function (a) {
 	return {ctor: 'NewTime', _0: a};
 };
@@ -12518,11 +12473,7 @@ var _user$project$Drop$update = F2(
 					{
 						ctor: '::',
 						_0: _user$project$Drop$getFileTask(model),
-						_1: {
-							ctor: '::',
-							_0: _user$project$Drop$getMetaTask(model),
-							_1: {ctor: '[]'}
-						}
+						_1: {ctor: '[]'}
 					});
 			case 'Download':
 				if (_p11._0.ctor === 'Ok') {
@@ -12717,32 +12668,11 @@ var _user$project$Drop$update = F2(
 						_0: _user$project$Drop$focusUpdate,
 						_1: {ctor: '[]'}
 					});
-			case 'FocusDone':
+			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					{ctor: '[]'});
-			default:
-				if (_p11._0.ctor === 'Ok') {
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{rev: _p11._0._0.rev}),
-						{
-							ctor: '::',
-							_0: _user$project$Drop$focusUpdate,
-							_1: {ctor: '[]'}
-						});
-				} else {
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						A2(
-							_user$project$Drop$setFlashMessage,
-							_elm_lang$core$Basics$toString(_p11._0._0),
-							model),
-						{ctor: '[]'});
-				}
 		}
 	});
 var _user$project$Drop$updateWithStorage = F2(
@@ -13009,16 +12939,11 @@ var _user$project$Drop$main = _elm_lang$html$Html$programWithFlags(
 																				function (postsToUpload) {
 																					return A2(
 																						_elm_lang$core$Json_Decode$andThen,
-																						function (rev) {
-																							return A2(
-																								_elm_lang$core$Json_Decode$andThen,
-																								function (status) {
-																									return _elm_lang$core$Json_Decode$succeed(
-																										{contents: contents, currentTime: currentTime, downloadFirst: downloadFirst, downloadSuccess: downloadSuccess, dropURL: dropURL, filePath: filePath, flashMessage: flashMessage, postsToUpload: postsToUpload, rev: rev, status: status});
-																								},
-																								A2(_elm_lang$core$Json_Decode$field, 'status', _elm_lang$core$Json_Decode$string));
+																						function (status) {
+																							return _elm_lang$core$Json_Decode$succeed(
+																								{contents: contents, currentTime: currentTime, downloadFirst: downloadFirst, downloadSuccess: downloadSuccess, dropURL: dropURL, filePath: filePath, flashMessage: flashMessage, postsToUpload: postsToUpload, status: status});
 																						},
-																						A2(_elm_lang$core$Json_Decode$field, 'rev', _elm_lang$core$Json_Decode$string));
+																						A2(_elm_lang$core$Json_Decode$field, 'status', _elm_lang$core$Json_Decode$string));
 																				},
 																				A2(
 																					_elm_lang$core$Json_Decode$field,

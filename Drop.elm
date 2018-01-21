@@ -88,7 +88,7 @@ type alias Model =
     { filePath : String
     , dropURL : String
     , contents : String
-    , rev : String 
+    -- , rev : String 
     , postsToUpload : Maybe String
     , status : String
     , currentTime : Maybe Time
@@ -109,7 +109,7 @@ initialModel =
         dropboxAPI
         ""
         -- contents
-        ""
+        --""
         -- rev
         Nothing
         -- postsToUpload
@@ -156,7 +156,7 @@ type Msg
     | FocusDone (Result Dom.Error ())
     | GetTime
     | NewTime Time
-    | UpdateMetadata (Result Http.Error Metadata)
+    --| UpdateMetadata (Result Http.Error Metadata)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -164,7 +164,7 @@ update msg model =
     case msg of
         Refresh ->
             { model | contents = "", flashMessage = "Downloading...be patient!" }
-                ! [ getFileTask model, getMetaTask model ]
+                ! [ getFileTask model ] -- , getMetaTask model ]
 
         Download (Ok ( time, contents )) ->
             let
@@ -263,7 +263,7 @@ update msg model =
         FocusDone _ ->
             model ! []
 
-        UpdateMetadata (Ok meta) -> 
+        {-UpdateMetadata (Ok meta) -> 
             { model | rev = meta.rev } ! [focusUpdate]
 
             
@@ -272,7 +272,7 @@ update msg model =
                 |> setFlashMessage (toString error) 
             )   
                 ! []
-
+        -}
 
 getTimeTask : Cmd Msg
 getTimeTask =
@@ -502,13 +502,13 @@ sendFile model posts =
             { postSettings
                 | url = uploadURL
                 , headers = uploadHeaders
-                , expect  = expectString
+                -- , expect  = expectString
                 , body = stringBody "application/octet-stream" contents
             }
     in
         Http.request settings
 
-
+{-
 getMetaData model = 
     let 
         metadataURL = 
@@ -534,7 +534,7 @@ getMetaTask model =
             Http.toTask (getMetaData model)
     in
         Task.attempt UpdateMetadata getTask
-
+-}
 
 encodePath : String -> Encode.Value        
 encodePath path =
@@ -597,10 +597,12 @@ uploadHeaders =
     , Http.header "Dropbox-API-Arg" (stringify uploadArgs)
     ]
     
+{-
 metadataHeaders : List Header 
 metadataHeaders = 
     [ authorizationHeader
     ]
+-}
 
 postSettings =
     { method = "POST"
