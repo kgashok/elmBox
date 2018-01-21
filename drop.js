@@ -11964,7 +11964,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.5-17-gdbf40a9';
+var _user$project$Version$version = 'v1.5-19-g3d928f5';
 
 var _user$project$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
 var _user$project$Drop$stringify = function (_p0) {
@@ -12735,81 +12735,6 @@ var _user$project$Drop$view = function (model) {
 								_1: {
 									ctor: '::',
 									_0: A2(
-										_elm_lang$html$Html$div,
-										{ctor: '[]'},
-										{
-											ctor: '::',
-											_0: _user$project$Drop$viewContents(model.contents),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$id('titleContainer'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$hr,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('style8'),
-								_1: {ctor: '[]'}
-							},
-							{ctor: '[]'}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$h3,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											_user$project$Drop$formatTime(model.currentTime),
-											model.flashMessage)),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$textarea,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('height-adjusting-textarea'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$id('update'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$value(model.status),
-														_1: {ctor: '[]'}
-													}
-												}
-											}
-										}
-									},
-									{ctor: '[]'}),
-								_1: {
-									ctor: '::',
-									_0: A2(
 										_elm_lang$html$Html$button,
 										{
 											ctor: '::',
@@ -12882,12 +12807,87 @@ var _user$project$Drop$view = function (model) {
 													}),
 												_1: {
 													ctor: '::',
-													_0: _user$project$Drop$footer,
+													_0: A2(
+														_elm_lang$html$Html$div,
+														{ctor: '[]'},
+														{
+															ctor: '::',
+															_0: _user$project$Drop$viewContents(model.contents),
+															_1: {ctor: '[]'}
+														}),
 													_1: {ctor: '[]'}
 												}
 											}
 										}
 									}
+								}
+							}
+						}
+					}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$id('titleContainer'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$hr,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('style8'),
+								_1: {ctor: '[]'}
+							},
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$h3,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											_user$project$Drop$formatTime(model.currentTime),
+											model.flashMessage)),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$textarea,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('height-adjusting-textarea'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$id('update'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$value(model.status),
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: _user$project$Drop$footer,
+									_1: {ctor: '[]'}
 								}
 							}
 						}

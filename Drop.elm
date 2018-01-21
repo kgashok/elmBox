@@ -365,6 +365,10 @@ view model =
             , footer
             , hr [ class "style5" ] []
             , br [] []
+            , button [ id "button2", onClick Append ] [ text "Append" ]
+            , button [ id "button3", onClick Upload ] [ text "Upload!" ]
+            , button [ id "button3", onClick (UpdateStatus "") ] [ text "Clear" ]
+            , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
             , div [] [ viewContents model.contents ]
             ]
         , div [ id "titleContainer" ]
@@ -378,10 +382,6 @@ view model =
                 , value model.status
                 ]
                 []
-            , button [ id "button2", onClick Append ] [ text "Append" ]
-            , button [ id "button3", onClick Upload ] [ text "Upload!" ]
-            , button [ id "button3", onClick (UpdateStatus "") ] [ text "Clear" ]
-            , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
             , footer
             ]
         ]
