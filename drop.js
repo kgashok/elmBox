@@ -12700,54 +12700,93 @@ var _user$project$Drop$view = function (model) {
 				_elm_lang$html$Html$div,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('example example-dotted'),
+					_0: _elm_lang$html$Html_Attributes$id('titleContainer'),
 					_1: {ctor: '[]'}
 				},
 				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$h1,
-						{ctor: '[]'},
+						_elm_lang$html$Html$hr,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('Daily Log'),
+							_0: _elm_lang$html$Html_Attributes$class('style8'),
 							_1: {ctor: '[]'}
-						}),
+						},
+						{ctor: '[]'}),
 					_1: {
 						ctor: '::',
-						_0: _user$project$Drop$footer,
+						_0: A2(
+							_elm_lang$html$Html$h3,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										_user$project$Drop$formatTime(model.currentTime),
+										model.flashMessage)),
+								_1: {ctor: '[]'}
+							}),
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$hr,
+								_elm_lang$html$Html$textarea,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('style5'),
-									_1: {ctor: '[]'}
+									_0: _elm_lang$html$Html_Attributes$class('height-adjusting-textarea'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$id('update'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$value(model.status),
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									}
 								},
 								{ctor: '[]'}),
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$br,
-									{ctor: '[]'},
-									{ctor: '[]'}),
+									_elm_lang$html$Html$button,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$id('button2'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Append),
+											_1: {ctor: '[]'}
+										}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Append'),
+										_1: {ctor: '[]'}
+									}),
 								_1: {
 									ctor: '::',
 									_0: A2(
 										_elm_lang$html$Html$button,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$id('button2'),
+											_0: _elm_lang$html$Html_Attributes$id('button3'),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Append),
+												_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Upload),
 												_1: {ctor: '[]'}
 											}
 										},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('Append'),
+											_0: _elm_lang$html$Html$text('Upload!'),
 											_1: {ctor: '[]'}
 										}),
 									_1: {
@@ -12759,13 +12798,14 @@ var _user$project$Drop$view = function (model) {
 												_0: _elm_lang$html$Html_Attributes$id('button3'),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Upload),
+													_0: _elm_lang$html$Html_Events$onClick(
+														_user$project$Drop$UpdateStatus('')),
 													_1: {ctor: '[]'}
 												}
 											},
 											{
 												ctor: '::',
-												_0: _elm_lang$html$Html$text('Upload!'),
+												_0: _elm_lang$html$Html$text('Clear'),
 												_1: {ctor: '[]'}
 											}),
 										_1: {
@@ -12774,49 +12814,22 @@ var _user$project$Drop$view = function (model) {
 												_elm_lang$html$Html$button,
 												{
 													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$id('button3'),
+													_0: _elm_lang$html$Html_Attributes$id('button1'),
 													_1: {
 														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onClick(
-															_user$project$Drop$UpdateStatus('')),
+														_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Refresh),
 														_1: {ctor: '[]'}
 													}
 												},
 												{
 													ctor: '::',
-													_0: _elm_lang$html$Html$text('Clear'),
+													_0: _elm_lang$html$Html$text('Refresh!'),
 													_1: {ctor: '[]'}
 												}),
 											_1: {
 												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$button,
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$id('button1'),
-														_1: {
-															ctor: '::',
-															_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Refresh),
-															_1: {ctor: '[]'}
-														}
-													},
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('Refresh!'),
-														_1: {ctor: '[]'}
-													}),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$div,
-														{ctor: '[]'},
-														{
-															ctor: '::',
-															_0: _user$project$Drop$viewContents(model.contents),
-															_1: {ctor: '[]'}
-														}),
-													_1: {ctor: '[]'}
-												}
+												_0: _user$project$Drop$footer,
+												_1: {ctor: '[]'}
 											}
 										}
 									}
@@ -12831,63 +12844,50 @@ var _user$project$Drop$view = function (model) {
 					_elm_lang$html$Html$div,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$id('titleContainer'),
+						_0: _elm_lang$html$Html_Attributes$class('example example-dotted'),
 						_1: {ctor: '[]'}
 					},
 					{
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$hr,
+							_elm_lang$html$Html$h1,
+							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('style8'),
+								_0: _elm_lang$html$Html$text('Daily Log'),
 								_1: {ctor: '[]'}
-							},
-							{ctor: '[]'}),
+							}),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$h3,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											_user$project$Drop$formatTime(model.currentTime),
-											model.flashMessage)),
-									_1: {ctor: '[]'}
-								}),
+							_0: _user$project$Drop$footer,
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$textarea,
+									_elm_lang$html$Html$hr,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('height-adjusting-textarea'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$id('update'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$value(model.status),
-														_1: {ctor: '[]'}
-													}
-												}
-											}
-										}
+										_0: _elm_lang$html$Html_Attributes$class('style5'),
+										_1: {ctor: '[]'}
 									},
 									{ctor: '[]'}),
 								_1: {
 									ctor: '::',
-									_0: _user$project$Drop$footer,
-									_1: {ctor: '[]'}
+									_0: A2(
+										_elm_lang$html$Html$br,
+										{ctor: '[]'},
+										{ctor: '[]'}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: _user$project$Drop$viewContents(model.contents),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}
