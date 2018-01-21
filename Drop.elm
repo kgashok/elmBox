@@ -408,8 +408,8 @@ viewContents contents =
         contents
             |> String.split "@@@\n"
             |> List.map render
-            |> List.take 46
-            |> List.reverse
+            --|> List.take 46
+            --|> List.reverse
             >> div []
 
 

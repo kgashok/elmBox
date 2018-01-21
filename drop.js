@@ -12120,15 +12120,9 @@ var _user$project$Drop$viewContents = function (contents) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
-			_elm_lang$core$List$reverse(_p2));
+			A2(_elm_lang$core$List$map, render, _p2));
 	}(
-		A2(
-			_elm_lang$core$List$take,
-			46,
-			A2(
-				_elm_lang$core$List$map,
-				render,
-				A2(_elm_lang$core$String$split, '@@@\n', contents))));
+		A2(_elm_lang$core$String$split, '@@@\n', contents));
 };
 var _user$project$Drop$formatTime = function (time) {
 	return A2(
