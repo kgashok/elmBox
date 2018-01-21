@@ -376,7 +376,7 @@ view model =
             , button [ id "button3", onClick (UpdateStatus "") ] [ text "Clear" ]
             , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
             , footer
-            ]
+        ]
         , div [ class "example example-dotted" ]
             [ h1 [] [ text "Daily Log" ]
             , footer
