@@ -12042,7 +12042,7 @@ var _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape = _marcosh$elm_html_to_u
 var _marcosh$elm_html_to_unicode$ElmEscapeHtml$escape = _marcosh$elm_html_to_unicode$ElmEscapeHtml$convert(_marcosh$elm_html_to_unicode$ElmEscapeHtml$escapeChars);
 
 var _kgashok$elmbox$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _kgashok$elmbox$Version$version = 'v1.5-54-g67a8022';
+var _kgashok$elmbox$Version$version = 'v1.5-55-g02d0b80';
 
 var _kgashok$elmbox$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
 var _kgashok$elmbox$Drop$stringify = function (_p0) {
@@ -12590,7 +12590,11 @@ var _kgashok$elmbox$Drop$update = F2(
 							_elm_lang$core$Native_Utils.update(
 								model_,
 								{flashMessage: 'Download successful (case 1)'}),
-							{ctor: '[]'});
+							{
+								ctor: '::',
+								_0: _kgashok$elmbox$Drop$focusUpdate,
+								_1: {ctor: '[]'}
+							});
 					} else {
 						if (_p14._1 === false) {
 							var model__ = A2(
@@ -13002,7 +13006,7 @@ var _kgashok$elmbox$Drop$view = function (model) {
 		});
 };
 var _kgashok$elmbox$Drop$main = _elm_lang$html$Html$programWithFlags(
-	{init: _kgashok$elmbox$Drop$init, view: _kgashok$elmbox$Drop$view, update: _kgashok$elmbox$Drop$update, subscriptions: _kgashok$elmbox$Drop$subscriptions})(
+	{init: _kgashok$elmbox$Drop$init, view: _kgashok$elmbox$Drop$view, update: _kgashok$elmbox$Drop$updateWithStorage, subscriptions: _kgashok$elmbox$Drop$subscriptions})(
 	_elm_lang$core$Json_Decode$oneOf(
 		{
 			ctor: '::',
