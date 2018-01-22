@@ -630,7 +630,7 @@ uploadHeaders =
 
 
 postSettings =
-    { method = "POST"
+    { method = "GET"
     , headers = downloadHeaders
     , url = ""
     , body = emptyBody
@@ -639,7 +639,8 @@ postSettings =
         -- , expect = expectJson decodeFileInfo
         -- , expect = expectStringResponse expectRev
         -- , expect = expectStringResponse fileInfo
-    , timeout = Just (2 * Time.second)
+    --, timeout = Just (2 * Time.millisecond)
+    , timeout = Nothing
     , withCredentials = False
     }
 
