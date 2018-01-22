@@ -16,8 +16,9 @@ import Version exposing (..)
 import Json.Encode as Encode
 import Json.Decode as Decode exposing (decodeString, field, string, list, dict)
 import Json.Decode.Pipeline as Pipeline exposing (..)
-import Dict exposing (..) 
-import Debug exposing (..) 
+import Dict exposing (..)
+import Debug exposing (..)
+
 
 port setStorage : Model -> Cmd msg
 
@@ -87,8 +88,9 @@ type alias Post =
 type alias Model =
     { filePath : String
     , dropURL : String
-    , contents : String
-    -- , rev : String 
+    , contents :
+        String
+        -- , rev : String
     , postsToUpload : Maybe String
     , status : String
     , currentTime : Maybe Time
@@ -144,9 +146,9 @@ init =
 
 type Msg
     = Refresh
-    --| Download (Result Http.Error ( Time, FileInfo ))
+      --| Download (Result Http.Error ( Time, FileInfo ))
     | Download (Result Http.Error ( Time, String ))
-    --| DownloadAndAppend (Result Http.Error ( Time, FileInfo ))
+      --| DownloadAndAppend (Result Http.Error ( Time, FileInfo ))
     | DownloadAndAppend (Result Http.Error ( Time, String ))
     | Append
     | GetTimeAndAppend Time
@@ -156,7 +158,10 @@ type Msg
     | FocusDone (Result Dom.Error ())
     | GetTime
     | NewTime Time
-    --| UpdateMetadata (Result Http.Error Metadata)
+
+
+
+--| UpdateMetadata (Result Http.Error Metadata)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -164,8 +169,9 @@ update msg model =
     case msg of
         Refresh ->
             { model | contents = "", flashMessage = "Downloading...be patient!" }
-                ! [ getFileTask model ] -- , getMetaTask model ]
+                ! [ getFileTask model ]
 
+        -- , getMetaTask model ]
         Download (Ok ( time, contents )) ->
             let
                 model_ =
@@ -263,16 +269,19 @@ update msg model =
         FocusDone _ ->
             model ! []
 
-        {-UpdateMetadata (Ok meta) -> 
-            { model | rev = meta.rev } ! [focusUpdate]
 
-            
-        UpdateMetadata (Err error) -> 
-            ( model 
-                |> setFlashMessage (toString error) 
-            )   
-                ! []
-        -}
+
+{- UpdateMetadata (Ok meta) ->
+       { model | rev = meta.rev } ! [focusUpdate]
+
+
+   UpdateMetadata (Err error) ->
+       ( model
+           |> setFlashMessage (toString error)
+       )
+           ! []
+-}
+
 
 getTimeTask : Cmd Msg
 getTimeTask =
@@ -334,14 +343,17 @@ appendPosts model =
 updateContents : String -> Model -> Model
 updateContents contents model =
     { model | contents = unescape contents }
-    
-{-updateContents : FileInfo -> Model -> Model
-updateContents contents model =
-    { model | contents = unescape contents.body,
-        --rev = Maybe.withDefault "" (Dict.get "rev" contents.rev)
-        rev = contents.rev
-    }
+
+
+
+{- updateContents : FileInfo -> Model -> Model
+   updateContents contents model =
+       { model | contents = unescape contents.body,
+           --rev = Maybe.withDefault "" (Dict.get "rev" contents.rev)
+           rev = contents.rev
+       }
 -}
+
 
 timedPost : Model -> String
 timedPost model =
@@ -390,9 +402,9 @@ view model =
 viewContents : String -> Html Msg
 viewContents contents =
     let
-        rendersimple material = 
-            div [class "answer"] [ ul[] [text material]]
-            
+        rendersimple material =
+            div [ class "answer" ] [ ul [] [ text material ] ]
+
         render material =
             let
                 tuple =
@@ -408,15 +420,17 @@ viewContents contents =
                     _ ->
                         Markdown.toHtml [ class "answer" ] material
     in
-        div[] [ text contents]
-        {-contents
+        -- div [] [ text contents ]
+        contents
             |> String.split "@@@\n"
             --|> List.take 46
-            |> List.map rendersimple 
+            |>
+                List.map rendersimple
             --|> List.map render
             --|> List.reverse
-            >> div []
-        -}
+            >>
+                div []
+
 
 footer : Html Msg
 footer =
@@ -441,10 +455,9 @@ subscriptions model =
 
 
 -- HTTP
-
-
-    
 --getFile : Model -> Http.Request FileInfo
+
+
 getFile : Model -> Http.Request String
 getFile model =
     let
@@ -506,45 +519,49 @@ sendFile model posts =
         settings =
             { postSettings
                 | url = uploadURL
-                , headers = uploadHeaders
-                -- , expect  = expectString
+                , headers =
+                    uploadHeaders
+                    -- , expect  = expectString
                 , body = stringBody "application/octet-stream" contents
             }
     in
         Http.request settings
 
+
+
 {-
-getMetaData model = 
-    let 
-        metadataURL = 
-            -- model.dropURL ++ "/get_metadata"
-            "https://api.dropboxapi.com/2/files/get_metadata"
+   getMetaData model =
+       let
+           metadataURL =
+               -- model.dropURL ++ "/get_metadata"
+               "https://api.dropboxapi.com/2/files/get_metadata"
 
-        settings = 
-            { postSettings 
-                | url = metadataURL
-                , headers = metadataHeaders
-                , expect = expectJson metadataDecoder
-                , body = jsonBody (encodePath model.filePath)
-            }
-    in 
-        Http.request settings 
+           settings =
+               { postSettings
+                   | url = metadataURL
+                   , headers = metadataHeaders
+                   , expect = expectJson metadataDecoder
+                   , body = jsonBody (encodePath model.filePath)
+               }
+       in
+           Http.request settings
 
 
-    
-getMetaTask : Model -> Cmd Msg
-getMetaTask model =
-    let
-        getTask =
-            Http.toTask (getMetaData model)
-    in
-        Task.attempt UpdateMetadata getTask
+
+   getMetaTask : Model -> Cmd Msg
+   getMetaTask model =
+       let
+           getTask =
+               Http.toTask (getMetaData model)
+       in
+           Task.attempt UpdateMetadata getTask
 -}
 
-encodePath : String -> Encode.Value        
+
+encodePath : String -> Encode.Value
 encodePath path =
-  Encode.object 
-    [ ("path", Encode.string path)]    
+    Encode.object
+        [ ( "path", Encode.string path ) ]
 
 
 sendFileTask : Model -> Cmd Msg
@@ -601,23 +618,27 @@ uploadHeaders =
     [ authorizationHeader
     , Http.header "Dropbox-API-Arg" (stringify uploadArgs)
     ]
-    
+
+
+
 {-
-metadataHeaders : List Header 
-metadataHeaders = 
-    [ authorizationHeader
-    ]
+   metadataHeaders : List Header
+   metadataHeaders =
+       [ authorizationHeader
+       ]
 -}
+
 
 postSettings =
     { method = "POST"
     , headers = downloadHeaders
     , url = ""
     , body = emptyBody
-    , expect = expectString
-    -- , expect = expectJson decodeFileInfo
-    -- , expect = expectStringResponse expectRev
-    -- , expect = expectStringResponse fileInfo
+    , expect =
+        expectString
+        -- , expect = expectJson decodeFileInfo
+        -- , expect = expectStringResponse expectRev
+        -- , expect = expectStringResponse fileInfo
     , timeout = Nothing
     , withCredentials = False
     }
@@ -644,81 +665,89 @@ tableDataDecoder =
         |> required "total" int
 --}
 
-type alias FileInfo =
-  { rev : String
-  , body : String  
-  }
-  
 
-expectRev response = 
-    let 
-        result = 
+type alias FileInfo =
+    { rev : String
+    , body : String
+    }
+
+
+expectRev response =
+    let
+        result =
             Dict.get "dropbox-api-result" response.headers
                 |> Maybe.withDefault "NA"
-        revision = result
+
+        revision =
+            result
                 |> Decode.decodeString (Decode.map (,) (Decode.field "rev" Decode.string))
 
-        _ = Debug.log "headers: " response.headers 
-        _ = Debug.log "res: " result
-        _ = Debug.log "raw rev: " (toString revision)
+        _ =
+            Debug.log "headers: " response.headers
+
+        _ =
+            Debug.log "res: " result
+
+        _ =
+            Debug.log "raw rev: " (toString revision)
     in
-        case revision of 
-            (Ok revString) -> 
-                let 
-                    _ = Debug.log "success rev: " (toString revString)
-                in 
+        case revision of
+            Ok revString ->
+                let
+                    _ =
+                        Debug.log "success rev: " (toString revString)
+                in
                     Decode.decodeString
-                        (decodeFileInfo "00") response.body
+                        (decodeFileInfo "00")
+                        response.body
 
-            (Err error) -> 
+            Err error ->
                 Decode.decodeString
-                    (decodeFileInfo "00") response.body
+                    (decodeFileInfo "00")
+                    response.body
 
 
-decodeFileInfo res = 
-    Decode.map (FileInfo res) Decode.string 
+decodeFileInfo res =
+    Decode.map (FileInfo res) Decode.string
 
 
 type alias Metadata =
-  { rev : String
-  }        
+    { rev : String
+    }
 
 
-metadataUpdate response = 
-    let 
-        _ = Debug.log "metadata: " response 
-    in 
+metadataUpdate response =
+    let
+        _ =
+            Debug.log "metadata: " response
+    in
         Decode.decodeString metadataDecoder response
 
 
-metadataDecoder = 
+metadataDecoder =
     decode Metadata
-        |> Pipeline.required "rev" Decode.string 
-        
+        |> Pipeline.required "rev" Decode.string
+
 
 fileInfo response =
-    let 
-        _ = Debug.log "headers: " response 
-    in 
+    let
+        _ =
+            Debug.log "headers: " response
+    in
         Decode.decodeString fileInfoDecoder response.body
-    
+
 
 fileInfoDecoder : Decode.Decoder FileInfo
 fileInfoDecoder =
     decode FileInfo
         |> Pipeline.requiredAt [ "headers", "dropbox-api-result", "rev" ] string
         |> Pipeline.required "body" string
-        
 
 
 
 -- Decode.decodeString (Decode.map (,) (Decode.field "rev" Decode.string) ) (Maybe.withDefault "" res)
-
-
--- Decode.decodeString 
-    -- (Decode.map (,) (Decode.field "headers" (Decode.dict Decode.string)) ) json
-
-
+-- Decode.decodeString
+-- (Decode.map (,) (Decode.field "headers" (Decode.dict Decode.string)) ) json
 {--
 encodeContents : String -> Encode.Value
 encodeContents contents =

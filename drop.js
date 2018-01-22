@@ -12137,14 +12137,13 @@ var _user$project$Drop$viewContents = function (contents) {
 				_1: {ctor: '[]'}
 			});
 	};
-	return A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(contents),
-			_1: {ctor: '[]'}
-		});
+	return function (_p2) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			A2(_elm_lang$core$List$map, rendersimple, _p2));
+	}(
+		A2(_elm_lang$core$String$split, '@@@\n', contents));
 };
 var _user$project$Drop$formatTime = function (time) {
 	return A2(
@@ -12182,8 +12181,8 @@ var _user$project$Drop$appendPosts = function (model) {
 		});
 };
 var _user$project$Drop$appendStatus = function (model) {
-	var _p2 = model.downloadSuccess;
-	if (_p2 === true) {
+	var _p3 = model.downloadSuccess;
+	if (_p3 === true) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
 			{
@@ -12301,7 +12300,7 @@ var _user$project$Drop$decodeFileInfo = function (res) {
 		_elm_lang$core$Json_Decode$string);
 };
 var _user$project$Drop$expectRev = function (response) {
-	var _p3 = A2(_elm_lang$core$Debug$log, 'headers: ', response.headers);
+	var _p4 = A2(_elm_lang$core$Debug$log, 'headers: ', response.headers);
 	var result = A2(
 		_elm_lang$core$Maybe$withDefault,
 		'NA',
@@ -12316,17 +12315,17 @@ var _user$project$Drop$expectRev = function (response) {
 				}),
 			A2(_elm_lang$core$Json_Decode$field, 'rev', _elm_lang$core$Json_Decode$string)),
 		result);
-	var _p4 = A2(
+	var _p5 = A2(
 		_elm_lang$core$Debug$log,
 		'raw rev: ',
 		_elm_lang$core$Basics$toString(revision));
-	var _p5 = A2(_elm_lang$core$Debug$log, 'res: ', result);
-	var _p6 = revision;
-	if (_p6.ctor === 'Ok') {
-		var _p7 = A2(
+	var _p6 = A2(_elm_lang$core$Debug$log, 'res: ', result);
+	var _p7 = revision;
+	if (_p7.ctor === 'Ok') {
+		var _p8 = A2(
 			_elm_lang$core$Debug$log,
 			'success rev: ',
-			_elm_lang$core$Basics$toString(_p6._0));
+			_elm_lang$core$Basics$toString(_p7._0));
 		return A2(
 			_elm_lang$core$Json_Decode$decodeString,
 			_user$project$Drop$decodeFileInfo('00'),
@@ -12360,7 +12359,7 @@ var _user$project$Drop$fileInfoDecoder = A3(
 		_elm_lang$core$Json_Decode$string,
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Drop$FileInfo)));
 var _user$project$Drop$fileInfo = function (response) {
-	var _p8 = A2(_elm_lang$core$Debug$log, 'headers: ', response);
+	var _p9 = A2(_elm_lang$core$Debug$log, 'headers: ', response);
 	return A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Drop$fileInfoDecoder, response.body);
 };
 var _user$project$Drop$Metadata = function (a) {
@@ -12372,7 +12371,7 @@ var _user$project$Drop$metadataDecoder = A3(
 	_elm_lang$core$Json_Decode$string,
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Drop$Metadata));
 var _user$project$Drop$metadataUpdate = function (response) {
-	var _p9 = A2(_elm_lang$core$Debug$log, 'metadata: ', response);
+	var _p10 = A2(_elm_lang$core$Debug$log, 'metadata: ', response);
 	return A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Drop$metadataDecoder, response);
 };
 var _user$project$Drop$FileContentToUpload = F2(
@@ -12478,8 +12477,8 @@ var _user$project$Drop$getFileTask = function (model) {
 };
 var _user$project$Drop$update = F2(
 	function (msg, model) {
-		var _p10 = msg;
-		switch (_p10.ctor) {
+		var _p11 = msg;
+		switch (_p11.ctor) {
 			case 'Refresh':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -12492,16 +12491,16 @@ var _user$project$Drop$update = F2(
 						_1: {ctor: '[]'}
 					});
 			case 'Download':
-				if (_p10._0.ctor === 'Ok') {
+				if (_p11._0.ctor === 'Ok') {
 					var model_ = A2(
 						_user$project$Drop$setFlag,
 						true,
 						A2(
 							_user$project$Drop$updateContents,
-							_p10._0._0._1,
-							A2(_user$project$Drop$setTime, _p10._0._0._0, model)));
-					var _p11 = {ctor: '_Tuple2', _0: model.downloadFirst, _1: model.downloadSuccess};
-					if (_p11._0 === false) {
+							_p11._0._0._1,
+							A2(_user$project$Drop$setTime, _p11._0._0._0, model)));
+					var _p12 = {ctor: '_Tuple2', _0: model.downloadFirst, _1: model.downloadSuccess};
+					if (_p12._0 === false) {
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
 							_elm_lang$core$Native_Utils.update(
@@ -12513,7 +12512,7 @@ var _user$project$Drop$update = F2(
 								_1: {ctor: '[]'}
 							});
 					} else {
-						if (_p11._1 === false) {
+						if (_p12._1 === false) {
 							var model__ = A2(
 								_user$project$Drop$setFlashMessage,
 								'Download successful! (case 2)',
@@ -12547,12 +12546,12 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
 							_user$project$Drop$setFlashMessage,
-							_elm_lang$core$Basics$toString(_p10._0._0),
+							_elm_lang$core$Basics$toString(_p11._0._0),
 							model_),
 						{ctor: '[]'});
 				}
 			case 'DownloadAndAppend':
-				if (_p10._0.ctor === 'Ok') {
+				if (_p11._0.ctor === 'Ok') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
@@ -12564,8 +12563,8 @@ var _user$project$Drop$update = F2(
 								_user$project$Drop$appendStatus(
 									A2(
 										_user$project$Drop$updateContents,
-										_p10._0._0._1,
-										A2(_user$project$Drop$setTime, _p10._0._0._0, model))))),
+										_p11._0._0._1,
+										A2(_user$project$Drop$setTime, _p11._0._0._0, model))))),
 						{
 							ctor: '::',
 							_0: _user$project$Drop$focusUpdate,
@@ -12576,7 +12575,7 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
 							_user$project$Drop$setFlashMessage,
-							_elm_lang$core$Basics$toString(_p10._0._0),
+							_elm_lang$core$Basics$toString(_p11._0._0),
 							model),
 						{ctor: '[]'});
 				}
@@ -12596,7 +12595,7 @@ var _user$project$Drop$update = F2(
 						_user$project$Drop$setFlashMessage,
 						'Append successful!',
 						_user$project$Drop$appendStatus(
-							A2(_user$project$Drop$setTime, _p10._0, model))),
+							A2(_user$project$Drop$setTime, _p11._0, model))),
 					{
 						ctor: '::',
 						_0: _user$project$Drop$focusUpdate,
@@ -12607,7 +12606,7 @@ var _user$project$Drop$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{status: _p10._0}),
+						{status: _p11._0}),
 					{
 						ctor: '::',
 						_0: _user$project$Drop$focusUpdate,
@@ -12619,8 +12618,8 @@ var _user$project$Drop$update = F2(
 					});
 			case 'Upload':
 				var model_ = A2(_user$project$Drop$setFlashMessage, 'Uploading...please be patient!', model);
-				var _p12 = model_.downloadSuccess;
-				if (_p12 === true) {
+				var _p13 = model_.downloadSuccess;
+				if (_p13 === true) {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						model_,
@@ -12642,7 +12641,7 @@ var _user$project$Drop$update = F2(
 						});
 				}
 			case 'UploadStatus':
-				if (_p10._0.ctor === 'Ok') {
+				if (_p11._0.ctor === 'Ok') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
@@ -12651,7 +12650,7 @@ var _user$project$Drop$update = F2(
 							A2(
 								_user$project$Drop$setFlashMessage,
 								'Upload successful!',
-								A2(_user$project$Drop$setTime, _p10._0._0._0, model))),
+								A2(_user$project$Drop$setTime, _p11._0._0._0, model))),
 						{
 							ctor: '::',
 							_0: _user$project$Drop$focusUpdate,
@@ -12662,7 +12661,7 @@ var _user$project$Drop$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
 							_user$project$Drop$setFlashMessage,
-							_elm_lang$core$Basics$toString(_p10._0._0),
+							_elm_lang$core$Basics$toString(_p11._0._0),
 							model),
 						{ctor: '[]'});
 				}
@@ -12678,7 +12677,7 @@ var _user$project$Drop$update = F2(
 			case 'NewTime':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					A2(_user$project$Drop$setTime, _p10._0, model),
+					A2(_user$project$Drop$setTime, _p11._0, model),
 					{
 						ctor: '::',
 						_0: _user$project$Drop$focusUpdate,
@@ -12693,9 +12692,9 @@ var _user$project$Drop$update = F2(
 	});
 var _user$project$Drop$updateWithStorage = F2(
 	function (msg, model) {
-		var _p13 = A2(_user$project$Drop$update, msg, model);
-		var nextModel = _p13._0;
-		var nextCmd = _p13._1;
+		var _p14 = A2(_user$project$Drop$update, msg, model);
+		var nextModel = _p14._0;
+		var nextCmd = _p14._1;
 		return {
 			ctor: '_Tuple2',
 			_0: nextModel,
