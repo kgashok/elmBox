@@ -9569,8 +9569,9 @@ var marked = function() {
 	 * marked - a markdown parser
 	 * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
 	 * https://github.com/chjj/marked
+	 * commit cd2f6f5b7091154c5526e79b5f3bfb4d15995a51
 	 */
-	(function(){var block={newline:/^\n+/,code:/^( {4}[^\n]+\n*)+/,fences:noop,hr:/^( *[-*_]){3,} *(?:\n+|$)/,heading:/^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,nptable:noop,lheading:/^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,blockquote:/^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,list:/^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,html:/^ *(?:comment|closed|closing) *(?:\n{2,}|\s*$)/,def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,table:noop,paragraph:/^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,text:/^[^\n]+/};block.bullet=/(?:[*+-]|\d+\.)/;block.item=/^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;block.item=replace(block.item,"gm")(/bull/g,block.bullet)();block.list=replace(block.list)(/bull/g,block.bullet)("hr","\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))")("def","\\n+(?="+block.def.source+")")();block.blockquote=replace(block.blockquote)("def",block.def)();block._tag="(?!(?:"+"a|em|strong|small|s|cite|q|dfn|abbr|data|time|code"+"|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo"+"|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b";block.html=replace(block.html)("comment",/<!--[\s\S]*?-->/)("closed",/<(tag)[\s\S]+?<\/\1>/)("closing",/<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)(/tag/g,block._tag)();block.paragraph=replace(block.paragraph)("hr",block.hr)("heading",block.heading)("lheading",block.lheading)("blockquote",block.blockquote)("tag","<"+block._tag)("def",block.def)();block.normal=merge({},block);block.gfm=merge({},block.normal,{fences:/^ *(`{3,}|~{3,}) *(\S+)? *\n([\s\S]+?)\s*\1 *(?:\n+|$)/,paragraph:/^/});block.gfm.paragraph=replace(block.paragraph)("(?!","(?!"+block.gfm.fences.source.replace("\\1","\\2")+"|"+block.list.source.replace("\\1","\\3")+"|")();block.tables=merge({},block.gfm,{nptable:/^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,table:/^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/});function Lexer(options){this.tokens=[];this.tokens.links={};this.options=options||marked.defaults;this.rules=block.normal;if(this.options.gfm){if(this.options.tables){this.rules=block.tables}else{this.rules=block.gfm}}}Lexer.rules=block;Lexer.lex=function(src,options){var lexer=new Lexer(options);return lexer.lex(src)};Lexer.prototype.lex=function(src){src=src.replace(/\r\n|\r/g,"\n").replace(/\t/g,"    ").replace(/\u00a0/g," ").replace(/\u2424/g,"\n");return this.token(src,true)};Lexer.prototype.token=function(src,top,bq){var src=src.replace(/^ +$/gm,""),next,loose,cap,bull,b,item,space,i,l;while(src){if(cap=this.rules.newline.exec(src)){src=src.substring(cap[0].length);if(cap[0].length>1){this.tokens.push({type:"space"})}}if(cap=this.rules.code.exec(src)){src=src.substring(cap[0].length);cap=cap[0].replace(/^ {4}/gm,"");this.tokens.push({type:"code",text:!this.options.pedantic?cap.replace(/\n+$/,""):cap});continue}if(cap=this.rules.fences.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"code",lang:cap[2],text:cap[3]});continue}if(cap=this.rules.heading.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"heading",depth:cap[1].length,text:cap[2]});continue}if(top&&(cap=this.rules.nptable.exec(src))){src=src.substring(cap[0].length);item={type:"table",header:cap[1].replace(/^ *| *\| *$/g,"").split(/ *\| */),align:cap[2].replace(/^ *|\| *$/g,"").split(/ *\| */),cells:cap[3].replace(/\n$/,"").split("\n")};for(i=0;i<item.align.length;i++){if(/^ *-+: *$/.test(item.align[i])){item.align[i]="right"}else if(/^ *:-+: *$/.test(item.align[i])){item.align[i]="center"}else if(/^ *:-+ *$/.test(item.align[i])){item.align[i]="left"}else{item.align[i]=null}}for(i=0;i<item.cells.length;i++){item.cells[i]=item.cells[i].split(/ *\| */)}this.tokens.push(item);continue}if(cap=this.rules.lheading.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"heading",depth:cap[2]==="="?1:2,text:cap[1]});continue}if(cap=this.rules.hr.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"hr"});continue}if(cap=this.rules.blockquote.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"blockquote_start"});cap=cap[0].replace(/^ *> ?/gm,"");this.token(cap,top,true);this.tokens.push({type:"blockquote_end"});continue}if(cap=this.rules.list.exec(src)){src=src.substring(cap[0].length);bull=cap[2];this.tokens.push({type:"list_start",ordered:bull.length>1});cap=cap[0].match(this.rules.item);next=false;l=cap.length;i=0;for(;i<l;i++){item=cap[i];space=item.length;item=item.replace(/^ *([*+-]|\d+\.) +/,"");if(~item.indexOf("\n ")){space-=item.length;item=!this.options.pedantic?item.replace(new RegExp("^ {1,"+space+"}","gm"),""):item.replace(/^ {1,4}/gm,"")}if(this.options.smartLists&&i!==l-1){b=block.bullet.exec(cap[i+1])[0];if(bull!==b&&!(bull.length>1&&b.length>1)){src=cap.slice(i+1).join("\n")+src;i=l-1}}loose=next||/\n\n(?!\s*$)/.test(item);if(i!==l-1){next=item.charAt(item.length-1)==="\n";if(!loose)loose=next}this.tokens.push({type:loose?"loose_item_start":"list_item_start"});this.token(item,false,bq);this.tokens.push({type:"list_item_end"})}this.tokens.push({type:"list_end"});continue}if(cap=this.rules.html.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:this.options.sanitize?"paragraph":"html",pre:cap[1]==="pre"||cap[1]==="script"||cap[1]==="style",text:cap[0]});continue}if(!bq&&top&&(cap=this.rules.def.exec(src))){src=src.substring(cap[0].length);this.tokens.links[cap[1].toLowerCase()]={href:cap[2],title:cap[3]};continue}if(top&&(cap=this.rules.table.exec(src))){src=src.substring(cap[0].length);item={type:"table",header:cap[1].replace(/^ *| *\| *$/g,"").split(/ *\| */),align:cap[2].replace(/^ *|\| *$/g,"").split(/ *\| */),cells:cap[3].replace(/(?: *\| *)?\n$/,"").split("\n")};for(i=0;i<item.align.length;i++){if(/^ *-+: *$/.test(item.align[i])){item.align[i]="right"}else if(/^ *:-+: *$/.test(item.align[i])){item.align[i]="center"}else if(/^ *:-+ *$/.test(item.align[i])){item.align[i]="left"}else{item.align[i]=null}}for(i=0;i<item.cells.length;i++){item.cells[i]=item.cells[i].replace(/^ *\| *| *\| *$/g,"").split(/ *\| */)}this.tokens.push(item);continue}if(top&&(cap=this.rules.paragraph.exec(src))){src=src.substring(cap[0].length);this.tokens.push({type:"paragraph",text:cap[1].charAt(cap[1].length-1)==="\n"?cap[1].slice(0,-1):cap[1]});continue}if(cap=this.rules.text.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"text",text:cap[0]});continue}if(src){throw new Error("Infinite loop on byte: "+src.charCodeAt(0))}}return this.tokens};var inline={escape:/^\\([\\`*{}\[\]()#+\-.!_>])/,autolink:/^<([^ >]+(@|:\/)[^ >]+)>/,url:noop,tag:/^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,link:/^!?\[(inside)\]\(href\)/,reflink:/^!?\[(inside)\]\s*\[([^\]]*)\]/,nolink:/^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,strong:/^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,em:/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,code:/^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,br:/^ {2,}\n(?!\s*$)/,del:noop,text:/^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/};inline._inside=/(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/;inline._href=/\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;inline.link=replace(inline.link)("inside",inline._inside)("href",inline._href)();inline.reflink=replace(inline.reflink)("inside",inline._inside)();inline.normal=merge({},inline);inline.pedantic=merge({},inline.normal,{strong:/^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,em:/^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/});inline.gfm=merge({},inline.normal,{escape:replace(inline.escape)("])","~|])")(),url:/^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,del:/^~~(?=\S)([\s\S]*?\S)~~/,text:replace(inline.text)("]|","~]|")("|","|https?://|")()});inline.breaks=merge({},inline.gfm,{br:replace(inline.br)("{2,}","*")(),text:replace(inline.gfm.text)("{2,}","*")()});function InlineLexer(links,options){this.options=options||marked.defaults;this.links=links;this.rules=inline.normal;this.renderer=this.options.renderer||new Renderer;this.renderer.options=this.options;if(!this.links){throw new Error("Tokens array requires a `links` property.")}if(this.options.gfm){if(this.options.breaks){this.rules=inline.breaks}else{this.rules=inline.gfm}}else if(this.options.pedantic){this.rules=inline.pedantic}}InlineLexer.rules=inline;InlineLexer.output=function(src,links,options){var inline=new InlineLexer(links,options);return inline.output(src)};InlineLexer.prototype.output=function(src){var out="",link,text,href,cap;while(src){if(cap=this.rules.escape.exec(src)){src=src.substring(cap[0].length);out+=cap[1];continue}if(cap=this.rules.autolink.exec(src)){src=src.substring(cap[0].length);if(cap[2]==="@"){text=cap[1].charAt(6)===":"?this.mangle(cap[1].substring(7)):this.mangle(cap[1]);href=this.mangle("mailto:")+text}else{text=escape(cap[1]);href=text}out+=this.renderer.link(href,null,text);continue}if(!this.inLink&&(cap=this.rules.url.exec(src))){src=src.substring(cap[0].length);text=escape(cap[1]);href=text;out+=this.renderer.link(href,null,text);continue}if(cap=this.rules.tag.exec(src)){if(!this.inLink&&/^<a /i.test(cap[0])){this.inLink=true}else if(this.inLink&&/^<\/a>/i.test(cap[0])){this.inLink=false}src=src.substring(cap[0].length);out+=this.options.sanitize?escape(cap[0]):cap[0];continue}if(cap=this.rules.link.exec(src)){src=src.substring(cap[0].length);this.inLink=true;out+=this.outputLink(cap,{href:cap[2],title:cap[3]});this.inLink=false;continue}if((cap=this.rules.reflink.exec(src))||(cap=this.rules.nolink.exec(src))){src=src.substring(cap[0].length);link=(cap[2]||cap[1]).replace(/\s+/g," ");link=this.links[link.toLowerCase()];if(!link||!link.href){out+=cap[0].charAt(0);src=cap[0].substring(1)+src;continue}this.inLink=true;out+=this.outputLink(cap,link);this.inLink=false;continue}if(cap=this.rules.strong.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.strong(this.output(cap[2]||cap[1]));continue}if(cap=this.rules.em.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.em(this.output(cap[2]||cap[1]));continue}if(cap=this.rules.code.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.codespan(escape(cap[2],true));continue}if(cap=this.rules.br.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.br();continue}if(cap=this.rules.del.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.del(this.output(cap[1]));continue}if(cap=this.rules.text.exec(src)){src=src.substring(cap[0].length);out+=escape(this.smartypants(cap[0]));continue}if(src){throw new Error("Infinite loop on byte: "+src.charCodeAt(0))}}return out};InlineLexer.prototype.outputLink=function(cap,link){var href=escape(link.href),title=link.title?escape(link.title):null;return cap[0].charAt(0)!=="!"?this.renderer.link(href,title,this.output(cap[1])):this.renderer.image(href,title,escape(cap[1]))};InlineLexer.prototype.smartypants=function(text){if(!this.options.smartypants)return text;return text.replace(/--/g,"—").replace(/(^|[-\u2014/(\[{"\s])'/g,"$1‘").replace(/'/g,"’").replace(/(^|[-\u2014/(\[{\u2018\s])"/g,"$1“").replace(/"/g,"”").replace(/\.{3}/g,"…")};InlineLexer.prototype.mangle=function(text){var out="",l=text.length,i=0,ch;for(;i<l;i++){ch=text.charCodeAt(i);if(Math.random()>.5){ch="x"+ch.toString(16)}out+="&#"+ch+";"}return out};function Renderer(options){this.options=options||{}}Renderer.prototype.code=function(code,lang,escaped){if(this.options.highlight){var out=this.options.highlight(code,lang);if(out!=null&&out!==code){escaped=true;code=out}}if(!lang){return"<pre><code>"+(escaped?code:escape(code,true))+"\n</code></pre>"}return'<pre><code class="'+this.options.langPrefix+escape(lang,true)+'">'+(escaped?code:escape(code,true))+"\n</code></pre>\n"};Renderer.prototype.blockquote=function(quote){return"<blockquote>\n"+quote+"</blockquote>\n"};Renderer.prototype.html=function(html){return html};Renderer.prototype.heading=function(text,level,raw){return"<h"+level+' id="'+this.options.headerPrefix+raw.toLowerCase().replace(/[^\w]+/g,"-")+'">'+text+"</h"+level+">\n"};Renderer.prototype.hr=function(){return this.options.xhtml?"<hr/>\n":"<hr>\n"};Renderer.prototype.list=function(body,ordered){var type=ordered?"ol":"ul";return"<"+type+">\n"+body+"</"+type+">\n"};Renderer.prototype.listitem=function(text){return"<li>"+text+"</li>\n"};Renderer.prototype.paragraph=function(text){return"<p>"+text+"</p>\n"};Renderer.prototype.table=function(header,body){return"<table>\n"+"<thead>\n"+header+"</thead>\n"+"<tbody>\n"+body+"</tbody>\n"+"</table>\n"};Renderer.prototype.tablerow=function(content){return"<tr>\n"+content+"</tr>\n"};Renderer.prototype.tablecell=function(content,flags){var type=flags.header?"th":"td";var tag=flags.align?"<"+type+' style="text-align:'+flags.align+'">':"<"+type+">";return tag+content+"</"+type+">\n"};Renderer.prototype.strong=function(text){return"<strong>"+text+"</strong>"};Renderer.prototype.em=function(text){return"<em>"+text+"</em>"};Renderer.prototype.codespan=function(text){return"<code>"+text+"</code>"};Renderer.prototype.br=function(){return this.options.xhtml?"<br/>":"<br>"};Renderer.prototype.del=function(text){return"<del>"+text+"</del>"};Renderer.prototype.link=function(href,title,text){if(this.options.sanitize){try{var prot=decodeURIComponent(unescape(href)).replace(/[^\w:]/g,"").toLowerCase()}catch(e){return""}if(prot.indexOf("javascript:")===0){return""}}var out='<a href="'+href+'"';if(title){out+=' title="'+title+'"'}out+=">"+text+"</a>";return out};Renderer.prototype.image=function(href,title,text){var out='<img src="'+href+'" alt="'+text+'"';if(title){out+=' title="'+title+'"'}out+=this.options.xhtml?"/>":">";return out};function Parser(options){this.tokens=[];this.token=null;this.options=options||marked.defaults;this.options.renderer=this.options.renderer||new Renderer;this.renderer=this.options.renderer;this.renderer.options=this.options}Parser.parse=function(src,options,renderer){var parser=new Parser(options,renderer);return parser.parse(src)};Parser.prototype.parse=function(src){this.inline=new InlineLexer(src.links,this.options,this.renderer);this.tokens=src.reverse();var out="";while(this.next()){out+=this.tok()}return out};Parser.prototype.next=function(){return this.token=this.tokens.pop()};Parser.prototype.peek=function(){return this.tokens[this.tokens.length-1]||0};Parser.prototype.parseText=function(){var body=this.token.text;while(this.peek().type==="text"){body+="\n"+this.next().text}return this.inline.output(body)};Parser.prototype.tok=function(){switch(this.token.type){case"space":{return""}case"hr":{return this.renderer.hr()}case"heading":{return this.renderer.heading(this.inline.output(this.token.text),this.token.depth,this.token.text)}case"code":{return this.renderer.code(this.token.text,this.token.lang,this.token.escaped)}case"table":{var header="",body="",i,row,cell,flags,j;cell="";for(i=0;i<this.token.header.length;i++){flags={header:true,align:this.token.align[i]};cell+=this.renderer.tablecell(this.inline.output(this.token.header[i]),{header:true,align:this.token.align[i]})}header+=this.renderer.tablerow(cell);for(i=0;i<this.token.cells.length;i++){row=this.token.cells[i];cell="";for(j=0;j<row.length;j++){cell+=this.renderer.tablecell(this.inline.output(row[j]),{header:false,align:this.token.align[j]})}body+=this.renderer.tablerow(cell)}return this.renderer.table(header,body)}case"blockquote_start":{var body="";while(this.next().type!=="blockquote_end"){body+=this.tok()}return this.renderer.blockquote(body)}case"list_start":{var body="",ordered=this.token.ordered;while(this.next().type!=="list_end"){body+=this.tok()}return this.renderer.list(body,ordered)}case"list_item_start":{var body="";while(this.next().type!=="list_item_end"){body+=this.token.type==="text"?this.parseText():this.tok()}return this.renderer.listitem(body)}case"loose_item_start":{var body="";while(this.next().type!=="list_item_end"){body+=this.tok()}return this.renderer.listitem(body)}case"html":{var html=!this.token.pre&&!this.options.pedantic?this.inline.output(this.token.text):this.token.text;return this.renderer.html(html)}case"paragraph":{return this.renderer.paragraph(this.inline.output(this.token.text))}case"text":{return this.renderer.paragraph(this.parseText())}}};function escape(html,encode){return html.replace(!encode?/&(?!#?\w+;)/g:/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}function unescape(html){return html.replace(/&([#\w]+);/g,function(_,n){n=n.toLowerCase();if(n==="colon")return":";if(n.charAt(0)==="#"){return n.charAt(1)==="x"?String.fromCharCode(parseInt(n.substring(2),16)):String.fromCharCode(+n.substring(1))}return""})}function replace(regex,opt){regex=regex.source;opt=opt||"";return function self(name,val){if(!name)return new RegExp(regex,opt);val=val.source||val;val=val.replace(/(^|[^\[])\^/g,"$1");regex=regex.replace(name,val);return self}}function noop(){}noop.exec=noop;function merge(obj){var i=1,target,key;for(;i<arguments.length;i++){target=arguments[i];for(key in target){if(Object.prototype.hasOwnProperty.call(target,key)){obj[key]=target[key]}}}return obj}function marked(src,opt,callback){if(callback||typeof opt==="function"){if(!callback){callback=opt;opt=null}opt=merge({},marked.defaults,opt||{});var highlight=opt.highlight,tokens,pending,i=0;try{tokens=Lexer.lex(src,opt)}catch(e){return callback(e)}pending=tokens.length;var done=function(err){if(err){opt.highlight=highlight;return callback(err)}var out;try{out=Parser.parse(tokens,opt)}catch(e){err=e}opt.highlight=highlight;return err?callback(err):callback(null,out)};if(!highlight||highlight.length<3){return done()}delete opt.highlight;if(!pending)return done();for(;i<tokens.length;i++){(function(token){if(token.type!=="code"){return--pending||done()}return highlight(token.text,token.lang,function(err,code){if(err)return done(err);if(code==null||code===token.text){return--pending||done()}token.text=code;token.escaped=true;--pending||done()})})(tokens[i])}return}try{if(opt)opt=merge({},marked.defaults,opt);return Parser.parse(Lexer.lex(src,opt),opt)}catch(e){e.message+="\nPlease report this to https://github.com/chjj/marked.";if((opt||marked.defaults).silent){return"<p>An error occured:</p><pre>"+escape(e.message+"",true)+"</pre>"}throw e}}marked.options=marked.setOptions=function(opt){merge(marked.defaults,opt);return marked};marked.defaults={gfm:true,tables:true,breaks:false,pedantic:false,sanitize:false,smartLists:false,silent:false,highlight:null,langPrefix:"lang-",smartypants:false,headerPrefix:"",renderer:new Renderer,xhtml:false};marked.Parser=Parser;marked.parser=Parser.parse;marked.Renderer=Renderer;marked.Lexer=Lexer;marked.lexer=Lexer.lex;marked.InlineLexer=InlineLexer;marked.inlineLexer=InlineLexer.output;marked.parse=marked;if(typeof module!=="undefined"&&typeof exports==="object"){module.exports=marked}else if(typeof define==="function"&&define.amd){define(function(){return marked})}else{this.marked=marked}}).call(function(){return this||(typeof window!=="undefined"?window:global)}());
+	(function(){var block={newline:/^\n+/,code:/^( {4}[^\n]+\n*)+/,fences:noop,hr:/^( *[-*_]){3,} *(?:\n+|$)/,heading:/^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,nptable:noop,lheading:/^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,blockquote:/^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,list:/^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,html:/^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,table:noop,paragraph:/^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,text:/^[^\n]+/};block.bullet=/(?:[*+-]|\d+\.)/;block.item=/^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;block.item=replace(block.item,"gm")(/bull/g,block.bullet)();block.list=replace(block.list)(/bull/g,block.bullet)("hr","\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))")("def","\\n+(?="+block.def.source+")")();block.blockquote=replace(block.blockquote)("def",block.def)();block._tag="(?!(?:"+"a|em|strong|small|s|cite|q|dfn|abbr|data|time|code"+"|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo"+"|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b";block.html=replace(block.html)("comment",/<!--[\s\S]*?-->/)("closed",/<(tag)[\s\S]+?<\/\1>/)("closing",/<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)(/tag/g,block._tag)();block.paragraph=replace(block.paragraph)("hr",block.hr)("heading",block.heading)("lheading",block.lheading)("blockquote",block.blockquote)("tag","<"+block._tag)("def",block.def)();block.normal=merge({},block);block.gfm=merge({},block.normal,{fences:/^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/,paragraph:/^/,heading:/^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/});block.gfm.paragraph=replace(block.paragraph)("(?!","(?!"+block.gfm.fences.source.replace("\\1","\\2")+"|"+block.list.source.replace("\\1","\\3")+"|")();block.tables=merge({},block.gfm,{nptable:/^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,table:/^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/});function Lexer(options){this.tokens=[];this.tokens.links={};this.options=options||marked.defaults;this.rules=block.normal;if(this.options.gfm){if(this.options.tables){this.rules=block.tables}else{this.rules=block.gfm}}}Lexer.rules=block;Lexer.lex=function(src,options){var lexer=new Lexer(options);return lexer.lex(src)};Lexer.prototype.lex=function(src){src=src.replace(/\r\n|\r/g,"\n").replace(/\t/g,"    ").replace(/\u00a0/g," ").replace(/\u2424/g,"\n");return this.token(src,true)};Lexer.prototype.token=function(src,top,bq){var src=src.replace(/^ +$/gm,""),next,loose,cap,bull,b,item,space,i,l;while(src){if(cap=this.rules.newline.exec(src)){src=src.substring(cap[0].length);if(cap[0].length>1){this.tokens.push({type:"space"})}}if(cap=this.rules.code.exec(src)){src=src.substring(cap[0].length);cap=cap[0].replace(/^ {4}/gm,"");this.tokens.push({type:"code",text:!this.options.pedantic?cap.replace(/\n+$/,""):cap});continue}if(cap=this.rules.fences.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"code",lang:cap[2],text:cap[3]||""});continue}if(cap=this.rules.heading.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"heading",depth:cap[1].length,text:cap[2]});continue}if(top&&(cap=this.rules.nptable.exec(src))){src=src.substring(cap[0].length);item={type:"table",header:cap[1].replace(/^ *| *\| *$/g,"").split(/ *\| */),align:cap[2].replace(/^ *|\| *$/g,"").split(/ *\| */),cells:cap[3].replace(/\n$/,"").split("\n")};for(i=0;i<item.align.length;i++){if(/^ *-+: *$/.test(item.align[i])){item.align[i]="right"}else if(/^ *:-+: *$/.test(item.align[i])){item.align[i]="center"}else if(/^ *:-+ *$/.test(item.align[i])){item.align[i]="left"}else{item.align[i]=null}}for(i=0;i<item.cells.length;i++){item.cells[i]=item.cells[i].split(/ *\| */)}this.tokens.push(item);continue}if(cap=this.rules.lheading.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"heading",depth:cap[2]==="="?1:2,text:cap[1]});continue}if(cap=this.rules.hr.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"hr"});continue}if(cap=this.rules.blockquote.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"blockquote_start"});cap=cap[0].replace(/^ *> ?/gm,"");this.token(cap,top,true);this.tokens.push({type:"blockquote_end"});continue}if(cap=this.rules.list.exec(src)){src=src.substring(cap[0].length);bull=cap[2];this.tokens.push({type:"list_start",ordered:bull.length>1});cap=cap[0].match(this.rules.item);next=false;l=cap.length;i=0;for(;i<l;i++){item=cap[i];space=item.length;item=item.replace(/^ *([*+-]|\d+\.) +/,"");if(~item.indexOf("\n ")){space-=item.length;item=!this.options.pedantic?item.replace(new RegExp("^ {1,"+space+"}","gm"),""):item.replace(/^ {1,4}/gm,"")}if(this.options.smartLists&&i!==l-1){b=block.bullet.exec(cap[i+1])[0];if(bull!==b&&!(bull.length>1&&b.length>1)){src=cap.slice(i+1).join("\n")+src;i=l-1}}loose=next||/\n\n(?!\s*$)/.test(item);if(i!==l-1){next=item.charAt(item.length-1)==="\n";if(!loose)loose=next}this.tokens.push({type:loose?"loose_item_start":"list_item_start"});this.token(item,false,bq);this.tokens.push({type:"list_item_end"})}this.tokens.push({type:"list_end"});continue}if(cap=this.rules.html.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:this.options.sanitize?"paragraph":"html",pre:!this.options.sanitizer&&(cap[1]==="pre"||cap[1]==="script"||cap[1]==="style"),text:cap[0]});continue}if(!bq&&top&&(cap=this.rules.def.exec(src))){src=src.substring(cap[0].length);this.tokens.links[cap[1].toLowerCase()]={href:cap[2],title:cap[3]};continue}if(top&&(cap=this.rules.table.exec(src))){src=src.substring(cap[0].length);item={type:"table",header:cap[1].replace(/^ *| *\| *$/g,"").split(/ *\| */),align:cap[2].replace(/^ *|\| *$/g,"").split(/ *\| */),cells:cap[3].replace(/(?: *\| *)?\n$/,"").split("\n")};for(i=0;i<item.align.length;i++){if(/^ *-+: *$/.test(item.align[i])){item.align[i]="right"}else if(/^ *:-+: *$/.test(item.align[i])){item.align[i]="center"}else if(/^ *:-+ *$/.test(item.align[i])){item.align[i]="left"}else{item.align[i]=null}}for(i=0;i<item.cells.length;i++){item.cells[i]=item.cells[i].replace(/^ *\| *| *\| *$/g,"").split(/ *\| */)}this.tokens.push(item);continue}if(top&&(cap=this.rules.paragraph.exec(src))){src=src.substring(cap[0].length);this.tokens.push({type:"paragraph",text:cap[1].charAt(cap[1].length-1)==="\n"?cap[1].slice(0,-1):cap[1]});continue}if(cap=this.rules.text.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"text",text:cap[0]});continue}if(src){throw new Error("Infinite loop on byte: "+src.charCodeAt(0))}}return this.tokens};var inline={escape:/^\\([\\`*{}\[\]()#+\-.!_>])/,autolink:/^<([^ >]+(@|:\/)[^ >]+)>/,url:noop,tag:/^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,link:/^!?\[(inside)\]\(href\)/,reflink:/^!?\[(inside)\]\s*\[([^\]]*)\]/,nolink:/^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,strong:/^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,em:/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,code:/^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,br:/^ {2,}\n(?!\s*$)/,del:noop,text:/^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/};inline._inside=/(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/;inline._href=/\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;inline.link=replace(inline.link)("inside",inline._inside)("href",inline._href)();inline.reflink=replace(inline.reflink)("inside",inline._inside)();inline.normal=merge({},inline);inline.pedantic=merge({},inline.normal,{strong:/^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,em:/^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/});inline.gfm=merge({},inline.normal,{escape:replace(inline.escape)("])","~|])")(),url:/^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,del:/^~~(?=\S)([\s\S]*?\S)~~/,text:replace(inline.text)("]|","~]|")("|","|https?://|")()});inline.breaks=merge({},inline.gfm,{br:replace(inline.br)("{2,}","*")(),text:replace(inline.gfm.text)("{2,}","*")()});function InlineLexer(links,options){this.options=options||marked.defaults;this.links=links;this.rules=inline.normal;this.renderer=this.options.renderer||new Renderer;this.renderer.options=this.options;if(!this.links){throw new Error("Tokens array requires a `links` property.")}if(this.options.gfm){if(this.options.breaks){this.rules=inline.breaks}else{this.rules=inline.gfm}}else if(this.options.pedantic){this.rules=inline.pedantic}}InlineLexer.rules=inline;InlineLexer.output=function(src,links,options){var inline=new InlineLexer(links,options);return inline.output(src)};InlineLexer.prototype.output=function(src){var out="",link,text,href,cap;while(src){if(cap=this.rules.escape.exec(src)){src=src.substring(cap[0].length);out+=cap[1];continue}if(cap=this.rules.autolink.exec(src)){src=src.substring(cap[0].length);if(cap[2]==="@"){text=cap[1].charAt(6)===":"?this.mangle(cap[1].substring(7)):this.mangle(cap[1]);href=this.mangle("mailto:")+text}else{text=escape(cap[1]);href=text}out+=this.renderer.link(href,null,text);continue}if(!this.inLink&&(cap=this.rules.url.exec(src))){src=src.substring(cap[0].length);text=escape(cap[1]);href=text;out+=this.renderer.link(href,null,text);continue}if(cap=this.rules.tag.exec(src)){if(!this.inLink&&/^<a /i.test(cap[0])){this.inLink=true}else if(this.inLink&&/^<\/a>/i.test(cap[0])){this.inLink=false}src=src.substring(cap[0].length);out+=this.options.sanitize?this.options.sanitizer?this.options.sanitizer(cap[0]):escape(cap[0]):cap[0];continue}if(cap=this.rules.link.exec(src)){src=src.substring(cap[0].length);this.inLink=true;out+=this.outputLink(cap,{href:cap[2],title:cap[3]});this.inLink=false;continue}if((cap=this.rules.reflink.exec(src))||(cap=this.rules.nolink.exec(src))){src=src.substring(cap[0].length);link=(cap[2]||cap[1]).replace(/\s+/g," ");link=this.links[link.toLowerCase()];if(!link||!link.href){out+=cap[0].charAt(0);src=cap[0].substring(1)+src;continue}this.inLink=true;out+=this.outputLink(cap,link);this.inLink=false;continue}if(cap=this.rules.strong.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.strong(this.output(cap[2]||cap[1]));continue}if(cap=this.rules.em.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.em(this.output(cap[2]||cap[1]));continue}if(cap=this.rules.code.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.codespan(escape(cap[2],true));continue}if(cap=this.rules.br.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.br();continue}if(cap=this.rules.del.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.del(this.output(cap[1]));continue}if(cap=this.rules.text.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.text(escape(this.smartypants(cap[0])));continue}if(src){throw new Error("Infinite loop on byte: "+src.charCodeAt(0))}}return out};InlineLexer.prototype.outputLink=function(cap,link){var href=escape(link.href),title=link.title?escape(link.title):null;return cap[0].charAt(0)!=="!"?this.renderer.link(href,title,this.output(cap[1])):this.renderer.image(href,title,escape(cap[1]))};InlineLexer.prototype.smartypants=function(text){if(!this.options.smartypants)return text;return text.replace(/---/g,"—").replace(/--/g,"–").replace(/(^|[-\u2014\/(\[{"\s])'/g,"$1‘").replace(/'/g,"’").replace(/(^|[-\u2014\/(\[{\u2018\s])"/g,"$1“").replace(/"/g,"”").replace(/\.{3}/g,"…")};InlineLexer.prototype.mangle=function(text){if(!this.options.mangle)return text;var out="",l=text.length,i=0,ch;for(;i<l;i++){ch=text.charCodeAt(i);if(Math.random()>.5){ch="x"+ch.toString(16)}out+="&#"+ch+";"}return out};function Renderer(options){this.options=options||{}}Renderer.prototype.code=function(code,lang,escaped){if(this.options.highlight){var out=this.options.highlight(code,lang);if(out!=null&&out!==code){escaped=true;code=out}}if(!lang){return"<pre><code>"+(escaped?code:escape(code,true))+"\n</code></pre>"}return'<pre><code class="'+this.options.langPrefix+escape(lang,true)+'">'+(escaped?code:escape(code,true))+"\n</code></pre>\n"};Renderer.prototype.blockquote=function(quote){return"<blockquote>\n"+quote+"</blockquote>\n"};Renderer.prototype.html=function(html){return html};Renderer.prototype.heading=function(text,level,raw){return"<h"+level+' id="'+this.options.headerPrefix+raw.toLowerCase().replace(/[^\w]+/g,"-")+'">'+text+"</h"+level+">\n"};Renderer.prototype.hr=function(){return this.options.xhtml?"<hr/>\n":"<hr>\n"};Renderer.prototype.list=function(body,ordered){var type=ordered?"ol":"ul";return"<"+type+">\n"+body+"</"+type+">\n"};Renderer.prototype.listitem=function(text){return"<li>"+text+"</li>\n"};Renderer.prototype.paragraph=function(text){return"<p>"+text+"</p>\n"};Renderer.prototype.table=function(header,body){return"<table>\n"+"<thead>\n"+header+"</thead>\n"+"<tbody>\n"+body+"</tbody>\n"+"</table>\n"};Renderer.prototype.tablerow=function(content){return"<tr>\n"+content+"</tr>\n"};Renderer.prototype.tablecell=function(content,flags){var type=flags.header?"th":"td";var tag=flags.align?"<"+type+' style="text-align:'+flags.align+'">':"<"+type+">";return tag+content+"</"+type+">\n"};Renderer.prototype.strong=function(text){return"<strong>"+text+"</strong>"};Renderer.prototype.em=function(text){return"<em>"+text+"</em>"};Renderer.prototype.codespan=function(text){return"<code>"+text+"</code>"};Renderer.prototype.br=function(){return this.options.xhtml?"<br/>":"<br>"};Renderer.prototype.del=function(text){return"<del>"+text+"</del>"};Renderer.prototype.link=function(href,title,text){if(this.options.sanitize){try{var prot=decodeURIComponent(unescape(href)).replace(/[^\w:]/g,"").toLowerCase()}catch(e){return""}if(prot.indexOf("javascript:")===0||prot.indexOf("vbscript:")===0||prot.indexOf("data:")===0){return""}}var out='<a href="'+href+'"';if(title){out+=' title="'+title+'"'}out+=">"+text+"</a>";return out};Renderer.prototype.image=function(href,title,text){var out='<img src="'+href+'" alt="'+text+'"';if(title){out+=' title="'+title+'"'}out+=this.options.xhtml?"/>":">";return out};Renderer.prototype.text=function(text){return text};function Parser(options){this.tokens=[];this.token=null;this.options=options||marked.defaults;this.options.renderer=this.options.renderer||new Renderer;this.renderer=this.options.renderer;this.renderer.options=this.options}Parser.parse=function(src,options,renderer){var parser=new Parser(options,renderer);return parser.parse(src)};Parser.prototype.parse=function(src){this.inline=new InlineLexer(src.links,this.options,this.renderer);this.tokens=src.reverse();var out="";while(this.next()){out+=this.tok()}return out};Parser.prototype.next=function(){return this.token=this.tokens.pop()};Parser.prototype.peek=function(){return this.tokens[this.tokens.length-1]||0};Parser.prototype.parseText=function(){var body=this.token.text;while(this.peek().type==="text"){body+="\n"+this.next().text}return this.inline.output(body)};Parser.prototype.tok=function(){switch(this.token.type){case"space":{return""}case"hr":{return this.renderer.hr()}case"heading":{return this.renderer.heading(this.inline.output(this.token.text),this.token.depth,this.token.text)}case"code":{return this.renderer.code(this.token.text,this.token.lang,this.token.escaped)}case"table":{var header="",body="",i,row,cell,flags,j;cell="";for(i=0;i<this.token.header.length;i++){flags={header:true,align:this.token.align[i]};cell+=this.renderer.tablecell(this.inline.output(this.token.header[i]),{header:true,align:this.token.align[i]})}header+=this.renderer.tablerow(cell);for(i=0;i<this.token.cells.length;i++){row=this.token.cells[i];cell="";for(j=0;j<row.length;j++){cell+=this.renderer.tablecell(this.inline.output(row[j]),{header:false,align:this.token.align[j]})}body+=this.renderer.tablerow(cell)}return this.renderer.table(header,body)}case"blockquote_start":{var body="";while(this.next().type!=="blockquote_end"){body+=this.tok()}return this.renderer.blockquote(body)}case"list_start":{var body="",ordered=this.token.ordered;while(this.next().type!=="list_end"){body+=this.tok()}return this.renderer.list(body,ordered)}case"list_item_start":{var body="";while(this.next().type!=="list_item_end"){body+=this.token.type==="text"?this.parseText():this.tok()}return this.renderer.listitem(body)}case"loose_item_start":{var body="";while(this.next().type!=="list_item_end"){body+=this.tok()}return this.renderer.listitem(body)}case"html":{var html=!this.token.pre&&!this.options.pedantic?this.inline.output(this.token.text):this.token.text;return this.renderer.html(html)}case"paragraph":{return this.renderer.paragraph(this.inline.output(this.token.text))}case"text":{return this.renderer.paragraph(this.parseText())}}};function escape(html,encode){return html.replace(!encode?/&(?!#?\w+;)/g:/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}function unescape(html){return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/g,function(_,n){n=n.toLowerCase();if(n==="colon")return":";if(n.charAt(0)==="#"){return n.charAt(1)==="x"?String.fromCharCode(parseInt(n.substring(2),16)):String.fromCharCode(+n.substring(1))}return""})}function replace(regex,opt){regex=regex.source;opt=opt||"";return function self(name,val){if(!name)return new RegExp(regex,opt);val=val.source||val;val=val.replace(/(^|[^\[])\^/g,"$1");regex=regex.replace(name,val);return self}}function noop(){}noop.exec=noop;function merge(obj){var i=1,target,key;for(;i<arguments.length;i++){target=arguments[i];for(key in target){if(Object.prototype.hasOwnProperty.call(target,key)){obj[key]=target[key]}}}return obj}function marked(src,opt,callback){if(callback||typeof opt==="function"){if(!callback){callback=opt;opt=null}opt=merge({},marked.defaults,opt||{});var highlight=opt.highlight,tokens,pending,i=0;try{tokens=Lexer.lex(src,opt)}catch(e){return callback(e)}pending=tokens.length;var done=function(err){if(err){opt.highlight=highlight;return callback(err)}var out;try{out=Parser.parse(tokens,opt)}catch(e){err=e}opt.highlight=highlight;return err?callback(err):callback(null,out)};if(!highlight||highlight.length<3){return done()}delete opt.highlight;if(!pending)return done();for(;i<tokens.length;i++){(function(token){if(token.type!=="code"){return--pending||done()}return highlight(token.text,token.lang,function(err,code){if(err)return done(err);if(code==null||code===token.text){return--pending||done()}token.text=code;token.escaped=true;--pending||done()})})(tokens[i])}return}try{if(opt)opt=merge({},marked.defaults,opt);return Parser.parse(Lexer.lex(src,opt),opt)}catch(e){e.message+="\nPlease report this to https://github.com/chjj/marked.";if((opt||marked.defaults).silent){return"<p>An error occured:</p><pre>"+escape(e.message+"",true)+"</pre>"}throw e}}marked.options=marked.setOptions=function(opt){merge(marked.defaults,opt);return marked};marked.defaults={gfm:true,tables:true,breaks:false,pedantic:false,sanitize:false,sanitizer:null,mangle:true,smartLists:false,silent:false,highlight:null,langPrefix:"lang-",smartypants:false,headerPrefix:"",renderer:new Renderer,xhtml:false};marked.Parser=Parser;marked.parser=Parser.parse;marked.Renderer=Renderer;marked.Lexer=Lexer;marked.lexer=Lexer.lex;marked.InlineLexer=InlineLexer;marked.inlineLexer=InlineLexer.output;marked.parse=marked;if(typeof module!=="undefined"&&typeof exports==="object"){module.exports=marked}else if(typeof define==="function"&&define.amd){define(function(){return marked})}else{this.marked=marked}}).call(function(){return this||(typeof window!=="undefined"?window:global)}());
 
 	return module.exports;
 }();
@@ -9765,6 +9766,346 @@ var _fredcy$elm_parseint$ParseInt$parseIntRadix = F2(
 var _fredcy$elm_parseint$ParseInt$parseInt = _fredcy$elm_parseint$ParseInt$parseIntRadix(10);
 var _fredcy$elm_parseint$ParseInt$parseIntOct = _fredcy$elm_parseint$ParseInt$parseIntRadix(8);
 var _fredcy$elm_parseint$ParseInt$parseIntHex = _fredcy$elm_parseint$ParseInt$parseIntRadix(16);
+
+var _mgold$elm_date_format$Date_Local$french = {
+	date: {
+		months: {jan: 'Janvier', feb: 'Février', mar: 'Mars', apr: 'Avril', may: 'Mai', jun: 'Juin', jul: 'Juillet', aug: 'Août', sep: 'Septembre', oct: 'Octobre', nov: 'Novembre', dec: 'Décembre'},
+		monthsAbbrev: {jan: 'Jan', feb: 'Fév', mar: 'Mar', apr: 'Avr', may: 'Mai', jun: 'Jui', jul: 'Jul', aug: 'Aoû', sep: 'Sep', oct: 'Oct', nov: 'Nov', dec: 'Déc'},
+		wdays: {mon: 'Lundi', tue: 'Mardi', wed: 'Mercredi', thu: 'Jeudi', fri: 'Vendredi', sat: 'Samedi', sun: 'Dimanche'},
+		wdaysAbbrev: {mon: 'Lun', tue: 'Mar', wed: 'Mer', thu: 'Jeu', fri: 'Ven', sat: 'Sam', sun: 'Dim'},
+		defaultFormat: _elm_lang$core$Maybe$Nothing
+	},
+	time: {am: 'am', pm: 'pm', defaultFormat: _elm_lang$core$Maybe$Nothing},
+	timeZones: _elm_lang$core$Maybe$Nothing,
+	defaultFormat: _elm_lang$core$Maybe$Nothing
+};
+var _mgold$elm_date_format$Date_Local$international = {
+	date: {
+		months: {jan: 'January', feb: 'February', mar: 'March', apr: 'April', may: 'May', jun: 'June', jul: 'July', aug: 'August', sep: 'September', oct: 'October', nov: 'November', dec: 'December'},
+		monthsAbbrev: {jan: 'Jan', feb: 'Feb', mar: 'Mar', apr: 'Apr', may: 'May', jun: 'Jun', jul: 'Jul', aug: 'Aug', sep: 'Sep', oct: 'Oct', nov: 'Nov', dec: 'Dec'},
+		wdays: {mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday'},
+		wdaysAbbrev: {mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun'},
+		defaultFormat: _elm_lang$core$Maybe$Nothing
+	},
+	time: {am: 'am', pm: 'pm', defaultFormat: _elm_lang$core$Maybe$Nothing},
+	timeZones: _elm_lang$core$Maybe$Nothing,
+	defaultFormat: _elm_lang$core$Maybe$Nothing
+};
+var _mgold$elm_date_format$Date_Local$Local = F4(
+	function (a, b, c, d) {
+		return {date: a, time: b, timeZones: c, defaultFormat: d};
+	});
+var _mgold$elm_date_format$Date_Local$Months = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return function (l) {
+												return {jan: a, feb: b, mar: c, apr: d, may: e, jun: f, jul: g, aug: h, sep: i, oct: j, nov: k, dec: l};
+											};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _mgold$elm_date_format$Date_Local$WeekDays = F7(
+	function (a, b, c, d, e, f, g) {
+		return {mon: a, tue: b, wed: c, thu: d, fri: e, sat: f, sun: g};
+	});
+
+var _mgold$elm_date_format$Date_Format$padWith = function (padding) {
+	var padder = function () {
+		var _p0 = padding;
+		switch (_p0.ctor) {
+			case 'NoPadding':
+				return _elm_lang$core$Basics$identity;
+			case 'Zero':
+				return A2(
+					_elm_lang$core$String$padLeft,
+					2,
+					_elm_lang$core$Native_Utils.chr('0'));
+			case 'ZeroThreeDigits':
+				return A2(
+					_elm_lang$core$String$padLeft,
+					3,
+					_elm_lang$core$Native_Utils.chr('0'));
+			default:
+				return A2(
+					_elm_lang$core$String$padLeft,
+					2,
+					_elm_lang$core$Native_Utils.chr(' '));
+		}
+	}();
+	return function (_p1) {
+		return padder(
+			_elm_lang$core$Basics$toString(_p1));
+	};
+};
+var _mgold$elm_date_format$Date_Format$zero2twelve = function (n) {
+	return _elm_lang$core$Native_Utils.eq(n, 0) ? 12 : n;
+};
+var _mgold$elm_date_format$Date_Format$mod12 = function (h) {
+	return A2(_elm_lang$core$Basics_ops['%'], h, 12);
+};
+var _mgold$elm_date_format$Date_Format$dayOfWeekToWord = F2(
+	function (loc, dow) {
+		var _p2 = dow;
+		switch (_p2.ctor) {
+			case 'Mon':
+				return loc.mon;
+			case 'Tue':
+				return loc.tue;
+			case 'Wed':
+				return loc.wed;
+			case 'Thu':
+				return loc.thu;
+			case 'Fri':
+				return loc.fri;
+			case 'Sat':
+				return loc.sat;
+			default:
+				return loc.sun;
+		}
+	});
+var _mgold$elm_date_format$Date_Format$monthToWord = F2(
+	function (loc, m) {
+		var _p3 = m;
+		switch (_p3.ctor) {
+			case 'Jan':
+				return loc.jan;
+			case 'Feb':
+				return loc.feb;
+			case 'Mar':
+				return loc.mar;
+			case 'Apr':
+				return loc.apr;
+			case 'May':
+				return loc.may;
+			case 'Jun':
+				return loc.jun;
+			case 'Jul':
+				return loc.jul;
+			case 'Aug':
+				return loc.aug;
+			case 'Sep':
+				return loc.sep;
+			case 'Oct':
+				return loc.oct;
+			case 'Nov':
+				return loc.nov;
+			default:
+				return loc.dec;
+		}
+	});
+var _mgold$elm_date_format$Date_Format$monthToInt = function (m) {
+	var _p4 = m;
+	switch (_p4.ctor) {
+		case 'Jan':
+			return 1;
+		case 'Feb':
+			return 2;
+		case 'Mar':
+			return 3;
+		case 'Apr':
+			return 4;
+		case 'May':
+			return 5;
+		case 'Jun':
+			return 6;
+		case 'Jul':
+			return 7;
+		case 'Aug':
+			return 8;
+		case 'Sep':
+			return 9;
+		case 'Oct':
+			return 10;
+		case 'Nov':
+			return 11;
+		default:
+			return 12;
+	}
+};
+var _mgold$elm_date_format$Date_Format$re = _elm_lang$core$Regex$regex('%(_|-|0)?(%|Y|y|m|B|b|d|e|a|A|H|k|I|l|L|p|P|M|S)');
+var _mgold$elm_date_format$Date_Format$ZeroThreeDigits = {ctor: 'ZeroThreeDigits'};
+var _mgold$elm_date_format$Date_Format$Zero = {ctor: 'Zero'};
+var _mgold$elm_date_format$Date_Format$Space = {ctor: 'Space'};
+var _mgold$elm_date_format$Date_Format$NoPadding = {ctor: 'NoPadding'};
+var _mgold$elm_date_format$Date_Format$formatToken = F3(
+	function (loc, d, m) {
+		var _p5 = function () {
+			var _p6 = m.submatches;
+			_v4_4:
+			do {
+				if (_p6.ctor === '::') {
+					if (_p6._0.ctor === 'Just') {
+						if (((_p6._1.ctor === '::') && (_p6._1._0.ctor === 'Just')) && (_p6._1._1.ctor === '[]')) {
+							switch (_p6._0._0) {
+								case '-':
+									return {
+										ctor: '_Tuple2',
+										_0: _elm_lang$core$Maybe$Just(_mgold$elm_date_format$Date_Format$NoPadding),
+										_1: _p6._1._0._0
+									};
+								case '_':
+									return {
+										ctor: '_Tuple2',
+										_0: _elm_lang$core$Maybe$Just(_mgold$elm_date_format$Date_Format$Space),
+										_1: _p6._1._0._0
+									};
+								case '0':
+									return {
+										ctor: '_Tuple2',
+										_0: _elm_lang$core$Maybe$Just(_mgold$elm_date_format$Date_Format$Zero),
+										_1: _p6._1._0._0
+									};
+								default:
+									break _v4_4;
+							}
+						} else {
+							break _v4_4;
+						}
+					} else {
+						if (((_p6._1.ctor === '::') && (_p6._1._0.ctor === 'Just')) && (_p6._1._1.ctor === '[]')) {
+							return {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _p6._1._0._0};
+						} else {
+							break _v4_4;
+						}
+					}
+				} else {
+					break _v4_4;
+				}
+			} while(false);
+			return {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: ' '};
+		}();
+		var padding = _p5._0;
+		var symbol = _p5._1;
+		var _p7 = symbol;
+		switch (_p7) {
+			case '%':
+				return '%';
+			case 'Y':
+				return _elm_lang$core$Basics$toString(
+					_elm_lang$core$Date$year(d));
+			case 'y':
+				return A2(
+					_elm_lang$core$String$right,
+					2,
+					_elm_lang$core$Basics$toString(
+						_elm_lang$core$Date$year(d)));
+			case 'm':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$Zero, padding),
+					_mgold$elm_date_format$Date_Format$monthToInt(
+						_elm_lang$core$Date$month(d)));
+			case 'B':
+				return A2(
+					_mgold$elm_date_format$Date_Format$monthToWord,
+					loc.date.months,
+					_elm_lang$core$Date$month(d));
+			case 'b':
+				return A2(
+					_mgold$elm_date_format$Date_Format$monthToWord,
+					loc.date.monthsAbbrev,
+					_elm_lang$core$Date$month(d));
+			case 'd':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$Zero, padding),
+					_elm_lang$core$Date$day(d));
+			case 'e':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$Space, padding),
+					_elm_lang$core$Date$day(d));
+			case 'a':
+				return A2(
+					_mgold$elm_date_format$Date_Format$dayOfWeekToWord,
+					loc.date.wdaysAbbrev,
+					_elm_lang$core$Date$dayOfWeek(d));
+			case 'A':
+				return A2(
+					_mgold$elm_date_format$Date_Format$dayOfWeekToWord,
+					loc.date.wdays,
+					_elm_lang$core$Date$dayOfWeek(d));
+			case 'H':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$Zero, padding),
+					_elm_lang$core$Date$hour(d));
+			case 'k':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$Space, padding),
+					_elm_lang$core$Date$hour(d));
+			case 'I':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$Zero, padding),
+					_mgold$elm_date_format$Date_Format$zero2twelve(
+						_mgold$elm_date_format$Date_Format$mod12(
+							_elm_lang$core$Date$hour(d))));
+			case 'l':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$Space, padding),
+					_mgold$elm_date_format$Date_Format$zero2twelve(
+						_mgold$elm_date_format$Date_Format$mod12(
+							_elm_lang$core$Date$hour(d))));
+			case 'p':
+				return (_elm_lang$core$Native_Utils.cmp(
+					_elm_lang$core$Date$hour(d),
+					12) < 0) ? _elm_lang$core$String$toUpper(loc.time.am) : _elm_lang$core$String$toUpper(loc.time.pm);
+			case 'P':
+				return (_elm_lang$core$Native_Utils.cmp(
+					_elm_lang$core$Date$hour(d),
+					12) < 0) ? loc.time.am : loc.time.pm;
+			case 'M':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$Zero, padding),
+					_elm_lang$core$Date$minute(d));
+			case 'S':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$Zero, padding),
+					_elm_lang$core$Date$second(d));
+			case 'L':
+				return A2(
+					_mgold$elm_date_format$Date_Format$padWith,
+					A2(_elm_lang$core$Maybe$withDefault, _mgold$elm_date_format$Date_Format$ZeroThreeDigits, padding),
+					_elm_lang$core$Date$millisecond(d));
+			default:
+				return '';
+		}
+	});
+var _mgold$elm_date_format$Date_Format$localFormat = F3(
+	function (loc, s, d) {
+		return A4(
+			_elm_lang$core$Regex$replace,
+			_elm_lang$core$Regex$All,
+			_mgold$elm_date_format$Date_Format$re,
+			A2(_mgold$elm_date_format$Date_Format$formatToken, loc, d),
+			s);
+	});
+var _mgold$elm_date_format$Date_Format$format = F2(
+	function (s, d) {
+		return A3(_mgold$elm_date_format$Date_Format$localFormat, _mgold$elm_date_format$Date_Local$international, s, d);
+	});
+var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _marcosh$elm_html_to_unicode$ElmEscapeHtml$friendlyConverterDictionary = _elm_lang$core$Dict$fromList(
 	A2(
@@ -11700,292 +12041,29 @@ var _marcosh$elm_html_to_unicode$ElmEscapeHtml$convert = F2(
 var _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape = _marcosh$elm_html_to_unicode$ElmEscapeHtml$convert(_marcosh$elm_html_to_unicode$ElmEscapeHtml$unescapeChars);
 var _marcosh$elm_html_to_unicode$ElmEscapeHtml$escape = _marcosh$elm_html_to_unicode$ElmEscapeHtml$convert(_marcosh$elm_html_to_unicode$ElmEscapeHtml$escapeChars);
 
-var _mgold$elm_date_format$Date_Local$international = {
-	date: {
-		months: {jan: 'January', feb: 'February', mar: 'March', apr: 'April', may: 'May', jun: 'June', jul: 'July', aug: 'August', sep: 'September', oct: 'October', nov: 'November', dec: 'December'},
-		monthsAbbrev: {jan: 'Jan', feb: 'Feb', mar: 'Mar', apr: 'Apr', may: 'May', jun: 'Jun', jul: 'Jul', aug: 'Aug', sep: 'Sep', oct: 'Oct', nov: 'Nov', dec: 'Dec'},
-		wdays: {mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday'},
-		wdaysAbbrev: {mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun'},
-		defaultFormat: _elm_lang$core$Maybe$Nothing
-	},
-	time: {am: 'am', pm: 'pm', defaultFormat: _elm_lang$core$Maybe$Nothing},
-	timeZones: _elm_lang$core$Maybe$Nothing,
-	defaultFormat: _elm_lang$core$Maybe$Nothing
-};
-var _mgold$elm_date_format$Date_Local$Local = F4(
-	function (a, b, c, d) {
-		return {date: a, time: b, timeZones: c, defaultFormat: d};
-	});
-var _mgold$elm_date_format$Date_Local$Months = function (a) {
-	return function (b) {
-		return function (c) {
-			return function (d) {
-				return function (e) {
-					return function (f) {
-						return function (g) {
-							return function (h) {
-								return function (i) {
-									return function (j) {
-										return function (k) {
-											return function (l) {
-												return {jan: a, feb: b, mar: c, apr: d, may: e, jun: f, jul: g, aug: h, sep: i, oct: j, nov: k, dec: l};
-											};
-										};
-									};
-								};
-							};
-						};
-					};
-				};
-			};
-		};
-	};
-};
-var _mgold$elm_date_format$Date_Local$WeekDays = F7(
-	function (a, b, c, d, e, f, g) {
-		return {mon: a, tue: b, wed: c, thu: d, fri: e, sat: f, sun: g};
-	});
+var _kgashok$elmbox$Version$gitRepo = 'https://github.com/kgashok/elmBox';
+var _kgashok$elmbox$Version$version = 'v1.5-28-g969c787';
 
-var _mgold$elm_date_format$Date_Format$padWith = function (c) {
-	return function (_p0) {
-		return A3(
-			_elm_lang$core$String$padLeft,
-			2,
-			c,
-			_elm_lang$core$Basics$toString(_p0));
-	};
-};
-var _mgold$elm_date_format$Date_Format$zero2twelve = function (n) {
-	return _elm_lang$core$Native_Utils.eq(n, 0) ? 12 : n;
-};
-var _mgold$elm_date_format$Date_Format$mod12 = function (h) {
-	return A2(_elm_lang$core$Basics_ops['%'], h, 12);
-};
-var _mgold$elm_date_format$Date_Format$dayOfWeekToWord = F2(
-	function (loc, dow) {
-		var _p1 = dow;
-		switch (_p1.ctor) {
-			case 'Mon':
-				return loc.mon;
-			case 'Tue':
-				return loc.tue;
-			case 'Wed':
-				return loc.wed;
-			case 'Thu':
-				return loc.thu;
-			case 'Fri':
-				return loc.fri;
-			case 'Sat':
-				return loc.sat;
-			default:
-				return loc.sun;
-		}
-	});
-var _mgold$elm_date_format$Date_Format$monthToWord = F2(
-	function (loc, m) {
-		var _p2 = m;
-		switch (_p2.ctor) {
-			case 'Jan':
-				return loc.jan;
-			case 'Feb':
-				return loc.feb;
-			case 'Mar':
-				return loc.mar;
-			case 'Apr':
-				return loc.apr;
-			case 'May':
-				return loc.may;
-			case 'Jun':
-				return loc.jun;
-			case 'Jul':
-				return loc.jul;
-			case 'Aug':
-				return loc.aug;
-			case 'Sep':
-				return loc.sep;
-			case 'Oct':
-				return loc.oct;
-			case 'Nov':
-				return loc.nov;
-			default:
-				return loc.dec;
-		}
-	});
-var _mgold$elm_date_format$Date_Format$monthToInt = function (m) {
-	var _p3 = m;
-	switch (_p3.ctor) {
-		case 'Jan':
-			return 1;
-		case 'Feb':
-			return 2;
-		case 'Mar':
-			return 3;
-		case 'Apr':
-			return 4;
-		case 'May':
-			return 5;
-		case 'Jun':
-			return 6;
-		case 'Jul':
-			return 7;
-		case 'Aug':
-			return 8;
-		case 'Sep':
-			return 9;
-		case 'Oct':
-			return 10;
-		case 'Nov':
-			return 11;
-		default:
-			return 12;
-	}
-};
-var _mgold$elm_date_format$Date_Format$formatToken = F3(
-	function (loc, d, m) {
-		var symbol = function () {
-			var _p4 = m.submatches;
-			if (((_p4.ctor === '::') && (_p4._0.ctor === 'Just')) && (_p4._1.ctor === '[]')) {
-				return _p4._0._0;
-			} else {
-				return ' ';
-			}
-		}();
-		var _p5 = symbol;
-		switch (_p5) {
-			case '%':
-				return '%';
-			case 'Y':
-				return _elm_lang$core$Basics$toString(
-					_elm_lang$core$Date$year(d));
-			case 'y':
-				return A2(
-					_elm_lang$core$String$right,
-					2,
-					_elm_lang$core$Basics$toString(
-						_elm_lang$core$Date$year(d)));
-			case 'm':
-				return A3(
-					_elm_lang$core$String$padLeft,
-					2,
-					_elm_lang$core$Native_Utils.chr('0'),
-					_elm_lang$core$Basics$toString(
-						_mgold$elm_date_format$Date_Format$monthToInt(
-							_elm_lang$core$Date$month(d))));
-			case 'B':
-				return A2(
-					_mgold$elm_date_format$Date_Format$monthToWord,
-					loc.date.months,
-					_elm_lang$core$Date$month(d));
-			case 'b':
-				return A2(
-					_mgold$elm_date_format$Date_Format$monthToWord,
-					loc.date.monthsAbbrev,
-					_elm_lang$core$Date$month(d));
-			case 'd':
-				return A2(
-					_mgold$elm_date_format$Date_Format$padWith,
-					_elm_lang$core$Native_Utils.chr('0'),
-					_elm_lang$core$Date$day(d));
-			case 'e':
-				return A2(
-					_mgold$elm_date_format$Date_Format$padWith,
-					_elm_lang$core$Native_Utils.chr(' '),
-					_elm_lang$core$Date$day(d));
-			case 'a':
-				return A2(
-					_mgold$elm_date_format$Date_Format$dayOfWeekToWord,
-					loc.date.wdaysAbbrev,
-					_elm_lang$core$Date$dayOfWeek(d));
-			case 'A':
-				return A2(
-					_mgold$elm_date_format$Date_Format$dayOfWeekToWord,
-					loc.date.wdays,
-					_elm_lang$core$Date$dayOfWeek(d));
-			case 'H':
-				return A2(
-					_mgold$elm_date_format$Date_Format$padWith,
-					_elm_lang$core$Native_Utils.chr('0'),
-					_elm_lang$core$Date$hour(d));
-			case 'k':
-				return A2(
-					_mgold$elm_date_format$Date_Format$padWith,
-					_elm_lang$core$Native_Utils.chr(' '),
-					_elm_lang$core$Date$hour(d));
-			case 'I':
-				return A2(
-					_mgold$elm_date_format$Date_Format$padWith,
-					_elm_lang$core$Native_Utils.chr('0'),
-					_mgold$elm_date_format$Date_Format$zero2twelve(
-						_mgold$elm_date_format$Date_Format$mod12(
-							_elm_lang$core$Date$hour(d))));
-			case 'l':
-				return A2(
-					_mgold$elm_date_format$Date_Format$padWith,
-					_elm_lang$core$Native_Utils.chr(' '),
-					_mgold$elm_date_format$Date_Format$zero2twelve(
-						_mgold$elm_date_format$Date_Format$mod12(
-							_elm_lang$core$Date$hour(d))));
-			case 'p':
-				return (_elm_lang$core$Native_Utils.cmp(
-					_elm_lang$core$Date$hour(d),
-					12) < 0) ? _elm_lang$core$String$toUpper(loc.time.am) : _elm_lang$core$String$toUpper(loc.time.pm);
-			case 'P':
-				return (_elm_lang$core$Native_Utils.cmp(
-					_elm_lang$core$Date$hour(d),
-					12) < 0) ? loc.time.am : loc.time.pm;
-			case 'M':
-				return A2(
-					_mgold$elm_date_format$Date_Format$padWith,
-					_elm_lang$core$Native_Utils.chr('0'),
-					_elm_lang$core$Date$minute(d));
-			case 'S':
-				return A2(
-					_mgold$elm_date_format$Date_Format$padWith,
-					_elm_lang$core$Native_Utils.chr('0'),
-					_elm_lang$core$Date$second(d));
-			default:
-				return '';
-		}
-	});
-var _mgold$elm_date_format$Date_Format$re = _elm_lang$core$Regex$regex('%(%|Y|y|m|B|b|d|e|a|A|H|k|I|l|p|P|M|S)');
-var _mgold$elm_date_format$Date_Format$localFormat = F3(
-	function (loc, s, d) {
-		return A4(
-			_elm_lang$core$Regex$replace,
-			_elm_lang$core$Regex$All,
-			_mgold$elm_date_format$Date_Format$re,
-			A2(_mgold$elm_date_format$Date_Format$formatToken, loc, d),
-			s);
-	});
-var _mgold$elm_date_format$Date_Format$format = F2(
-	function (s, d) {
-		return A3(_mgold$elm_date_format$Date_Format$localFormat, _mgold$elm_date_format$Date_Local$international, s, d);
-	});
-var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
-
-var _user$project$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _user$project$Version$version = 'v1.5-28-g969c787';
-
-var _user$project$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
-var _user$project$Drop$stringify = function (_p0) {
+var _kgashok$elmbox$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
+var _kgashok$elmbox$Drop$stringify = function (_p0) {
 	return A2(
 		_elm_lang$core$Json_Encode$encode,
 		0,
 		_elm_lang$core$Json_Encode$object(_p0));
 };
-var _user$project$Drop$filePath = '/Apps/elmBox/body.txt';
-var _user$project$Drop$downloadArgs = {
+var _kgashok$elmbox$Drop$filePath = '/Apps/elmBox/body.txt';
+var _kgashok$elmbox$Drop$downloadArgs = {
 	ctor: '::',
 	_0: {
 		ctor: '_Tuple2',
 		_0: 'path',
-		_1: _elm_lang$core$Json_Encode$string(_user$project$Drop$filePath)
+		_1: _elm_lang$core$Json_Encode$string(_kgashok$elmbox$Drop$filePath)
 	},
 	_1: {ctor: '[]'}
 };
-var _user$project$Drop$uploadArgs = A2(
+var _kgashok$elmbox$Drop$uploadArgs = A2(
 	_elm_lang$core$Basics_ops['++'],
-	_user$project$Drop$downloadArgs,
+	_kgashok$elmbox$Drop$downloadArgs,
 	{
 		ctor: '::',
 		_0: {
@@ -11995,32 +12073,32 @@ var _user$project$Drop$uploadArgs = A2(
 		},
 		_1: {ctor: '[]'}
 	});
-var _user$project$Drop$uploadHeaders = {
+var _kgashok$elmbox$Drop$uploadHeaders = {
 	ctor: '::',
-	_0: _user$project$Drop$authorizationHeader,
+	_0: _kgashok$elmbox$Drop$authorizationHeader,
 	_1: {
 		ctor: '::',
 		_0: A2(
 			_elm_lang$http$Http$header,
 			'Dropbox-API-Arg',
-			_user$project$Drop$stringify(_user$project$Drop$uploadArgs)),
+			_kgashok$elmbox$Drop$stringify(_kgashok$elmbox$Drop$uploadArgs)),
 		_1: {ctor: '[]'}
 	}
 };
-var _user$project$Drop$downloadHeaders = {
+var _kgashok$elmbox$Drop$downloadHeaders = {
 	ctor: '::',
-	_0: _user$project$Drop$authorizationHeader,
+	_0: _kgashok$elmbox$Drop$authorizationHeader,
 	_1: {
 		ctor: '::',
 		_0: A2(
 			_elm_lang$http$Http$header,
 			'Dropbox-API-Arg',
-			_user$project$Drop$stringify(_user$project$Drop$downloadArgs)),
+			_kgashok$elmbox$Drop$stringify(_kgashok$elmbox$Drop$downloadArgs)),
 		_1: {ctor: '[]'}
 	}
 };
-var _user$project$Drop$postSettings = {method: 'POST', headers: _user$project$Drop$downloadHeaders, url: '', body: _elm_lang$http$Http$emptyBody, expect: _elm_lang$http$Http$expectString, timeout: _elm_lang$core$Maybe$Nothing, withCredentials: false};
-var _user$project$Drop$encodePath = function (path) {
+var _kgashok$elmbox$Drop$postSettings = {method: 'POST', headers: _kgashok$elmbox$Drop$downloadHeaders, url: '', body: _elm_lang$http$Http$emptyBody, expect: _elm_lang$http$Http$expectString, timeout: _elm_lang$core$Maybe$Nothing, withCredentials: false};
+var _kgashok$elmbox$Drop$encodePath = function (path) {
 	return _elm_lang$core$Json_Encode$object(
 		{
 			ctor: '::',
@@ -12032,17 +12110,17 @@ var _user$project$Drop$encodePath = function (path) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Drop$getFile = function (model) {
+var _kgashok$elmbox$Drop$getFile = function (model) {
 	var downloadURL = A2(_elm_lang$core$Basics_ops['++'], model.dropURL, '/files/download');
 	var settings = _elm_lang$core$Native_Utils.update(
-		_user$project$Drop$postSettings,
+		_kgashok$elmbox$Drop$postSettings,
 		{url: downloadURL});
 	return _elm_lang$http$Http$request(settings);
 };
-var _user$project$Drop$subscriptions = function (model) {
+var _kgashok$elmbox$Drop$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
-var _user$project$Drop$footer = A2(
+var _kgashok$elmbox$Drop$footer = A2(
 	_elm_lang$html$Html$div,
 	{
 		ctor: '::',
@@ -12056,7 +12134,7 @@ var _user$project$Drop$footer = A2(
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$href(
-					A2(_elm_lang$core$Basics_ops['++'], _user$project$Version$gitRepo, '/issues/new')),
+					A2(_elm_lang$core$Basics_ops['++'], _kgashok$elmbox$Version$gitRepo, '/issues/new')),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$target('_blank'),
@@ -12069,12 +12147,12 @@ var _user$project$Drop$footer = A2(
 			},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(_user$project$Version$version),
+				_0: _elm_lang$html$Html$text(_kgashok$elmbox$Version$version),
 				_1: {ctor: '[]'}
 			}),
 		_1: {ctor: '[]'}
 	});
-var _user$project$Drop$viewContents = function (contents) {
+var _kgashok$elmbox$Drop$viewContents = function (contents) {
 	var render = function (material) {
 		var tuple = A2(_elm_lang$core$String$split, '\t', material);
 		var _p1 = tuple;
@@ -12146,23 +12224,23 @@ var _user$project$Drop$viewContents = function (contents) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Drop$formatTime = function (time) {
+var _kgashok$elmbox$Drop$formatTime = function (time) {
 	return A2(
 		_mgold$elm_date_format$Date_Format$format,
 		'%a %b/%d/%y %H:%M:%S ',
 		_elm_lang$core$Date$fromTime(
 			A2(_elm_lang$core$Maybe$withDefault, 0, time)));
 };
-var _user$project$Drop$timedPost = function (model) {
+var _kgashok$elmbox$Drop$timedPost = function (model) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
-		_user$project$Drop$formatTime(model.currentTime),
+		_kgashok$elmbox$Drop$formatTime(model.currentTime),
 		A2(
 			_elm_lang$core$Basics_ops['++'],
 			'\t',
 			A2(_elm_lang$core$Basics_ops['++'], model.status, ' @@@\n')));
 };
-var _user$project$Drop$updateContents = F2(
+var _kgashok$elmbox$Drop$updateContents = F2(
 	function (contents, model) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
@@ -12170,7 +12248,7 @@ var _user$project$Drop$updateContents = F2(
 				contents: _marcosh$elm_html_to_unicode$ElmEscapeHtml$unescape(contents)
 			});
 	});
-var _user$project$Drop$appendPosts = function (model) {
+var _kgashok$elmbox$Drop$appendPosts = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{
@@ -12181,7 +12259,7 @@ var _user$project$Drop$appendPosts = function (model) {
 			postsToUpload: _elm_lang$core$Maybe$Nothing
 		});
 };
-var _user$project$Drop$appendStatus = function (model) {
+var _kgashok$elmbox$Drop$appendStatus = function (model) {
 	var _p2 = model.downloadSuccess;
 	if (_p2 === true) {
 		return _elm_lang$core$Native_Utils.update(
@@ -12189,13 +12267,13 @@ var _user$project$Drop$appendStatus = function (model) {
 			{
 				contents: A2(
 					_elm_lang$core$Basics_ops['++'],
-					_user$project$Drop$timedPost(model),
+					_kgashok$elmbox$Drop$timedPost(model),
 					model.contents)
 			});
 	} else {
 		var posts = A2(
 			_elm_lang$core$Basics_ops['++'],
-			_user$project$Drop$timedPost(model),
+			_kgashok$elmbox$Drop$timedPost(model),
 			A2(_elm_lang$core$Maybe$withDefault, '', model.postsToUpload));
 		var model_ = _elm_lang$core$Native_Utils.update(
 			model,
@@ -12209,19 +12287,19 @@ var _user$project$Drop$appendStatus = function (model) {
 			});
 	}
 };
-var _user$project$Drop$setDownloadFirst = F2(
+var _kgashok$elmbox$Drop$setDownloadFirst = F2(
 	function (flag, model) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
 			{downloadFirst: flag});
 	});
-var _user$project$Drop$setFlag = F2(
+var _kgashok$elmbox$Drop$setFlag = F2(
 	function (flag, model) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
 			{downloadSuccess: flag});
 	});
-var _user$project$Drop$setTime = F2(
+var _kgashok$elmbox$Drop$setTime = F2(
 	function (time, model) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
@@ -12229,30 +12307,30 @@ var _user$project$Drop$setTime = F2(
 				currentTime: _elm_lang$core$Maybe$Just(time)
 			});
 	});
-var _user$project$Drop$setFlashMessage = F2(
+var _kgashok$elmbox$Drop$setFlashMessage = F2(
 	function (message, model) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
 			{flashMessage: message});
 	});
-var _user$project$Drop$dropboxAPI = 'https://content.dropboxapi.com/2';
-var _user$project$Drop$sendFile = F2(
+var _kgashok$elmbox$Drop$dropboxAPI = 'https://content.dropboxapi.com/2';
+var _kgashok$elmbox$Drop$sendFile = F2(
 	function (model, posts) {
 		var contents = A2(
 			_elm_lang$core$Basics_ops['++'],
 			model.contents,
 			A2(_elm_lang$core$Maybe$withDefault, '', posts));
-		var uploadURL = A2(_elm_lang$core$Basics_ops['++'], _user$project$Drop$dropboxAPI, '/files/upload');
+		var uploadURL = A2(_elm_lang$core$Basics_ops['++'], _kgashok$elmbox$Drop$dropboxAPI, '/files/upload');
 		var settings = _elm_lang$core$Native_Utils.update(
-			_user$project$Drop$postSettings,
+			_kgashok$elmbox$Drop$postSettings,
 			{
 				url: uploadURL,
-				headers: _user$project$Drop$uploadHeaders,
+				headers: _kgashok$elmbox$Drop$uploadHeaders,
 				body: A2(_elm_lang$http$Http$stringBody, 'application/octet-stream', contents)
 			});
 		return _elm_lang$http$Http$request(settings);
 	});
-var _user$project$Drop$setStorage = _elm_lang$core$Native_Platform.outgoingPort(
+var _kgashok$elmbox$Drop$setStorage = _elm_lang$core$Native_Platform.outgoingPort(
 	'setStorage',
 	function (v) {
 		return {
@@ -12267,40 +12345,40 @@ var _user$project$Drop$setStorage = _elm_lang$core$Native_Platform.outgoingPort(
 			downloadFirst: v.downloadFirst
 		};
 	});
-var _user$project$Drop$adjustTextAreaHeight = _elm_lang$core$Native_Platform.outgoingPort(
+var _kgashok$elmbox$Drop$adjustTextAreaHeight = _elm_lang$core$Native_Platform.outgoingPort(
 	'adjustTextAreaHeight',
 	function (v) {
 		return v;
 	});
-var _user$project$Drop$logExternalOut = _elm_lang$core$Native_Platform.outgoingPort(
+var _kgashok$elmbox$Drop$logExternalOut = _elm_lang$core$Native_Platform.outgoingPort(
 	'logExternalOut',
 	function (v) {
 		return v;
 	});
-var _user$project$Drop$logExternal = function (value) {
-	return _user$project$Drop$logExternalOut(
+var _kgashok$elmbox$Drop$logExternal = function (value) {
+	return _kgashok$elmbox$Drop$logExternalOut(
 		_elm_lang$core$Basics$toString(value));
 };
-var _user$project$Drop$Post = F2(
+var _kgashok$elmbox$Drop$Post = F2(
 	function (a, b) {
 		return {timestamp: a, message: b};
 	});
-var _user$project$Drop$Model = F9(
+var _kgashok$elmbox$Drop$Model = F9(
 	function (a, b, c, d, e, f, g, h, i) {
 		return {filePath: a, dropURL: b, contents: c, postsToUpload: d, status: e, currentTime: f, flashMessage: g, downloadSuccess: h, downloadFirst: i};
 	});
-var _user$project$Drop$initialModel = A9(_user$project$Drop$Model, _user$project$Drop$filePath, _user$project$Drop$dropboxAPI, '', _elm_lang$core$Maybe$Nothing, '', _elm_lang$core$Maybe$Nothing, 'Logger Ready', false, false);
-var _user$project$Drop$FileInfo = F2(
+var _kgashok$elmbox$Drop$initialModel = A9(_kgashok$elmbox$Drop$Model, _kgashok$elmbox$Drop$filePath, _kgashok$elmbox$Drop$dropboxAPI, '', _elm_lang$core$Maybe$Nothing, '', _elm_lang$core$Maybe$Nothing, 'Logger Ready', false, false);
+var _kgashok$elmbox$Drop$FileInfo = F2(
 	function (a, b) {
 		return {rev: a, body: b};
 	});
-var _user$project$Drop$decodeFileInfo = function (res) {
+var _kgashok$elmbox$Drop$decodeFileInfo = function (res) {
 	return A2(
 		_elm_lang$core$Json_Decode$map,
-		_user$project$Drop$FileInfo(res),
+		_kgashok$elmbox$Drop$FileInfo(res),
 		_elm_lang$core$Json_Decode$string);
 };
-var _user$project$Drop$expectRev = function (response) {
+var _kgashok$elmbox$Drop$expectRev = function (response) {
 	var _p3 = A2(_elm_lang$core$Debug$log, 'headers: ', response.headers);
 	var result = A2(
 		_elm_lang$core$Maybe$withDefault,
@@ -12329,16 +12407,16 @@ var _user$project$Drop$expectRev = function (response) {
 			_elm_lang$core$Basics$toString(_p6._0));
 		return A2(
 			_elm_lang$core$Json_Decode$decodeString,
-			_user$project$Drop$decodeFileInfo('00'),
+			_kgashok$elmbox$Drop$decodeFileInfo('00'),
 			response.body);
 	} else {
 		return A2(
 			_elm_lang$core$Json_Decode$decodeString,
-			_user$project$Drop$decodeFileInfo('00'),
+			_kgashok$elmbox$Drop$decodeFileInfo('00'),
 			response.body);
 	}
 };
-var _user$project$Drop$fileInfoDecoder = A3(
+var _kgashok$elmbox$Drop$fileInfoDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 	'body',
 	_elm_lang$core$Json_Decode$string,
@@ -12358,59 +12436,59 @@ var _user$project$Drop$fileInfoDecoder = A3(
 			}
 		},
 		_elm_lang$core$Json_Decode$string,
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Drop$FileInfo)));
-var _user$project$Drop$fileInfo = function (response) {
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_kgashok$elmbox$Drop$FileInfo)));
+var _kgashok$elmbox$Drop$fileInfo = function (response) {
 	var _p8 = A2(_elm_lang$core$Debug$log, 'headers: ', response);
-	return A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Drop$fileInfoDecoder, response.body);
+	return A2(_elm_lang$core$Json_Decode$decodeString, _kgashok$elmbox$Drop$fileInfoDecoder, response.body);
 };
-var _user$project$Drop$Metadata = function (a) {
+var _kgashok$elmbox$Drop$Metadata = function (a) {
 	return {rev: a};
 };
-var _user$project$Drop$metadataDecoder = A3(
+var _kgashok$elmbox$Drop$metadataDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 	'rev',
 	_elm_lang$core$Json_Decode$string,
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Drop$Metadata));
-var _user$project$Drop$metadataUpdate = function (response) {
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_kgashok$elmbox$Drop$Metadata));
+var _kgashok$elmbox$Drop$metadataUpdate = function (response) {
 	var _p9 = A2(_elm_lang$core$Debug$log, 'metadata: ', response);
-	return A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Drop$metadataDecoder, response);
+	return A2(_elm_lang$core$Json_Decode$decodeString, _kgashok$elmbox$Drop$metadataDecoder, response);
 };
-var _user$project$Drop$FileContentToUpload = F2(
+var _kgashok$elmbox$Drop$FileContentToUpload = F2(
 	function (a, b) {
 		return {ctor: 'FileContentToUpload', _0: a, _1: b};
 	});
-var _user$project$Drop$FileContent = function (a) {
+var _kgashok$elmbox$Drop$FileContent = function (a) {
 	return {ctor: 'FileContent', _0: a};
 };
-var _user$project$Drop$NoContent = {ctor: 'NoContent'};
-var _user$project$Drop$NewTime = function (a) {
+var _kgashok$elmbox$Drop$NoContent = {ctor: 'NoContent'};
+var _kgashok$elmbox$Drop$NewTime = function (a) {
 	return {ctor: 'NewTime', _0: a};
 };
-var _user$project$Drop$getTimeTask = A2(_elm_lang$core$Task$perform, _user$project$Drop$NewTime, _elm_lang$core$Time$now);
-var _user$project$Drop$init = function (savedModel) {
+var _kgashok$elmbox$Drop$getTimeTask = A2(_elm_lang$core$Task$perform, _kgashok$elmbox$Drop$NewTime, _elm_lang$core$Time$now);
+var _kgashok$elmbox$Drop$init = function (savedModel) {
 	return {
 		ctor: '_Tuple2',
-		_0: A2(_elm_lang$core$Maybe$withDefault, _user$project$Drop$initialModel, savedModel),
-		_1: _user$project$Drop$getTimeTask
+		_0: A2(_elm_lang$core$Maybe$withDefault, _kgashok$elmbox$Drop$initialModel, savedModel),
+		_1: _kgashok$elmbox$Drop$getTimeTask
 	};
 };
-var _user$project$Drop$GetTime = {ctor: 'GetTime'};
-var _user$project$Drop$FocusDone = function (a) {
+var _kgashok$elmbox$Drop$GetTime = {ctor: 'GetTime'};
+var _kgashok$elmbox$Drop$FocusDone = function (a) {
 	return {ctor: 'FocusDone', _0: a};
 };
-var _user$project$Drop$focusUpdate = A2(
+var _kgashok$elmbox$Drop$focusUpdate = A2(
 	_elm_lang$core$Task$attempt,
-	_user$project$Drop$FocusDone,
+	_kgashok$elmbox$Drop$FocusDone,
 	_elm_lang$dom$Dom$focus('update'));
-var _user$project$Drop$UploadStatus = function (a) {
+var _kgashok$elmbox$Drop$UploadStatus = function (a) {
 	return {ctor: 'UploadStatus', _0: a};
 };
-var _user$project$Drop$sendFileTask = function (model) {
+var _kgashok$elmbox$Drop$sendFileTask = function (model) {
 	var sendTask = _elm_lang$http$Http$toTask(
-		A2(_user$project$Drop$sendFile, model, _elm_lang$core$Maybe$Nothing));
+		A2(_kgashok$elmbox$Drop$sendFile, model, _elm_lang$core$Maybe$Nothing));
 	return A2(
 		_elm_lang$core$Task$attempt,
-		_user$project$Drop$UploadStatus,
+		_kgashok$elmbox$Drop$UploadStatus,
 		A2(
 			_elm_lang$core$Task$andThen,
 			function (t) {
@@ -12424,23 +12502,23 @@ var _user$project$Drop$sendFileTask = function (model) {
 			},
 			_elm_lang$core$Time$now));
 };
-var _user$project$Drop$Upload = {ctor: 'Upload'};
-var _user$project$Drop$UpdateStatus = function (a) {
+var _kgashok$elmbox$Drop$Upload = {ctor: 'Upload'};
+var _kgashok$elmbox$Drop$UpdateStatus = function (a) {
 	return {ctor: 'UpdateStatus', _0: a};
 };
-var _user$project$Drop$GetTimeAndAppend = function (a) {
+var _kgashok$elmbox$Drop$GetTimeAndAppend = function (a) {
 	return {ctor: 'GetTimeAndAppend', _0: a};
 };
-var _user$project$Drop$Append = {ctor: 'Append'};
-var _user$project$Drop$DownloadAndAppend = function (a) {
+var _kgashok$elmbox$Drop$Append = {ctor: 'Append'};
+var _kgashok$elmbox$Drop$DownloadAndAppend = function (a) {
 	return {ctor: 'DownloadAndAppend', _0: a};
 };
-var _user$project$Drop$getFileAndAppend = function (model) {
+var _kgashok$elmbox$Drop$getFileAndAppend = function (model) {
 	var getTask = _elm_lang$http$Http$toTask(
-		_user$project$Drop$getFile(model));
+		_kgashok$elmbox$Drop$getFile(model));
 	return A2(
 		_elm_lang$core$Task$attempt,
-		_user$project$Drop$DownloadAndAppend,
+		_kgashok$elmbox$Drop$DownloadAndAppend,
 		A2(
 			_elm_lang$core$Task$andThen,
 			function (t) {
@@ -12454,15 +12532,15 @@ var _user$project$Drop$getFileAndAppend = function (model) {
 			},
 			_elm_lang$core$Time$now));
 };
-var _user$project$Drop$Download = function (a) {
+var _kgashok$elmbox$Drop$Download = function (a) {
 	return {ctor: 'Download', _0: a};
 };
-var _user$project$Drop$getFileTask = function (model) {
+var _kgashok$elmbox$Drop$getFileTask = function (model) {
 	var getTask = _elm_lang$http$Http$toTask(
-		_user$project$Drop$getFile(model));
+		_kgashok$elmbox$Drop$getFile(model));
 	return A2(
 		_elm_lang$core$Task$attempt,
-		_user$project$Drop$Download,
+		_kgashok$elmbox$Drop$Download,
 		A2(
 			_elm_lang$core$Task$andThen,
 			function (result) {
@@ -12476,7 +12554,7 @@ var _user$project$Drop$getFileTask = function (model) {
 			},
 			getTask));
 };
-var _user$project$Drop$update = F2(
+var _kgashok$elmbox$Drop$update = F2(
 	function (msg, model) {
 		var _p10 = msg;
 		switch (_p10.ctor) {
@@ -12488,18 +12566,18 @@ var _user$project$Drop$update = F2(
 						{contents: '', flashMessage: 'Downloading...be patient!'}),
 					{
 						ctor: '::',
-						_0: _user$project$Drop$getFileTask(model),
+						_0: _kgashok$elmbox$Drop$getFileTask(model),
 						_1: {ctor: '[]'}
 					});
 			case 'Download':
 				if (_p10._0.ctor === 'Ok') {
 					var model_ = A2(
-						_user$project$Drop$setFlag,
+						_kgashok$elmbox$Drop$setFlag,
 						true,
 						A2(
-							_user$project$Drop$updateContents,
+							_kgashok$elmbox$Drop$updateContents,
 							_p10._0._0._1,
-							A2(_user$project$Drop$setTime, _p10._0._0._0, model)));
+							A2(_kgashok$elmbox$Drop$setTime, _p10._0._0._0, model)));
 					var _p11 = {ctor: '_Tuple2', _0: model.downloadFirst, _1: model.downloadSuccess};
 					if (_p11._0 === false) {
 						return A2(
@@ -12509,21 +12587,21 @@ var _user$project$Drop$update = F2(
 								{flashMessage: 'Download successful (case 1)'}),
 							{
 								ctor: '::',
-								_0: _user$project$Drop$focusUpdate,
+								_0: _kgashok$elmbox$Drop$focusUpdate,
 								_1: {ctor: '[]'}
 							});
 					} else {
 						if (_p11._1 === false) {
 							var model__ = A2(
-								_user$project$Drop$setFlashMessage,
+								_kgashok$elmbox$Drop$setFlashMessage,
 								'Download successful! (case 2)',
-								_user$project$Drop$appendPosts(model_));
+								_kgashok$elmbox$Drop$appendPosts(model_));
 							return A2(
 								_elm_lang$core$Platform_Cmd_ops['!'],
 								model__,
 								{
 									ctor: '::',
-									_0: _user$project$Drop$sendFileTask(model__),
+									_0: _kgashok$elmbox$Drop$sendFileTask(model__),
 									_1: {ctor: '[]'}
 								});
 						} else {
@@ -12534,7 +12612,7 @@ var _user$project$Drop$update = F2(
 									{flashMessage: 'Download successful (case 3)'}),
 								{
 									ctor: '::',
-									_0: _user$project$Drop$sendFileTask(model),
+									_0: _kgashok$elmbox$Drop$sendFileTask(model),
 									_1: {ctor: '[]'}
 								});
 						}
@@ -12546,7 +12624,7 @@ var _user$project$Drop$update = F2(
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
-							_user$project$Drop$setFlashMessage,
+							_kgashok$elmbox$Drop$setFlashMessage,
 							_elm_lang$core$Basics$toString(_p10._0._0),
 							model_),
 						{ctor: '[]'});
@@ -12556,26 +12634,26 @@ var _user$project$Drop$update = F2(
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
-							_user$project$Drop$setFlag,
+							_kgashok$elmbox$Drop$setFlag,
 							true,
 							A2(
-								_user$project$Drop$setFlashMessage,
+								_kgashok$elmbox$Drop$setFlashMessage,
 								'Download/Append successful!',
-								_user$project$Drop$appendStatus(
+								_kgashok$elmbox$Drop$appendStatus(
 									A2(
-										_user$project$Drop$updateContents,
+										_kgashok$elmbox$Drop$updateContents,
 										_p10._0._0._1,
-										A2(_user$project$Drop$setTime, _p10._0._0._0, model))))),
+										A2(_kgashok$elmbox$Drop$setTime, _p10._0._0._0, model))))),
 						{
 							ctor: '::',
-							_0: _user$project$Drop$focusUpdate,
+							_0: _kgashok$elmbox$Drop$focusUpdate,
 							_1: {ctor: '[]'}
 						});
 				} else {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
-							_user$project$Drop$setFlashMessage,
+							_kgashok$elmbox$Drop$setFlashMessage,
 							_elm_lang$core$Basics$toString(_p10._0._0),
 							model),
 						{ctor: '[]'});
@@ -12586,20 +12664,20 @@ var _user$project$Drop$update = F2(
 					model,
 					{
 						ctor: '::',
-						_0: A2(_elm_lang$core$Task$perform, _user$project$Drop$GetTimeAndAppend, _elm_lang$core$Time$now),
+						_0: A2(_elm_lang$core$Task$perform, _kgashok$elmbox$Drop$GetTimeAndAppend, _elm_lang$core$Time$now),
 						_1: {ctor: '[]'}
 					});
 			case 'GetTimeAndAppend':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					A2(
-						_user$project$Drop$setFlashMessage,
+						_kgashok$elmbox$Drop$setFlashMessage,
 						'Append successful!',
-						_user$project$Drop$appendStatus(
-							A2(_user$project$Drop$setTime, _p10._0, model))),
+						_kgashok$elmbox$Drop$appendStatus(
+							A2(_kgashok$elmbox$Drop$setTime, _p10._0, model))),
 					{
 						ctor: '::',
-						_0: _user$project$Drop$focusUpdate,
+						_0: _kgashok$elmbox$Drop$focusUpdate,
 						_1: {ctor: '[]'}
 					});
 			case 'UpdateStatus':
@@ -12610,15 +12688,15 @@ var _user$project$Drop$update = F2(
 						{status: _p10._0}),
 					{
 						ctor: '::',
-						_0: _user$project$Drop$focusUpdate,
+						_0: _kgashok$elmbox$Drop$focusUpdate,
 						_1: {
 							ctor: '::',
-							_0: _user$project$Drop$adjustTextAreaHeight('height-adjusting-textarea'),
+							_0: _kgashok$elmbox$Drop$adjustTextAreaHeight('height-adjusting-textarea'),
 							_1: {ctor: '[]'}
 						}
 					});
 			case 'Upload':
-				var model_ = A2(_user$project$Drop$setFlashMessage, 'Uploading...please be patient!', model);
+				var model_ = A2(_kgashok$elmbox$Drop$setFlashMessage, 'Uploading...please be patient!', model);
 				var _p12 = model_.downloadSuccess;
 				if (_p12 === true) {
 					return A2(
@@ -12626,7 +12704,7 @@ var _user$project$Drop$update = F2(
 						model_,
 						{
 							ctor: '::',
-							_0: _user$project$Drop$sendFileTask(model),
+							_0: _kgashok$elmbox$Drop$sendFileTask(model),
 							_1: {ctor: '[]'}
 						});
 				} else {
@@ -12637,7 +12715,7 @@ var _user$project$Drop$update = F2(
 							{downloadFirst: true}),
 						{
 							ctor: '::',
-							_0: _user$project$Drop$getFileTask(model_),
+							_0: _kgashok$elmbox$Drop$getFileTask(model_),
 							_1: {ctor: '[]'}
 						});
 				}
@@ -12646,22 +12724,22 @@ var _user$project$Drop$update = F2(
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
-							_user$project$Drop$setDownloadFirst,
+							_kgashok$elmbox$Drop$setDownloadFirst,
 							false,
 							A2(
-								_user$project$Drop$setFlashMessage,
+								_kgashok$elmbox$Drop$setFlashMessage,
 								'Upload successful!',
-								A2(_user$project$Drop$setTime, _p10._0._0._0, model))),
+								A2(_kgashok$elmbox$Drop$setTime, _p10._0._0._0, model))),
 						{
 							ctor: '::',
-							_0: _user$project$Drop$focusUpdate,
+							_0: _kgashok$elmbox$Drop$focusUpdate,
 							_1: {ctor: '[]'}
 						});
 				} else {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						A2(
-							_user$project$Drop$setFlashMessage,
+							_kgashok$elmbox$Drop$setFlashMessage,
 							_elm_lang$core$Basics$toString(_p10._0._0),
 							model),
 						{ctor: '[]'});
@@ -12672,16 +12750,16 @@ var _user$project$Drop$update = F2(
 					model,
 					{
 						ctor: '::',
-						_0: _user$project$Drop$getTimeTask,
+						_0: _kgashok$elmbox$Drop$getTimeTask,
 						_1: {ctor: '[]'}
 					});
 			case 'NewTime':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
-					A2(_user$project$Drop$setTime, _p10._0, model),
+					A2(_kgashok$elmbox$Drop$setTime, _p10._0, model),
 					{
 						ctor: '::',
-						_0: _user$project$Drop$focusUpdate,
+						_0: _kgashok$elmbox$Drop$focusUpdate,
 						_1: {ctor: '[]'}
 					});
 			default:
@@ -12691,9 +12769,9 @@ var _user$project$Drop$update = F2(
 					{ctor: '[]'});
 		}
 	});
-var _user$project$Drop$updateWithStorage = F2(
+var _kgashok$elmbox$Drop$updateWithStorage = F2(
 	function (msg, model) {
-		var _p13 = A2(_user$project$Drop$update, msg, model);
+		var _p13 = A2(_kgashok$elmbox$Drop$update, msg, model);
 		var nextModel = _p13._0;
 		var nextCmd = _p13._1;
 		return {
@@ -12702,7 +12780,7 @@ var _user$project$Drop$updateWithStorage = F2(
 			_1: _elm_lang$core$Platform_Cmd$batch(
 				{
 					ctor: '::',
-					_0: _user$project$Drop$setStorage(model),
+					_0: _kgashok$elmbox$Drop$setStorage(model),
 					_1: {
 						ctor: '::',
 						_0: nextCmd,
@@ -12711,8 +12789,8 @@ var _user$project$Drop$updateWithStorage = F2(
 				})
 		};
 	});
-var _user$project$Drop$Refresh = {ctor: 'Refresh'};
-var _user$project$Drop$view = function (model) {
+var _kgashok$elmbox$Drop$Refresh = {ctor: 'Refresh'};
+var _kgashok$elmbox$Drop$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
@@ -12737,7 +12815,7 @@ var _user$project$Drop$view = function (model) {
 						}),
 					_1: {
 						ctor: '::',
-						_0: _user$project$Drop$footer,
+						_0: _kgashok$elmbox$Drop$footer,
 						_1: {
 							ctor: '::',
 							_0: A2(
@@ -12761,7 +12839,7 @@ var _user$project$Drop$view = function (model) {
 										{ctor: '[]'},
 										{
 											ctor: '::',
-											_0: _user$project$Drop$viewContents(model.contents),
+											_0: _kgashok$elmbox$Drop$viewContents(model.contents),
 											_1: {ctor: '[]'}
 										}),
 									_1: {ctor: '[]'}
@@ -12799,7 +12877,7 @@ var _user$project$Drop$view = function (model) {
 									_0: _elm_lang$html$Html$text(
 										A2(
 											_elm_lang$core$Basics_ops['++'],
-											_user$project$Drop$formatTime(model.currentTime),
+											_kgashok$elmbox$Drop$formatTime(model.currentTime),
 											model.flashMessage)),
 									_1: {ctor: '[]'}
 								}),
@@ -12818,7 +12896,7 @@ var _user$project$Drop$view = function (model) {
 												_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(_user$project$Drop$UpdateStatus),
+													_0: _elm_lang$html$Html_Events$onInput(_kgashok$elmbox$Drop$UpdateStatus),
 													_1: {
 														ctor: '::',
 														_0: _elm_lang$html$Html_Attributes$value(model.status),
@@ -12838,7 +12916,7 @@ var _user$project$Drop$view = function (model) {
 											_0: _elm_lang$html$Html_Attributes$id('button2'),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Append),
+												_0: _elm_lang$html$Html_Events$onClick(_kgashok$elmbox$Drop$Append),
 												_1: {ctor: '[]'}
 											}
 										},
@@ -12856,7 +12934,7 @@ var _user$project$Drop$view = function (model) {
 												_0: _elm_lang$html$Html_Attributes$id('button3'),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Upload),
+													_0: _elm_lang$html$Html_Events$onClick(_kgashok$elmbox$Drop$Upload),
 													_1: {ctor: '[]'}
 												}
 											},
@@ -12875,7 +12953,7 @@ var _user$project$Drop$view = function (model) {
 													_1: {
 														ctor: '::',
 														_0: _elm_lang$html$Html_Events$onClick(
-															_user$project$Drop$UpdateStatus('')),
+															_kgashok$elmbox$Drop$UpdateStatus('')),
 														_1: {ctor: '[]'}
 													}
 												},
@@ -12893,7 +12971,7 @@ var _user$project$Drop$view = function (model) {
 														_0: _elm_lang$html$Html_Attributes$id('button1'),
 														_1: {
 															ctor: '::',
-															_0: _elm_lang$html$Html_Events$onClick(_user$project$Drop$Refresh),
+															_0: _elm_lang$html$Html_Events$onClick(_kgashok$elmbox$Drop$Refresh),
 															_1: {ctor: '[]'}
 														}
 													},
@@ -12904,7 +12982,7 @@ var _user$project$Drop$view = function (model) {
 													}),
 												_1: {
 													ctor: '::',
-													_0: _user$project$Drop$footer,
+													_0: _kgashok$elmbox$Drop$footer,
 													_1: {ctor: '[]'}
 												}
 											}
@@ -12918,8 +12996,8 @@ var _user$project$Drop$view = function (model) {
 			}
 		});
 };
-var _user$project$Drop$main = _elm_lang$html$Html$programWithFlags(
-	{init: _user$project$Drop$init, view: _user$project$Drop$view, update: _user$project$Drop$updateWithStorage, subscriptions: _user$project$Drop$subscriptions})(
+var _kgashok$elmbox$Drop$main = _elm_lang$html$Html$programWithFlags(
+	{init: _kgashok$elmbox$Drop$init, view: _kgashok$elmbox$Drop$view, update: _kgashok$elmbox$Drop$updateWithStorage, subscriptions: _kgashok$elmbox$Drop$subscriptions})(
 	_elm_lang$core$Json_Decode$oneOf(
 		{
 			ctor: '::',
@@ -13006,8 +13084,8 @@ var _user$project$Drop$main = _elm_lang$html$Html$programWithFlags(
 
 var Elm = {};
 Elm['Drop'] = Elm['Drop'] || {};
-if (typeof _user$project$Drop$main !== 'undefined') {
-    _user$project$Drop$main(Elm['Drop'], 'Drop', undefined);
+if (typeof _kgashok$elmbox$Drop$main !== 'undefined') {
+    _kgashok$elmbox$Drop$main(Elm['Drop'], 'Drop', undefined);
 }
 
 if (typeof define === "function" && define['amd'])
