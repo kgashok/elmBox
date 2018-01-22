@@ -12784,8 +12784,12 @@ var _kgashok$elmbox$Drop$updateWithStorage = F2(
 					_0: _kgashok$elmbox$Drop$setStorage(model),
 					_1: {
 						ctor: '::',
-						_0: nextCmd,
-						_1: {ctor: '[]'}
+						_0: _kgashok$elmbox$Drop$logExternal(msg),
+						_1: {
+							ctor: '::',
+							_0: nextCmd,
+							_1: {ctor: '[]'}
+						}
 					}
 				})
 		};
@@ -12998,7 +13002,7 @@ var _kgashok$elmbox$Drop$view = function (model) {
 		});
 };
 var _kgashok$elmbox$Drop$main = _elm_lang$html$Html$programWithFlags(
-	{init: _kgashok$elmbox$Drop$init, view: _kgashok$elmbox$Drop$view, update: _kgashok$elmbox$Drop$updateWithStorage, subscriptions: _kgashok$elmbox$Drop$subscriptions})(
+	{init: _kgashok$elmbox$Drop$init, view: _kgashok$elmbox$Drop$view, update: _kgashok$elmbox$Drop$update, subscriptions: _kgashok$elmbox$Drop$subscriptions})(
 	_elm_lang$core$Json_Decode$oneOf(
 		{
 			ctor: '::',

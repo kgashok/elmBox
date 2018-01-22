@@ -49,19 +49,19 @@ updateWithStorage msg model =
         )
 
 
-{--main : Program (Maybe Model) Model Msg
+main : Program (Maybe Model) Model Msg
 main =
     Html.programWithFlags
         { init = init
         , view = view
         --, update = updateWithStorage
+        , update = update
         , subscriptions = subscriptions
         }
---}
 
 
 
-main : Program Never Model Msg
+{--main : Program Never Model Msg
 main =
     Html.program
         { init = init
@@ -69,6 +69,7 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
+--}
 
 -- MODEL
 
