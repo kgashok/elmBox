@@ -344,7 +344,7 @@ appendPosts model =
 
 updateContents : String -> Model -> Model
 updateContents contents model =
-    { model | contents = unescape contents }
+    { model | contents = contents }
 
 
 
