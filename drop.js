@@ -12543,21 +12543,7 @@ var _kgashok$elmbox$Drop$Download = function (a) {
 var _kgashok$elmbox$Drop$getFileTask = function (model) {
 	var getTask = _elm_lang$http$Http$toTask(
 		_kgashok$elmbox$Drop$getFile(model));
-	return A2(
-		_elm_lang$core$Task$attempt,
-		_kgashok$elmbox$Drop$Download,
-		A2(
-			_elm_lang$core$Task$andThen,
-			function (result) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					function (time) {
-						return _elm_lang$core$Task$succeed(
-							{ctor: '_Tuple2', _0: time, _1: result});
-					},
-					_elm_lang$core$Time$now);
-			},
-			getTask));
+	return A2(_elm_lang$core$Task$attempt, _kgashok$elmbox$Drop$Download, getTask);
 };
 var _kgashok$elmbox$Drop$update = F2(
 	function (msg, model) {
@@ -12579,10 +12565,7 @@ var _kgashok$elmbox$Drop$update = F2(
 					var model_ = A2(
 						_kgashok$elmbox$Drop$setFlag,
 						true,
-						A2(
-							_kgashok$elmbox$Drop$updateContents,
-							_p11._0._0._1,
-							A2(_kgashok$elmbox$Drop$setTime, _p11._0._0._0, model)));
+						A2(_kgashok$elmbox$Drop$updateContents, _p11._0._0, model));
 					var _p12 = {ctor: '_Tuple2', _0: model.downloadFirst, _1: model.downloadSuccess};
 					if (_p12._0 === false) {
 						return A2(
