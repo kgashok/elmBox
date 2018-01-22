@@ -424,7 +424,7 @@ viewContents contents =
         -- div [] [ text contents ]
         contents
             |> String.split "@@@\n"
-            |> List.take 46
+            |> List.take 100
             --|> List.map rendersimple
             |> List.map render
             |> List.reverse
