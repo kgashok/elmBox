@@ -408,14 +408,15 @@ viewContents contents =
                     _ ->
                         Markdown.toHtml [ class "answer" ] material
     in
-        contents
+        div[] [ text contents]
+        {-contents
             |> String.split "@@@\n"
-            |> List.take 46
+            --|> List.take 46
             |> List.map rendersimple 
-            -- |> List.map render
-            |> List.reverse
+            --|> List.map render
+            --|> List.reverse
             >> div []
-
+        -}
 
 footer : Html Msg
 footer =
