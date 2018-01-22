@@ -630,7 +630,7 @@ uploadHeaders =
 
 
 postSettings =
-    { method = "GET"
+    { method = "POST"
     , headers = downloadHeaders
     , url = ""
     , body = emptyBody
