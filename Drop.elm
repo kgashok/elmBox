@@ -183,7 +183,8 @@ update msg model =
                 case ( model.downloadFirst, model.downloadSuccess ) of
                     ( False, _ ) ->
                         { model_ | flashMessage = "Download successful (case 1)" }
-                            ! [ focusUpdate ]
+                            -- ! [ focusUpdate ]
+                            ! []
 
                     ( True, False ) ->
                         let

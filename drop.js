@@ -12590,11 +12590,7 @@ var _kgashok$elmbox$Drop$update = F2(
 							_elm_lang$core$Native_Utils.update(
 								model_,
 								{flashMessage: 'Download successful (case 1)'}),
-							{
-								ctor: '::',
-								_0: _kgashok$elmbox$Drop$focusUpdate,
-								_1: {ctor: '[]'}
-							});
+							{ctor: '[]'});
 					} else {
 						if (_p12._1 === false) {
 							var model__ = A2(
