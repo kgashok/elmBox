@@ -639,7 +639,7 @@ postSettings =
         -- , expect = expectJson decodeFileInfo
         -- , expect = expectStringResponse expectRev
         -- , expect = expectStringResponse fileInfo
-    , timeout = Nothing
+    , timeout = 1 * Time.second 
     , withCredentials = False
     }
 
