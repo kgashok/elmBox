@@ -49,7 +49,7 @@ updateWithStorage msg model =
         )
 
 
-main : Program (Maybe Model) Model Msg
+{--main : Program (Maybe Model) Model Msg
 main =
     Html.programWithFlags
         { init = init
@@ -57,10 +57,10 @@ main =
         --, update = updateWithStorage
         , subscriptions = subscriptions
         }
+--}
 
 
 
-{--
 main : Program Never Model Msg
 main =
     Html.program
@@ -69,7 +69,7 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
---}
+
 -- MODEL
 
 
