@@ -147,8 +147,7 @@ init =
 type Msg
     = Refresh
       --| Download (Result Http.Error ( Time, FileInfo ))
-      --| Download (Result Http.Error ( Time, String ))
-    | Download (Result Http.Error String)
+    | Download (Result Http.Error ( Time, String ))
       --| DownloadAndAppend (Result Http.Error ( Time, FileInfo ))
     | DownloadAndAppend (Result Http.Error ( Time, String ))
     | Append
@@ -173,12 +172,11 @@ update msg model =
                 ! [ getFileTask model ]
 
         -- , getMetaTask model ]
-        --Download (Ok ( time, contents )) ->
-        Download (Ok contents) ->
+        Download (Ok ( time, contents )) ->
             let
                 model_ =
                     model
-                        --|> setTime time
+                        |> setTime time
                         |> updateContents contents
                         |> setFlag True
             in
@@ -477,11 +475,11 @@ getFileTask model =
             Http.toTask (getFile model)
     in
         getTask
-            --|> Task.andThen
-                --(\result ->
-                  --  Time.now
-                    --    |> Task.andThen (\time -> Task.succeed ( time, result ))
-                --)
+            |> Task.andThen
+                (\result ->
+                    Time.now
+                        |> Task.andThen (\time -> Task.succeed ( time, result ))
+                )
             |> Task.attempt Download
 
 
