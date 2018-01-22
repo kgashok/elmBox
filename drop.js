@@ -12097,7 +12097,15 @@ var _kgashok$elmbox$Drop$downloadHeaders = {
 		_1: {ctor: '[]'}
 	}
 };
-var _kgashok$elmbox$Drop$postSettings = {method: 'POST', headers: _kgashok$elmbox$Drop$downloadHeaders, url: '', body: _elm_lang$http$Http$emptyBody, expect: _elm_lang$http$Http$expectString, timeout: _elm_lang$core$Maybe$Nothing, withCredentials: false};
+var _kgashok$elmbox$Drop$postSettings = {
+	method: 'POST',
+	headers: _kgashok$elmbox$Drop$downloadHeaders,
+	url: '',
+	body: _elm_lang$http$Http$emptyBody,
+	expect: _elm_lang$http$Http$expectString,
+	timeout: _elm_lang$core$Maybe$Just(2 * _elm_lang$core$Time$second),
+	withCredentials: false
+};
 var _kgashok$elmbox$Drop$encodePath = function (path) {
 	return _elm_lang$core$Json_Encode$object(
 		{
