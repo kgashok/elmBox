@@ -43,7 +43,7 @@ updateWithStorage msg model =
         ( nextModel
         , Cmd.batch
             [ setStorage model
-              -- , logExternal msg
+              , logExternal msg
             , nextCmd
             ]
         )
