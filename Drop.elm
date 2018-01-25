@@ -465,8 +465,8 @@ getFile model =
         settings =
             { postSettings | url = downloadURL }
 
-        _ =
-            Debug.log "settings: " settings
+        --_ =
+            --Debug.log "settings: " settings
     in
         Http.request settings
 
@@ -477,8 +477,8 @@ getFileTask model =
         getTask =
             Http.toTask (getFile model)
 
-        _ =
-            Debug.log "model: " model
+        --_ =
+            --Debug.log "model: " model
     in
         getTask
             |> Task.andThen
