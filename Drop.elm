@@ -10,7 +10,7 @@ import Result exposing (..)
 import Time exposing (..)
 import Date exposing (..)
 import Date.Format exposing (..)
-import ElmEscapeHtml exposing (..)
+--import ElmEscapeHtml exposing (..)
 import Markdown exposing (..)
 import Version exposing (..)
 import Json.Encode as Encode
@@ -43,7 +43,7 @@ updateWithStorage msg model =
         ( nextModel
         , Cmd.batch
             [ setStorage model
-              , logExternal msg
+            , logExternal msg
             , nextCmd
             ]
         )
@@ -54,8 +54,9 @@ main =
     Html.programWithFlags
         { init = init
         , view = view
-        , update = updateWithStorage
-        --, update = update
+        , update =
+            updateWithStorage
+            --, update = update
         , subscriptions = subscriptions
         }
 
@@ -70,7 +71,6 @@ main =
         , subscriptions = subscriptions
         }
 --}
-
 -- MODEL
 
 
@@ -89,9 +89,8 @@ type alias Post =
 type alias Model =
     { filePath : String
     , dropURL : String
-    , contents :
-        String
-        -- , rev : String
+    , contents : String
+    , rev : String
     , postsToUpload : Maybe String
     , status : String
     , currentTime : Maybe Time
@@ -112,7 +111,7 @@ initialModel =
         dropboxAPI
         ""
         -- contents
-        --""
+        ""
         -- rev
         Nothing
         -- postsToUpload
@@ -147,15 +146,16 @@ init =
 
 type Msg
     = Refresh
-      --| Download (Result Http.Error ( Time, FileInfo ))
-    | Download (Result Http.Error ( Time, String ))
-      --| DownloadAndAppend (Result Http.Error ( Time, FileInfo ))
-    | DownloadAndAppend (Result Http.Error ( Time, String ))
+    | Download (Result Http.Error ( Time, FileInfo ))
+    --| Download (Result Http.Error ( Time, String ))
+    | DownloadAndAppend (Result Http.Error ( Time, FileInfo ))
+    --| DownloadAndAppend (Result Http.Error ( Time, String ))
     | Append
     | GetTimeAndAppend Time
     | UpdateStatus String
     | Upload
-    | UploadStatus (Result Http.Error ( Time, String ))
+    --| UploadStatus (Result Http.Error ( Time, String ))
+    | UploadStatus (Result Http.Error ( Time, FileInfo ))
     | FocusDone (Result Dom.Error ())
     | GetTime
     | NewTime Time
@@ -170,9 +170,8 @@ update msg model =
     case msg of
         Refresh ->
             { model | contents = "", flashMessage = "Downloading...be patient!" }
-                ! [ getFileTask model ]
-
-        -- , getMetaTask model ]
+                ! [ getFileTask model ] -- , getMetaTask model ]
+                
         Download (Ok ( time, contents )) ->
             let
                 model_ =
@@ -183,9 +182,9 @@ update msg model =
             in
                 case ( model.downloadFirst, model.downloadSuccess ) of
                     ( False, _ ) ->
-                        { model_ | flashMessage = "Download successful (case 1)" }
+                        { model_ | flashMessage = model_.rev ++ ": Download successful (case 1)"}
                             ! [ focusUpdate ]
-                            
+
                     ( True, False ) ->
                         let
                             model__ =
@@ -341,19 +340,17 @@ appendPosts model =
     }
 
 
-updateContents : String -> Model -> Model
+{--updateContents : String -> Model -> Model
 updateContents contents model =
     { model | contents = contents }
+--}
 
 
-
-{- updateContents : FileInfo -> Model -> Model
-   updateContents contents model =
-       { model | contents = unescape contents.body,
-           --rev = Maybe.withDefault "" (Dict.get "rev" contents.rev)
-           rev = contents.rev
-       }
--}
+updateContents : FileInfo -> Model -> Model
+updateContents contents model =
+    { model | contents = contents.body,
+        rev = contents.rev
+    }
 
 
 timedPost : Model -> String
@@ -426,10 +423,10 @@ viewContents contents =
             |> String.split "@@@\n"
             |> List.take 100
             --|> List.map rendersimple
-            |> List.map render
+            |>
+                List.map render
             |> List.reverse
             >> div []
-        
 
 
 footer : Html Msg
@@ -458,7 +455,8 @@ subscriptions model =
 --getFile : Model -> Http.Request FileInfo
 
 
-getFile : Model -> Http.Request String
+--getFile : Model -> Http.Request String
+getFile : Model -> Http.Request FileInfo
 getFile model =
     let
         downloadURL =
@@ -466,11 +464,9 @@ getFile model =
 
         settings =
             { postSettings | url = downloadURL }
-        
+
         _ =
             Debug.log "settings: " settings
-
-
     in
         Http.request settings
 
@@ -480,10 +476,9 @@ getFileTask model =
     let
         getTask =
             Http.toTask (getFile model)
+
         _ =
             Debug.log "model: " model
-
-
     in
         getTask
             |> Task.andThen
@@ -516,7 +511,8 @@ getFileAndAppend model =
 --  Http.send Download (Http.request settings)
 
 
-sendFile : Model -> Maybe String -> Http.Request String
+--sendFile : Model -> Maybe String -> Http.Request String
+sendFile : Model -> Maybe String -> Http.Request FileInfo
 sendFile model posts =
     let
         uploadURL =
@@ -643,16 +639,29 @@ postSettings =
     , headers = downloadHeaders
     , url = ""
     , body = emptyBody
-    , expect =
-        expectString
+    , expect = expectStringResponse dropboxResponse 
+        -- , expect = expectString
         -- , expect = expectJson decodeFileInfo
         -- , expect = expectStringResponse expectRev
-        -- , expect = expectStringResponse fileInfo
-    --, timeout = Just (2 * Time.millisecond)
+        -- ,expect = expectStringResponse fileInfo
+        --, timeout = Just (2 * Time.millisecond)
     , timeout = Nothing
     , withCredentials = False
     }
 
+dropboxResponse : Http.Response String -> Result String FileInfo 
+dropboxResponse response = 
+    response.headers
+        |> Dict.get "dropbox-api-result"
+        |> Maybe.map (Decode.decodeString (responseDecoder response.body))
+        |> Maybe.withDefault (Err "no dropbox-api-result-header")
+        
+
+responseDecoder : String -> Decode.Decoder FileInfo
+responseDecoder body = 
+    Decode.map2 FileInfo 
+    (Decode.field "rev" Decode.string)
+    (Decode.succeed body)
 
 
 {--
