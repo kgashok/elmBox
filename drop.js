@@ -9986,7 +9986,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _kgashok$elmbox$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _kgashok$elmbox$Version$version = 'v1.5-58-g145c8d8';
+var _kgashok$elmbox$Version$version = 'v1.5-59-gffc330f';
 
 var _kgashok$elmbox$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
 var _kgashok$elmbox$Drop$stringify = function (_p0) {
@@ -10359,6 +10359,7 @@ var _kgashok$elmbox$Drop$sendFile = F2(
 			{
 				url: uploadURL,
 				headers: _kgashok$elmbox$Drop$uploadHeaders,
+				expect: _elm_lang$http$Http$expectString,
 				body: A2(_elm_lang$http$Http$stringBody, 'application/octet-stream', contents)
 			});
 		return _elm_lang$http$Http$request(settings);

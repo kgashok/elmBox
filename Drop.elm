@@ -154,8 +154,8 @@ type Msg
     | GetTimeAndAppend Time
     | UpdateStatus String
     | Upload
-    --| UploadStatus (Result Http.Error ( Time, String ))
-    | UploadStatus (Result Http.Error ( Time, FileInfo ))
+    | UploadStatus (Result Http.Error ( Time, String ))
+    --| UploadStatus (Result Http.Error ( Time, FileInfo ))
     | FocusDone (Result Dom.Error ())
     | GetTime
     | NewTime Time
@@ -512,7 +512,7 @@ getFileAndAppend model =
 
 
 --sendFile : Model -> Maybe String -> Http.Request String
-sendFile : Model -> Maybe String -> Http.Request FileInfo
+sendFile : Model -> Maybe String -> Http.Request String
 sendFile model posts =
     let
         uploadURL =
@@ -526,7 +526,7 @@ sendFile model posts =
                 | url = uploadURL
                 , headers =
                     uploadHeaders
-                    -- , expect  = expectString
+                , expect  = expectString
                 , body = stringBody "application/octet-stream" contents
             }
     in
