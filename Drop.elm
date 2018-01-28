@@ -322,29 +322,25 @@ setDownloadFirst flag model =
 
 appendStatus : Model -> Model
 appendStatus model =
-    let 
-        --_ =
-            --Debug.log "model: " model.appendsPending
-    in
-        case model.downloadSuccess of
-            True ->
-                { model | contents = (timedPost model) ++ model.contents
-                        , appendsPending = True
+    case model.downloadSuccess of
+        True ->
+            { model | contents = (timedPost model) ++ model.contents
+                    , appendsPending = True
+            }
+
+        False ->
+            let
+                posts =
+                    (timedPost model)
+                        ++ (Maybe.withDefault "" model.postsToUpload)
+
+                model_ =
+                    { model | postsToUpload = Just posts }
+            in
+                --model_
+                { model_ | contents = Maybe.withDefault "" model_.postsToUpload
+                         , appendsPending = True
                 }
-    
-            False ->
-                let
-                    posts =
-                        (timedPost model)
-                            ++ (Maybe.withDefault "" model.postsToUpload)
-    
-                    model_ =
-                        { model | postsToUpload = Just posts }
-                in
-                    --model_
-                    { model_ | contents = Maybe.withDefault "" model_.postsToUpload
-                             , appendsPending = True
-                    }
 
 
 appendPosts : Model -> Model
