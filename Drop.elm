@@ -92,6 +92,7 @@ type alias Model =
     , contents : String
     , rev : String
     , postsToUpload : Maybe String
+    , appendsPending : Bool
     , status : String
     , currentTime : Maybe Time
     , flashMessage : String
@@ -115,6 +116,8 @@ initialModel =
         -- rev
         Nothing
         -- postsToUpload
+        False
+        -- appendsPending
         ""
         -- status
         Nothing
@@ -305,31 +308,43 @@ setTime time model =
 
 setFlag : Bool -> Model -> Model
 setFlag flag model =
-    { model | downloadSuccess = flag }
+    { model | downloadSuccess = flag
+            --, appendsPending = False
+    }
 
 
 setDownloadFirst : Bool -> Model -> Model
 setDownloadFirst flag model =
-    { model | downloadFirst = flag }
+    { model | downloadFirst = flag
+            , appendsPending = False
+    }
 
 
 appendStatus : Model -> Model
 appendStatus model =
-    case model.downloadSuccess of
-        True ->
-            { model | contents = (timedPost model) ++ model.contents }
-
-        False ->
-            let
-                posts =
-                    (timedPost model)
-                        ++ (Maybe.withDefault "" model.postsToUpload)
-
-                model_ =
-                    { model | postsToUpload = Just posts }
-            in
-                --model_
-                { model_ | contents = Maybe.withDefault "" model_.postsToUpload }
+    let 
+        --_ =
+            --Debug.log "model: " model.appendsPending
+    in
+        case model.downloadSuccess of
+            True ->
+                { model | contents = (timedPost model) ++ model.contents
+                        , appendsPending = True
+                }
+    
+            False ->
+                let
+                    posts =
+                        (timedPost model)
+                            ++ (Maybe.withDefault "" model.postsToUpload)
+    
+                    model_ =
+                        { model | postsToUpload = Just posts }
+                in
+                    --model_
+                    { model_ | contents = Maybe.withDefault "" model_.postsToUpload
+                             , appendsPending = True
+                    }
 
 
 appendPosts : Model -> Model
@@ -381,7 +396,10 @@ view model =
             [ hr [ class "style8" ] []
             , h3 [] [ text <| formatTime model.currentTime ++ model.flashMessage ]
             , textarea
-                [ class "height-adjusting-textarea"
+                [ classList [ ("height-adjusting-textarea", True)
+                            , ("yellowBack", (model.appendsPending /= False))
+                ]
+                --class "height-adjusting-textarea"
                 , id "update"
                 , placeholder "Update?"
                 , onInput UpdateStatus

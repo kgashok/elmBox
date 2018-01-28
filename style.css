@@ -28,6 +28,9 @@ textarea {
   height: 100%;
 }
 
+.yellowBack {
+  background: yellow;
+}
 
 p  {
   /*background: #fa0;*/
@@ -218,7 +221,7 @@ li .scoreP {
 #titleContainer{
     text-align: center;
     height: 100%;
-    /*background-color : orange; */
+    /* background-color : orange; */ 
 }
 
 .content {
