@@ -10,7 +10,10 @@ import Result exposing (..)
 import Time exposing (..)
 import Date exposing (..)
 import Date.Format exposing (..)
+
+
 --import ElmEscapeHtml exposing (..)
+
 import Markdown exposing (..)
 import Version exposing (..)
 import Json.Encode as Encode
@@ -43,22 +46,10 @@ updateWithStorage msg model =
         ( nextModel
         , Cmd.batch
             [ setStorage model
-            --, logExternal msg
+              --, logExternal msg
             , nextCmd
             ]
         )
-
-
-main : Program (Maybe Model) Model Msg
-main =
-    Html.programWithFlags
-        { init = init
-        , view = view
-        , update =
-            updateWithStorage
-            --, update = update
-        , subscriptions = subscriptions
-        }
 
 
 
@@ -71,6 +62,21 @@ main =
         , subscriptions = subscriptions
         }
 --}
+
+
+main : Program Decode.Value Model Msg
+main =
+    Html.programWithFlags
+        { init = init
+        , view = view
+        , update =
+            updateWithStorage
+            --, update = update
+        , subscriptions = subscriptions
+        }
+
+
+
 -- MODEL
 
 
@@ -126,39 +132,71 @@ initialModel =
         False
 
 
-init : Maybe Model -> ( Model, Cmd Msg )
-init savedModel =
-    ( Maybe.withDefault initialModel savedModel
-    , getTimeTask
-    )
 
-
-
-{--
-
-init : ( Model, Cmd Msg )
+{--init : ( Model, Cmd Msg )
 init =
     ( initialModel
       -- , getFile initialModel
     , getTimeTask
     )
-
 --}
+{--init : Maybe Model -> ( Model, Cmd Msg )
+init savedModel =
+    ( Maybe.withDefault initialModel savedModel
+    , getTimeTask
+    )
+--}
+
+
+init : Decode.Value -> ( Model, Cmd Msg )
+init flags =
+    ( flagsToModel flags
+    , getTimeTask
+    )
+
+
+flagsToModel : Decode.Value -> Model
+flagsToModel flags =
+    Decode.decodeValue modelDecoder flags
+        |> Result.withDefault
+            { initialModel
+                | flashMessage =
+                    "Model mismatch! Local storage discarded!"
+            }
+
+
+modelDecoder : Decode.Decoder Model
+modelDecoder =
+    decode Model
+        |> Pipeline.required "filePath" Decode.string
+        |> Pipeline.required "dropURL" Decode.string
+        |> Pipeline.required "contents" Decode.string
+        |> Pipeline.required "rev" Decode.string
+        |> Pipeline.required "postsToUpload" (Decode.nullable string)
+        |> Pipeline.required "appendsPending" Decode.bool
+        |> Pipeline.required "status" string
+        |> Pipeline.required "currentTime" (Decode.nullable Decode.float)
+        |> Pipeline.required "flashMessage" Decode.string
+        |> Pipeline.required "downloadSuccess" Decode.bool
+        |> Pipeline.required "downloadFirst" Decode.bool
+
+
+
 -- UPDATE
 
 
 type Msg
     = Refresh
     | Download (Result Http.Error ( Time, FileInfo ))
-    --| Download (Result Http.Error ( Time, String ))
+      --| Download (Result Http.Error ( Time, String ))
     | DownloadAndAppend (Result Http.Error ( Time, FileInfo ))
-    --| DownloadAndAppend (Result Http.Error ( Time, String ))
+      --| DownloadAndAppend (Result Http.Error ( Time, String ))
     | Append
     | GetTimeAndAppend Time
     | UpdateStatus String
     | Upload
     | UploadStatus (Result Http.Error ( Time, String ))
-    --| UploadStatus (Result Http.Error ( Time, FileInfo ))
+      --| UploadStatus (Result Http.Error ( Time, FileInfo ))
     | FocusDone (Result Dom.Error ())
     | GetTime
     | NewTime Time
@@ -173,8 +211,9 @@ update msg model =
     case msg of
         Refresh ->
             { model | contents = "", flashMessage = "Downloading...be patient!" }
-                ! [ getFileTask model ] -- , getMetaTask model ]
-                
+                ! [ getFileTask model ]
+
+        -- , getMetaTask model ]
         Download (Ok ( time, contents )) ->
             let
                 model_ =
@@ -185,7 +224,7 @@ update msg model =
             in
                 case ( model.downloadFirst, model.downloadSuccess ) of
                     ( False, _ ) ->
-                        { model_ | flashMessage = model_.rev ++ ": Download successful (case 1)"}
+                        { model_ | flashMessage = model_.rev ++ ": Download successful (case 1)" }
                             ! [ focusUpdate ]
 
                     ( True, False ) ->
@@ -308,15 +347,16 @@ setTime time model =
 
 setFlag : Bool -> Model -> Model
 setFlag flag model =
-    { model | downloadSuccess = flag
-            --, appendsPending = False
+    { model
+        | downloadSuccess = flag
     }
 
 
 setDownloadFirst : Bool -> Model -> Model
 setDownloadFirst flag model =
-    { model | downloadFirst = flag
-            , appendsPending = False
+    { model
+        | downloadFirst = flag
+        , appendsPending = False
     }
 
 
@@ -324,8 +364,9 @@ appendStatus : Model -> Model
 appendStatus model =
     case model.downloadSuccess of
         True ->
-            { model | contents = (timedPost model) ++ model.contents
-                    , appendsPending = True
+            { model
+                | contents = (timedPost model) ++ model.contents
+                , appendsPending = True
             }
 
         False ->
@@ -337,9 +378,9 @@ appendStatus model =
                 model_ =
                     { model | postsToUpload = Just posts }
             in
-                --model_
-                { model_ | contents = Maybe.withDefault "" model_.postsToUpload
-                         , appendsPending = True
+                { model_
+                    | contents = Maybe.withDefault "" model_.postsToUpload
+                    , appendsPending = True
                 }
 
 
@@ -351,6 +392,7 @@ appendPosts model =
     }
 
 
+
 {--updateContents : String -> Model -> Model
 updateContents contents model =
     { model | contents = contents }
@@ -359,8 +401,9 @@ updateContents contents model =
 
 updateContents : FileInfo -> Model -> Model
 updateContents contents model =
-    { model | contents = contents.body,
-        rev = contents.rev
+    { model
+        | contents = contents.body
+        , rev = contents.rev
     }
 
 
@@ -392,10 +435,11 @@ view model =
             [ hr [ class "style8" ] []
             , h3 [] [ text <| formatTime model.currentTime ++ model.flashMessage ]
             , textarea
-                [ classList [ ("height-adjusting-textarea", True)
-                            , ("yellowBack", (model.appendsPending /= False))
-                ]
-                --class "height-adjusting-textarea"
+                [ classList
+                    [ ( "height-adjusting-textarea", True )
+                    , ( "yellowBack", (model.appendsPending /= False) )
+                    ]
+                  --class "height-adjusting-textarea"
                 , id "update"
                 , placeholder "Update?"
                 , onInput UpdateStatus
@@ -467,9 +511,9 @@ subscriptions model =
 
 -- HTTP
 --getFile : Model -> Http.Request FileInfo
-
-
 --getFile : Model -> Http.Request String
+
+
 getFile : Model -> Http.Request FileInfo
 getFile model =
     let
@@ -480,7 +524,7 @@ getFile model =
             { postSettings | url = downloadURL }
 
         --_ =
-            --Debug.log "settings: " settings
+        --Debug.log "settings: " settings
     in
         Http.request settings
 
@@ -492,7 +536,7 @@ getFileTask model =
             Http.toTask (getFile model)
 
         --_ =
-            --Debug.log "model: " model
+        --Debug.log "model: " model
     in
         getTask
             |> Task.andThen
@@ -523,9 +567,9 @@ getFileAndAppend model =
 
 
 --  Http.send Download (Http.request settings)
-
-
 --sendFile : Model -> Maybe String -> Http.Request String
+
+
 sendFile : Model -> Maybe String -> Http.Request String
 sendFile model posts =
     let
@@ -540,7 +584,7 @@ sendFile model posts =
                 | url = uploadURL
                 , headers =
                     uploadHeaders
-                , expect  = expectString
+                , expect = expectString
                 , body = stringBody "application/octet-stream" contents
             }
     in
@@ -653,7 +697,8 @@ postSettings =
     , headers = downloadHeaders
     , url = ""
     , body = emptyBody
-    , expect = expectStringResponse dropboxResponse 
+    , expect =
+        expectStringResponse dropboxResponse
         -- , expect = expectString
         -- , expect = expectJson decodeFileInfo
         -- , expect = expectStringResponse expectRev
@@ -663,19 +708,21 @@ postSettings =
     , withCredentials = False
     }
 
-dropboxResponse : Http.Response String -> Result String FileInfo 
-dropboxResponse response = 
+
+dropboxResponse : Http.Response String -> Result String FileInfo
+dropboxResponse response =
     response.headers
         |> Dict.get "dropbox-api-result"
         |> Maybe.map (Decode.decodeString (responseDecoder response.body))
         |> Maybe.withDefault (Err "no dropbox-api-result-header")
-        
+
 
 responseDecoder : String -> Decode.Decoder FileInfo
-responseDecoder body = 
-    Decode.map2 FileInfo 
-    (Decode.field "rev" Decode.string)
-    (Decode.succeed body)
+responseDecoder body =
+    Decode.map2 FileInfo
+        (Decode.field "rev" Decode.string)
+        (Decode.succeed body)
+
 
 
 {--

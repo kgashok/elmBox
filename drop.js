@@ -10314,6 +10314,59 @@ var _kgashok$elmbox$Drop$Model = function (a) {
 	};
 };
 var _kgashok$elmbox$Drop$initialModel = _kgashok$elmbox$Drop$Model(_kgashok$elmbox$Drop$filePath)(_kgashok$elmbox$Drop$dropboxAPI)('')('')(_elm_lang$core$Maybe$Nothing)(false)('')(_elm_lang$core$Maybe$Nothing)('Logger Ready')(false)(false);
+var _kgashok$elmbox$Drop$modelDecoder = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'downloadFirst',
+	_elm_lang$core$Json_Decode$bool,
+	A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'downloadSuccess',
+		_elm_lang$core$Json_Decode$bool,
+		A3(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+			'flashMessage',
+			_elm_lang$core$Json_Decode$string,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+				'currentTime',
+				_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$float),
+				A3(
+					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+					'status',
+					_elm_lang$core$Json_Decode$string,
+					A3(
+						_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+						'appendsPending',
+						_elm_lang$core$Json_Decode$bool,
+						A3(
+							_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+							'postsToUpload',
+							_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$string),
+							A3(
+								_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+								'rev',
+								_elm_lang$core$Json_Decode$string,
+								A3(
+									_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+									'contents',
+									_elm_lang$core$Json_Decode$string,
+									A3(
+										_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+										'dropURL',
+										_elm_lang$core$Json_Decode$string,
+										A3(
+											_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+											'filePath',
+											_elm_lang$core$Json_Decode$string,
+											_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_kgashok$elmbox$Drop$Model))))))))))));
+var _kgashok$elmbox$Drop$flagsToModel = function (flags) {
+	return A2(
+		_elm_lang$core$Result$withDefault,
+		_elm_lang$core$Native_Utils.update(
+			_kgashok$elmbox$Drop$initialModel,
+			{flashMessage: 'Model mismatch! Local storage discarded!'}),
+		A2(_elm_lang$core$Json_Decode$decodeValue, _kgashok$elmbox$Drop$modelDecoder, flags));
+};
 var _kgashok$elmbox$Drop$FileInfo = F2(
 	function (a, b) {
 		return {rev: a, body: b};
@@ -10461,10 +10514,10 @@ var _kgashok$elmbox$Drop$NewTime = function (a) {
 	return {ctor: 'NewTime', _0: a};
 };
 var _kgashok$elmbox$Drop$getTimeTask = A2(_elm_lang$core$Task$perform, _kgashok$elmbox$Drop$NewTime, _elm_lang$core$Time$now);
-var _kgashok$elmbox$Drop$init = function (savedModel) {
+var _kgashok$elmbox$Drop$init = function (flags) {
 	return {
 		ctor: '_Tuple2',
-		_0: A2(_elm_lang$core$Maybe$withDefault, _kgashok$elmbox$Drop$initialModel, savedModel),
+		_0: _kgashok$elmbox$Drop$flagsToModel(flags),
 		_1: _kgashok$elmbox$Drop$getTimeTask
 	};
 };
@@ -11008,100 +11061,7 @@ var _kgashok$elmbox$Drop$view = function (model) {
 		});
 };
 var _kgashok$elmbox$Drop$main = _elm_lang$html$Html$programWithFlags(
-	{init: _kgashok$elmbox$Drop$init, view: _kgashok$elmbox$Drop$view, update: _kgashok$elmbox$Drop$updateWithStorage, subscriptions: _kgashok$elmbox$Drop$subscriptions})(
-	_elm_lang$core$Json_Decode$oneOf(
-		{
-			ctor: '::',
-			_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$core$Json_Decode$map,
-					_elm_lang$core$Maybe$Just,
-					A2(
-						_elm_lang$core$Json_Decode$andThen,
-						function (appendsPending) {
-							return A2(
-								_elm_lang$core$Json_Decode$andThen,
-								function (contents) {
-									return A2(
-										_elm_lang$core$Json_Decode$andThen,
-										function (currentTime) {
-											return A2(
-												_elm_lang$core$Json_Decode$andThen,
-												function (downloadFirst) {
-													return A2(
-														_elm_lang$core$Json_Decode$andThen,
-														function (downloadSuccess) {
-															return A2(
-																_elm_lang$core$Json_Decode$andThen,
-																function (dropURL) {
-																	return A2(
-																		_elm_lang$core$Json_Decode$andThen,
-																		function (filePath) {
-																			return A2(
-																				_elm_lang$core$Json_Decode$andThen,
-																				function (flashMessage) {
-																					return A2(
-																						_elm_lang$core$Json_Decode$andThen,
-																						function (postsToUpload) {
-																							return A2(
-																								_elm_lang$core$Json_Decode$andThen,
-																								function (rev) {
-																									return A2(
-																										_elm_lang$core$Json_Decode$andThen,
-																										function (status) {
-																											return _elm_lang$core$Json_Decode$succeed(
-																												{appendsPending: appendsPending, contents: contents, currentTime: currentTime, downloadFirst: downloadFirst, downloadSuccess: downloadSuccess, dropURL: dropURL, filePath: filePath, flashMessage: flashMessage, postsToUpload: postsToUpload, rev: rev, status: status});
-																										},
-																										A2(_elm_lang$core$Json_Decode$field, 'status', _elm_lang$core$Json_Decode$string));
-																								},
-																								A2(_elm_lang$core$Json_Decode$field, 'rev', _elm_lang$core$Json_Decode$string));
-																						},
-																						A2(
-																							_elm_lang$core$Json_Decode$field,
-																							'postsToUpload',
-																							_elm_lang$core$Json_Decode$oneOf(
-																								{
-																									ctor: '::',
-																									_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-																									_1: {
-																										ctor: '::',
-																										_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string),
-																										_1: {ctor: '[]'}
-																									}
-																								})));
-																				},
-																				A2(_elm_lang$core$Json_Decode$field, 'flashMessage', _elm_lang$core$Json_Decode$string));
-																		},
-																		A2(_elm_lang$core$Json_Decode$field, 'filePath', _elm_lang$core$Json_Decode$string));
-																},
-																A2(_elm_lang$core$Json_Decode$field, 'dropURL', _elm_lang$core$Json_Decode$string));
-														},
-														A2(_elm_lang$core$Json_Decode$field, 'downloadSuccess', _elm_lang$core$Json_Decode$bool));
-												},
-												A2(_elm_lang$core$Json_Decode$field, 'downloadFirst', _elm_lang$core$Json_Decode$bool));
-										},
-										A2(
-											_elm_lang$core$Json_Decode$field,
-											'currentTime',
-											_elm_lang$core$Json_Decode$oneOf(
-												{
-													ctor: '::',
-													_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-													_1: {
-														ctor: '::',
-														_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$float),
-														_1: {ctor: '[]'}
-													}
-												})));
-								},
-								A2(_elm_lang$core$Json_Decode$field, 'contents', _elm_lang$core$Json_Decode$string));
-						},
-						A2(_elm_lang$core$Json_Decode$field, 'appendsPending', _elm_lang$core$Json_Decode$bool))),
-				_1: {ctor: '[]'}
-			}
-		}));
+	{init: _kgashok$elmbox$Drop$init, view: _kgashok$elmbox$Drop$view, update: _kgashok$elmbox$Drop$updateWithStorage, subscriptions: _kgashok$elmbox$Drop$subscriptions})(_elm_lang$core$Json_Decode$value);
 
 var Elm = {};
 Elm['Drop'] = Elm['Drop'] || {};
