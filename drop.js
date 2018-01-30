@@ -9986,7 +9986,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _kgashok$elmbox$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _kgashok$elmbox$Version$version = 'v1.6-8-gacf1ad7';
+var _kgashok$elmbox$Version$version = 'v1.6-10-g025d75c';
 
 var _kgashok$elmbox$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
 var _kgashok$elmbox$Drop$stringify = function (_p0) {
@@ -10260,7 +10260,6 @@ var _kgashok$elmbox$Drop$setStorage = _elm_lang$core$Native_Platform.outgoingPor
 	function (v) {
 		return {
 			filePath: v.filePath,
-			dropURL: v.dropURL,
 			contents: v.contents,
 			rev: v.rev,
 			postsToUpload: (v.postsToUpload.ctor === 'Nothing') ? null : v.postsToUpload._0,
@@ -10300,9 +10299,7 @@ var _kgashok$elmbox$Drop$Model = function (a) {
 							return function (h) {
 								return function (i) {
 									return function (j) {
-										return function (k) {
-											return {filePath: a, dropURL: b, contents: c, rev: d, postsToUpload: e, appendsPending: f, status: g, currentTime: h, flashMessage: i, downloadSuccess: j, downloadFirst: k};
-										};
+										return {filePath: a, contents: b, rev: c, postsToUpload: d, appendsPending: e, status: f, currentTime: g, flashMessage: h, downloadSuccess: i, downloadFirst: j};
 									};
 								};
 							};
@@ -10313,7 +10310,7 @@ var _kgashok$elmbox$Drop$Model = function (a) {
 		};
 	};
 };
-var _kgashok$elmbox$Drop$initialModel = _kgashok$elmbox$Drop$Model(_kgashok$elmbox$Drop$filePath)(_kgashok$elmbox$Drop$dropboxAPI)('')('')(_elm_lang$core$Maybe$Nothing)(false)('')(_elm_lang$core$Maybe$Nothing)('Logger Ready')(false)(false);
+var _kgashok$elmbox$Drop$initialModel = _kgashok$elmbox$Drop$Model(_kgashok$elmbox$Drop$filePath)('')('')(_elm_lang$core$Maybe$Nothing)(false)('')(_elm_lang$core$Maybe$Nothing)('Logger Ready')(false)(false);
 var _kgashok$elmbox$Drop$modelDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 	'downloadFirst',
@@ -10352,13 +10349,9 @@ var _kgashok$elmbox$Drop$modelDecoder = A3(
 									_elm_lang$core$Json_Decode$string,
 									A3(
 										_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-										'dropURL',
+										'filePath',
 										_elm_lang$core$Json_Decode$string,
-										A3(
-											_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-											'filePath',
-											_elm_lang$core$Json_Decode$string,
-											_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_kgashok$elmbox$Drop$Model))))))))))));
+										_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_kgashok$elmbox$Drop$Model)))))))))));
 var _kgashok$elmbox$Drop$flagsToModel = function (flags) {
 	return A2(
 		_elm_lang$core$Result$withDefault,
@@ -10398,7 +10391,7 @@ var _kgashok$elmbox$Drop$postSettings = {
 	withCredentials: false
 };
 var _kgashok$elmbox$Drop$getFile = function (model) {
-	var downloadURL = A2(_elm_lang$core$Basics_ops['++'], model.dropURL, '/files/download');
+	var downloadURL = A2(_elm_lang$core$Basics_ops['++'], _kgashok$elmbox$Drop$dropboxAPI, '/files/download');
 	var settings = _elm_lang$core$Native_Utils.update(
 		_kgashok$elmbox$Drop$postSettings,
 		{url: downloadURL});

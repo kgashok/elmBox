@@ -10,10 +10,6 @@ import Result exposing (..)
 import Time exposing (..)
 import Date exposing (..)
 import Date.Format exposing (..)
-
-
---import ElmEscapeHtml exposing (..)
-
 import Markdown exposing (..)
 import Version exposing (..)
 import Json.Encode as Encode
@@ -22,6 +18,7 @@ import Json.Decode.Pipeline as Pipeline exposing (..)
 import Dict exposing (..)
 import Debug exposing (..)
 
+--import ElmEscapeHtml exposing (..)
 
 port setStorage : Model -> Cmd msg
 
@@ -94,7 +91,6 @@ type alias Post =
 
 type alias Model =
     { filePath : String
-    , dropURL : String
     , contents : String
     , rev : String
     , postsToUpload : Maybe String
@@ -115,7 +111,6 @@ dropboxAPI =
 initialModel : Model
 initialModel =
     Model filePath
-        dropboxAPI
         ""
         -- contents
         ""
@@ -169,7 +164,6 @@ modelDecoder : Decode.Decoder Model
 modelDecoder =
     decode Model
         |> Pipeline.required "filePath" Decode.string
-        |> Pipeline.required "dropURL" Decode.string
         |> Pipeline.required "contents" Decode.string
         |> Pipeline.required "rev" Decode.string
         |> Pipeline.required "postsToUpload" (Decode.nullable string)
@@ -518,7 +512,7 @@ getFile : Model -> Http.Request FileInfo
 getFile model =
     let
         downloadURL =
-            model.dropURL ++ "/files/download"
+            dropboxAPI ++ "/files/download"
 
         settings =
             { postSettings | url = downloadURL }
@@ -596,7 +590,7 @@ sendFile model posts =
    getMetaData model =
        let
            metadataURL =
-               -- model.dropURL ++ "/get_metadata"
+               -- dropboxAPI ++ "/get_metadata"
                "https://api.dropboxapi.com/2/files/get_metadata"
 
            settings =
