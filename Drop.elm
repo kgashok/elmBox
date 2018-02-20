@@ -447,7 +447,7 @@ view model =
             , footer
             , hr [ class "style5" ] []
             , br [] []
-            , div [] [ viewContents model.contents ]
+            , div [] [ viewContents model.contents model.rawMode ]
             ]
         , div [ id "titleContainer" ]
             [ hr [ class "style8" ] []
@@ -473,8 +473,9 @@ view model =
         ]
 
 
-viewContents : String -> Html Msg
-viewContents contents =
+viewContents : String -> Bool -> Html Msg
+viewContents contents rawMode =
+    --div [] [ text contents]
     let
         rendersimple material =
             div [ class "answer" ] [ ul [] [ text material ] ]
@@ -492,15 +493,23 @@ viewContents contents =
                             ]
 
                     _ ->
-                        Markdown.toHtml [ class "answer" ] material
+                        case rawMode of
+                            False ->
+                                Markdown.toHtml [ class "answer" ] material
+
+                            True ->
+                                div [ class "answer" ] [ ul [] [ text material ] ]
     in
-        -- div [] [ text contents ]
         contents
             |> String.split "@@@\n"
             |> List.take 100
-            --|> List.map rendersimple
-            |>
-                List.map render
+            |> (case rawMode of
+                    True ->
+                        List.map rendersimple
+
+                    False ->
+                        List.map render
+               )
             |> List.reverse
             >> div []
 
