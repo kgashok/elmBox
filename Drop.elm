@@ -19,6 +19,7 @@ import Dict exposing (..)
 import Debug exposing (..)
 import Keyboard exposing (..)
 
+
 --import ElmEscapeHtml exposing (..)
 
 
@@ -102,6 +103,7 @@ type alias Model =
     , flashMessage : String
     , downloadSuccess : Bool
     , downloadFirst : Bool
+    , rawMode : Bool
     }
 
 
@@ -125,6 +127,7 @@ initialModel =
         -- status
         Nothing
         "Logger Ready"
+        False
         False
         False
 
@@ -175,6 +178,7 @@ modelDecoder =
         |> Pipeline.required "flashMessage" Decode.string
         |> Pipeline.required "downloadSuccess" Decode.bool
         |> Pipeline.required "downloadFirst" Decode.bool
+        |> Pipeline.required "rawMode" Decode.bool
 
 
 
@@ -307,9 +311,23 @@ update msg model =
 
         FocusDone _ ->
             model ! []
-            
+
         KeyMsg code ->
-            model ! []
+            case code of
+                17 ->
+                    -- Ctrl-q for toggling markdown format
+                    let
+                        model_ =
+                            { model | rawMode = not model.rawMode }
+                    in
+                        (model_
+                            |> setFlashMessage
+                                ("Received keyboard " ++ toString code)
+                        )
+                            ! [ Cmd.none ]
+
+                _ ->
+                    model ! [ Cmd.none ]
 
 
 
@@ -506,8 +524,8 @@ footer =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [  Keyboard.presses KeyMsg
-        -- , Mouse.clicks MouseMsg
+        [ Keyboard.presses KeyMsg
+          -- , Mouse.clicks MouseMsg
         ]
 
 
