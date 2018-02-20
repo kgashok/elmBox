@@ -322,7 +322,8 @@ update msg model =
                     in
                         (model_
                             |> setFlashMessage
-                                ("Received keyboard " ++ toString code)
+                                -- ("Received keyboard " ++ toString code)
+                                ("<Ctrl-q> to toggle Markdown format!")
                         )
                             ! [ Cmd.none ]
 
