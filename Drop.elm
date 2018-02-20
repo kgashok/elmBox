@@ -325,7 +325,7 @@ update msg model =
                                 -- ("Received keyboard " ++ toString code)
                                 ("<Ctrl-q> to toggle Markdown format!")
                         )
-                            ! [ Cmd.none ]
+                            ! [ focusUpdate ]
 
                 _ ->
                     model ! [ Cmd.none ]
