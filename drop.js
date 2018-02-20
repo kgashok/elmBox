@@ -10178,7 +10178,7 @@ var _mgold$elm_date_format$Date_Format$format = F2(
 var _mgold$elm_date_format$Date_Format$formatISO8601 = _mgold$elm_date_format$Date_Format$format('%Y-%m-%dT%H:%M:%SZ');
 
 var _kgashok$elmbox$Version$gitRepo = 'https://github.com/kgashok/elmBox';
-var _kgashok$elmbox$Version$version = 'v1.6-17-gd2a53ce';
+var _kgashok$elmbox$Version$version = 'v1.6-18-g9f90a0f';
 
 var _kgashok$elmbox$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
 var _kgashok$elmbox$Drop$stringify = function (_p0) {
@@ -11299,8 +11299,28 @@ var _kgashok$elmbox$Drop$view = function (model) {
 													}),
 												_1: {
 													ctor: '::',
-													_0: _kgashok$elmbox$Drop$footer,
-													_1: {ctor: '[]'}
+													_0: A2(
+														_elm_lang$html$Html$button,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$id('button4'),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$html$Html_Events$onClick(
+																	_kgashok$elmbox$Drop$KeyMsg(17)),
+																_1: {ctor: '[]'}
+															}
+														},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text('MD'),
+															_1: {ctor: '[]'}
+														}),
+													_1: {
+														ctor: '::',
+														_0: _kgashok$elmbox$Drop$footer,
+														_1: {ctor: '[]'}
+													}
 												}
 											}
 										}
