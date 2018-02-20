@@ -17,8 +17,10 @@ import Json.Decode as Decode exposing (decodeString, field, string, list, dict)
 import Json.Decode.Pipeline as Pipeline exposing (..)
 import Dict exposing (..)
 import Debug exposing (..)
+import Keyboard exposing (..)
 
 --import ElmEscapeHtml exposing (..)
+
 
 port setStorage : Model -> Cmd msg
 
@@ -194,6 +196,7 @@ type Msg
     | FocusDone (Result Dom.Error ())
     | GetTime
     | NewTime Time
+    | KeyMsg Keyboard.KeyCode
 
 
 
@@ -303,6 +306,9 @@ update msg model =
             (model |> setTime time) ! [ focusUpdate ]
 
         FocusDone _ ->
+            model ! []
+            
+        KeyMsg code ->
             model ! []
 
 
@@ -499,7 +505,10 @@ footer =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Sub.batch
+        [  Keyboard.presses KeyMsg
+        -- , Mouse.clicks MouseMsg
+        ]
 
 
 
