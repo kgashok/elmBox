@@ -479,8 +479,25 @@ viewContents : String -> Bool -> Html Msg
 viewContents contents rawMode =
     --div [] [ text contents]
     let
+        inmultiple_lines contents = 
+          contents 
+            |> String.split "\n"
+            |> String.map (\line -> ul )
+            
         rendersimple material =
-            div [ class "answer" ] [ ul [] [ text material ] ]
+            let
+                tuple =
+                    String.split "\t" material
+            in
+                case tuple of
+                    ts :: [ line ] ->
+                        div [ class "answer" ]
+                            [ ul [] [ text ts ]
+                            , ul [] [ text line] 
+                            ]
+
+                    _ ->
+                        div [ class "answer" ] [ ul [] [ text material ] ]
 
         render material =
             let
