@@ -10415,14 +10415,25 @@ var _kgashok$elmbox$Drop$viewContents = F2(
 					{
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$ul,
+							_elm_lang$html$Html$pre,
 							{ctor: '[]'},
 							{
 								ctor: '::',
 								_0: _elm_lang$html$Html$text(_p3._0),
 								_1: {ctor: '[]'}
 							}),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$pre,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(_p3._1._0),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
 					});
 			} else {
 				return A2(

@@ -493,8 +493,8 @@ viewContents contents rawMode =
                 case tuple of
                     ts :: [ line ] ->
                         div [ class "answer" ]
-                            [ ul [] [ text ts ]
-                            , p [] [ text line]
+                            [ pre [] [ text ts ]
+                            , pre [] [ text line]
                             -- , inMultipleLines line
                             ]
                              
