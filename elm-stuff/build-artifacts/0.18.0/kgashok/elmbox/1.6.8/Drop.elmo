@@ -1,0 +1,1155 @@
+var _kgashok$elmbox$Drop$authorizationHeader = A2(_elm_lang$http$Http$header, 'Authorization', 'Bearer 4bhveELh1l8AAAAAAAAg1hjS4PUDWf0EeED2cIsmOsdJE04uqkichInc0sN0QZao');
+var _kgashok$elmbox$Drop$stringify = function (_p0) {
+	return A2(
+		_elm_lang$core$Json_Encode$encode,
+		0,
+		_elm_lang$core$Json_Encode$object(_p0));
+};
+var _kgashok$elmbox$Drop$filePath = '/Apps/elmBox/body.txt';
+var _kgashok$elmbox$Drop$downloadArgs = {
+	ctor: '::',
+	_0: {
+		ctor: '_Tuple2',
+		_0: 'path',
+		_1: _elm_lang$core$Json_Encode$string(_kgashok$elmbox$Drop$filePath)
+	},
+	_1: {ctor: '[]'}
+};
+var _kgashok$elmbox$Drop$uploadArgs = A2(
+	_elm_lang$core$Basics_ops['++'],
+	_kgashok$elmbox$Drop$downloadArgs,
+	{
+		ctor: '::',
+		_0: {
+			ctor: '_Tuple2',
+			_0: 'mode',
+			_1: _elm_lang$core$Json_Encode$string('overwrite')
+		},
+		_1: {ctor: '[]'}
+	});
+var _kgashok$elmbox$Drop$uploadHeaders = {
+	ctor: '::',
+	_0: _kgashok$elmbox$Drop$authorizationHeader,
+	_1: {
+		ctor: '::',
+		_0: A2(
+			_elm_lang$http$Http$header,
+			'Dropbox-API-Arg',
+			_kgashok$elmbox$Drop$stringify(_kgashok$elmbox$Drop$uploadArgs)),
+		_1: {ctor: '[]'}
+	}
+};
+var _kgashok$elmbox$Drop$downloadHeaders = {
+	ctor: '::',
+	_0: _kgashok$elmbox$Drop$authorizationHeader,
+	_1: {
+		ctor: '::',
+		_0: A2(
+			_elm_lang$http$Http$header,
+			'Dropbox-API-Arg',
+			_kgashok$elmbox$Drop$stringify(_kgashok$elmbox$Drop$downloadArgs)),
+		_1: {ctor: '[]'}
+	}
+};
+var _kgashok$elmbox$Drop$encodePath = function (path) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'path',
+				_1: _elm_lang$core$Json_Encode$string(path)
+			},
+			_1: {ctor: '[]'}
+		});
+};
+var _kgashok$elmbox$Drop$footer = A2(
+	_elm_lang$html$Html$div,
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html_Attributes$id('footer'),
+		_1: {ctor: '[]'}
+	},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$a,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$href(
+					A2(_elm_lang$core$Basics_ops['++'], _kgashok$elmbox$Version$gitRepo, '/issues/new')),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$target('_blank'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$rel('noopener noreferrer'),
+						_1: {ctor: '[]'}
+					}
+				}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(_kgashok$elmbox$Version$version),
+				_1: {ctor: '[]'}
+			}),
+		_1: {ctor: '[]'}
+	});
+var _kgashok$elmbox$Drop$viewContents = F2(
+	function (contents, rawMode) {
+		var render = function (material) {
+			var tuple = A2(_elm_lang$core$String$split, '\t', material);
+			var _p1 = tuple;
+			if (((_p1.ctor === '::') && (_p1._1.ctor === '::')) && (_p1._1._1.ctor === '[]')) {
+				return A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('answer'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$ul,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(_p1._0),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_evancz$elm_markdown$Markdown$toHtml,
+								{ctor: '[]'},
+								_p1._1._0),
+							_1: {ctor: '[]'}
+						}
+					});
+			} else {
+				var _p2 = rawMode;
+				if (_p2 === false) {
+					return A2(
+						_evancz$elm_markdown$Markdown$toHtml,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('answer'),
+							_1: {ctor: '[]'}
+						},
+						material);
+				} else {
+					return A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('answer'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$ul,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(material),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						});
+				}
+			}
+		};
+		var rendersimple = function (material) {
+			return A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('answer'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$ul,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(material),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				});
+		};
+		return function (_p3) {
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				_elm_lang$core$List$reverse(_p3));
+		}(
+			function () {
+				var _p4 = rawMode;
+				if (_p4 === true) {
+					return _elm_lang$core$List$map(rendersimple);
+				} else {
+					return _elm_lang$core$List$map(render);
+				}
+			}()(
+				A2(
+					_elm_lang$core$List$take,
+					100,
+					A2(_elm_lang$core$String$split, '@@@\n', contents))));
+	});
+var _kgashok$elmbox$Drop$formatTime = function (time) {
+	return A2(
+		_mgold$elm_date_format$Date_Format$format,
+		'%a %b/%d/%y %H:%M:%S ',
+		_elm_lang$core$Date$fromTime(
+			A2(_elm_lang$core$Maybe$withDefault, 0, time)));
+};
+var _kgashok$elmbox$Drop$timedPost = function (model) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_kgashok$elmbox$Drop$formatTime(model.currentTime),
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'\t',
+			A2(_elm_lang$core$Basics_ops['++'], model.status, ' @@@\n')));
+};
+var _kgashok$elmbox$Drop$updateContents = F2(
+	function (contents, model) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{contents: contents.body, rev: contents.rev});
+	});
+var _kgashok$elmbox$Drop$appendPosts = function (model) {
+	return _elm_lang$core$Native_Utils.update(
+		model,
+		{
+			contents: A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(_elm_lang$core$Maybe$withDefault, '', model.postsToUpload),
+				model.contents),
+			postsToUpload: _elm_lang$core$Maybe$Nothing
+		});
+};
+var _kgashok$elmbox$Drop$appendStatus = function (model) {
+	var _p5 = model.downloadSuccess;
+	if (_p5 === true) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				contents: A2(
+					_elm_lang$core$Basics_ops['++'],
+					_kgashok$elmbox$Drop$timedPost(model),
+					model.contents),
+				appendsPending: true
+			});
+	} else {
+		var posts = A2(
+			_elm_lang$core$Basics_ops['++'],
+			_kgashok$elmbox$Drop$timedPost(model),
+			A2(_elm_lang$core$Maybe$withDefault, '', model.postsToUpload));
+		var model_ = _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				postsToUpload: _elm_lang$core$Maybe$Just(posts)
+			});
+		return _elm_lang$core$Native_Utils.update(
+			model_,
+			{
+				contents: A2(_elm_lang$core$Maybe$withDefault, '', model_.postsToUpload),
+				appendsPending: true
+			});
+	}
+};
+var _kgashok$elmbox$Drop$setDownloadFirst = F2(
+	function (flag, model) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{downloadFirst: flag, appendsPending: false});
+	});
+var _kgashok$elmbox$Drop$setFlag = F2(
+	function (flag, model) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{downloadSuccess: flag});
+	});
+var _kgashok$elmbox$Drop$setTime = F2(
+	function (time, model) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				currentTime: _elm_lang$core$Maybe$Just(time)
+			});
+	});
+var _kgashok$elmbox$Drop$setFlashMessage = F2(
+	function (message, model) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{flashMessage: message});
+	});
+var _kgashok$elmbox$Drop$dropboxAPI = 'https://content.dropboxapi.com/2';
+var _kgashok$elmbox$Drop$setStorage = _elm_lang$core$Native_Platform.outgoingPort(
+	'setStorage',
+	function (v) {
+		return {
+			filePath: v.filePath,
+			contents: v.contents,
+			rev: v.rev,
+			postsToUpload: (v.postsToUpload.ctor === 'Nothing') ? null : v.postsToUpload._0,
+			appendsPending: v.appendsPending,
+			status: v.status,
+			currentTime: (v.currentTime.ctor === 'Nothing') ? null : v.currentTime._0,
+			flashMessage: v.flashMessage,
+			downloadSuccess: v.downloadSuccess,
+			downloadFirst: v.downloadFirst,
+			rawMode: v.rawMode
+		};
+	});
+var _kgashok$elmbox$Drop$adjustTextAreaHeight = _elm_lang$core$Native_Platform.outgoingPort(
+	'adjustTextAreaHeight',
+	function (v) {
+		return v;
+	});
+var _kgashok$elmbox$Drop$logExternalOut = _elm_lang$core$Native_Platform.outgoingPort(
+	'logExternalOut',
+	function (v) {
+		return v;
+	});
+var _kgashok$elmbox$Drop$logExternal = function (value) {
+	return _kgashok$elmbox$Drop$logExternalOut(
+		_elm_lang$core$Basics$toString(value));
+};
+var _kgashok$elmbox$Drop$Post = F2(
+	function (a, b) {
+		return {timestamp: a, message: b};
+	});
+var _kgashok$elmbox$Drop$Model = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return {filePath: a, contents: b, rev: c, postsToUpload: d, appendsPending: e, status: f, currentTime: g, flashMessage: h, downloadSuccess: i, downloadFirst: j, rawMode: k};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _kgashok$elmbox$Drop$initialModel = _kgashok$elmbox$Drop$Model(_kgashok$elmbox$Drop$filePath)('')('')(_elm_lang$core$Maybe$Nothing)(false)('')(_elm_lang$core$Maybe$Nothing)('Logger Ready')(false)(false)(false);
+var _kgashok$elmbox$Drop$modelDecoder = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'rawMode',
+	_elm_lang$core$Json_Decode$bool,
+	A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'downloadFirst',
+		_elm_lang$core$Json_Decode$bool,
+		A3(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+			'downloadSuccess',
+			_elm_lang$core$Json_Decode$bool,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+				'flashMessage',
+				_elm_lang$core$Json_Decode$string,
+				A3(
+					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+					'currentTime',
+					_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$float),
+					A3(
+						_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+						'status',
+						_elm_lang$core$Json_Decode$string,
+						A3(
+							_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+							'appendsPending',
+							_elm_lang$core$Json_Decode$bool,
+							A3(
+								_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+								'postsToUpload',
+								_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$string),
+								A3(
+									_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+									'rev',
+									_elm_lang$core$Json_Decode$string,
+									A3(
+										_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+										'contents',
+										_elm_lang$core$Json_Decode$string,
+										A3(
+											_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+											'filePath',
+											_elm_lang$core$Json_Decode$string,
+											_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_kgashok$elmbox$Drop$Model))))))))))));
+var _kgashok$elmbox$Drop$flagsToModel = function (flags) {
+	return A2(
+		_elm_lang$core$Result$withDefault,
+		_elm_lang$core$Native_Utils.update(
+			_kgashok$elmbox$Drop$initialModel,
+			{flashMessage: 'Model mismatch! Local storage discarded!'}),
+		A2(_elm_lang$core$Json_Decode$decodeValue, _kgashok$elmbox$Drop$modelDecoder, flags));
+};
+var _kgashok$elmbox$Drop$FileInfo = F2(
+	function (a, b) {
+		return {rev: a, body: b};
+	});
+var _kgashok$elmbox$Drop$responseDecoder = function (body) {
+	return A3(
+		_elm_lang$core$Json_Decode$map2,
+		_kgashok$elmbox$Drop$FileInfo,
+		A2(_elm_lang$core$Json_Decode$field, 'rev', _elm_lang$core$Json_Decode$string),
+		_elm_lang$core$Json_Decode$succeed(body));
+};
+var _kgashok$elmbox$Drop$dropboxResponse = function (response) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		_elm_lang$core$Result$Err('no dropbox-api-result-header'),
+		A2(
+			_elm_lang$core$Maybe$map,
+			_elm_lang$core$Json_Decode$decodeString(
+				_kgashok$elmbox$Drop$responseDecoder(response.body)),
+			A2(_elm_lang$core$Dict$get, 'dropbox-api-result', response.headers)));
+};
+var _kgashok$elmbox$Drop$postSettings = {
+	method: 'POST',
+	headers: _kgashok$elmbox$Drop$downloadHeaders,
+	url: '',
+	body: _elm_lang$http$Http$emptyBody,
+	expect: _elm_lang$http$Http$expectStringResponse(_kgashok$elmbox$Drop$dropboxResponse),
+	timeout: _elm_lang$core$Maybe$Nothing,
+	withCredentials: false
+};
+var _kgashok$elmbox$Drop$getFile = function (model) {
+	var downloadURL = A2(_elm_lang$core$Basics_ops['++'], _kgashok$elmbox$Drop$dropboxAPI, '/files/download');
+	var settings = _elm_lang$core$Native_Utils.update(
+		_kgashok$elmbox$Drop$postSettings,
+		{url: downloadURL});
+	return _elm_lang$http$Http$request(settings);
+};
+var _kgashok$elmbox$Drop$sendFile = F2(
+	function (model, posts) {
+		var contents = A2(
+			_elm_lang$core$Basics_ops['++'],
+			model.contents,
+			A2(_elm_lang$core$Maybe$withDefault, '', posts));
+		var uploadURL = A2(_elm_lang$core$Basics_ops['++'], _kgashok$elmbox$Drop$dropboxAPI, '/files/upload');
+		var settings = _elm_lang$core$Native_Utils.update(
+			_kgashok$elmbox$Drop$postSettings,
+			{
+				url: uploadURL,
+				headers: _kgashok$elmbox$Drop$uploadHeaders,
+				expect: _elm_lang$http$Http$expectString,
+				body: A2(_elm_lang$http$Http$stringBody, 'application/octet-stream', contents)
+			});
+		return _elm_lang$http$Http$request(settings);
+	});
+var _kgashok$elmbox$Drop$decodeFileInfo = function (res) {
+	return A2(
+		_elm_lang$core$Json_Decode$map,
+		_kgashok$elmbox$Drop$FileInfo(res),
+		_elm_lang$core$Json_Decode$string);
+};
+var _kgashok$elmbox$Drop$expectRev = function (response) {
+	var _p6 = A2(_elm_lang$core$Debug$log, 'headers: ', response.headers);
+	var result = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'NA',
+		A2(_elm_lang$core$Dict$get, 'dropbox-api-result', response.headers));
+	var revision = A2(
+		_elm_lang$core$Json_Decode$decodeString,
+		A2(
+			_elm_lang$core$Json_Decode$map,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			A2(_elm_lang$core$Json_Decode$field, 'rev', _elm_lang$core$Json_Decode$string)),
+		result);
+	var _p7 = A2(
+		_elm_lang$core$Debug$log,
+		'raw rev: ',
+		_elm_lang$core$Basics$toString(revision));
+	var _p8 = A2(_elm_lang$core$Debug$log, 'res: ', result);
+	var _p9 = revision;
+	if (_p9.ctor === 'Ok') {
+		var _p10 = A2(
+			_elm_lang$core$Debug$log,
+			'success rev: ',
+			_elm_lang$core$Basics$toString(_p9._0));
+		return A2(
+			_elm_lang$core$Json_Decode$decodeString,
+			_kgashok$elmbox$Drop$decodeFileInfo('00'),
+			response.body);
+	} else {
+		return A2(
+			_elm_lang$core$Json_Decode$decodeString,
+			_kgashok$elmbox$Drop$decodeFileInfo('00'),
+			response.body);
+	}
+};
+var _kgashok$elmbox$Drop$fileInfoDecoder = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'body',
+	_elm_lang$core$Json_Decode$string,
+	A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt,
+		{
+			ctor: '::',
+			_0: 'headers',
+			_1: {
+				ctor: '::',
+				_0: 'dropbox-api-result',
+				_1: {
+					ctor: '::',
+					_0: 'rev',
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		_elm_lang$core$Json_Decode$string,
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_kgashok$elmbox$Drop$FileInfo)));
+var _kgashok$elmbox$Drop$fileInfo = function (response) {
+	var _p11 = A2(_elm_lang$core$Debug$log, 'headers: ', response);
+	return A2(_elm_lang$core$Json_Decode$decodeString, _kgashok$elmbox$Drop$fileInfoDecoder, response.body);
+};
+var _kgashok$elmbox$Drop$Metadata = function (a) {
+	return {rev: a};
+};
+var _kgashok$elmbox$Drop$metadataDecoder = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'rev',
+	_elm_lang$core$Json_Decode$string,
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_kgashok$elmbox$Drop$Metadata));
+var _kgashok$elmbox$Drop$metadataUpdate = function (response) {
+	var _p12 = A2(_elm_lang$core$Debug$log, 'metadata: ', response);
+	return A2(_elm_lang$core$Json_Decode$decodeString, _kgashok$elmbox$Drop$metadataDecoder, response);
+};
+var _kgashok$elmbox$Drop$FileContentToUpload = F2(
+	function (a, b) {
+		return {ctor: 'FileContentToUpload', _0: a, _1: b};
+	});
+var _kgashok$elmbox$Drop$FileContent = function (a) {
+	return {ctor: 'FileContent', _0: a};
+};
+var _kgashok$elmbox$Drop$NoContent = {ctor: 'NoContent'};
+var _kgashok$elmbox$Drop$KeyMsg = function (a) {
+	return {ctor: 'KeyMsg', _0: a};
+};
+var _kgashok$elmbox$Drop$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: _elm_lang$keyboard$Keyboard$presses(_kgashok$elmbox$Drop$KeyMsg),
+			_1: {ctor: '[]'}
+		});
+};
+var _kgashok$elmbox$Drop$NewTime = function (a) {
+	return {ctor: 'NewTime', _0: a};
+};
+var _kgashok$elmbox$Drop$getTimeTask = A2(_elm_lang$core$Task$perform, _kgashok$elmbox$Drop$NewTime, _elm_lang$core$Time$now);
+var _kgashok$elmbox$Drop$init = function (flags) {
+	return {
+		ctor: '_Tuple2',
+		_0: _kgashok$elmbox$Drop$flagsToModel(flags),
+		_1: _kgashok$elmbox$Drop$getTimeTask
+	};
+};
+var _kgashok$elmbox$Drop$GetTime = {ctor: 'GetTime'};
+var _kgashok$elmbox$Drop$FocusDone = function (a) {
+	return {ctor: 'FocusDone', _0: a};
+};
+var _kgashok$elmbox$Drop$focusUpdate = A2(
+	_elm_lang$core$Task$attempt,
+	_kgashok$elmbox$Drop$FocusDone,
+	_elm_lang$dom$Dom$focus('update'));
+var _kgashok$elmbox$Drop$UploadStatus = function (a) {
+	return {ctor: 'UploadStatus', _0: a};
+};
+var _kgashok$elmbox$Drop$sendFileTask = function (model) {
+	var sendTask = _elm_lang$http$Http$toTask(
+		A2(_kgashok$elmbox$Drop$sendFile, model, _elm_lang$core$Maybe$Nothing));
+	return A2(
+		_elm_lang$core$Task$attempt,
+		_kgashok$elmbox$Drop$UploadStatus,
+		A2(
+			_elm_lang$core$Task$andThen,
+			function (t) {
+				return A2(
+					_elm_lang$core$Task$map,
+					F2(
+						function (v0, v1) {
+							return {ctor: '_Tuple2', _0: v0, _1: v1};
+						})(t),
+					sendTask);
+			},
+			_elm_lang$core$Time$now));
+};
+var _kgashok$elmbox$Drop$Upload = {ctor: 'Upload'};
+var _kgashok$elmbox$Drop$UpdateStatus = function (a) {
+	return {ctor: 'UpdateStatus', _0: a};
+};
+var _kgashok$elmbox$Drop$GetTimeAndAppend = function (a) {
+	return {ctor: 'GetTimeAndAppend', _0: a};
+};
+var _kgashok$elmbox$Drop$Append = {ctor: 'Append'};
+var _kgashok$elmbox$Drop$DownloadAndAppend = function (a) {
+	return {ctor: 'DownloadAndAppend', _0: a};
+};
+var _kgashok$elmbox$Drop$getFileAndAppend = function (model) {
+	var getTask = _elm_lang$http$Http$toTask(
+		_kgashok$elmbox$Drop$getFile(model));
+	return A2(
+		_elm_lang$core$Task$attempt,
+		_kgashok$elmbox$Drop$DownloadAndAppend,
+		A2(
+			_elm_lang$core$Task$andThen,
+			function (t) {
+				return A2(
+					_elm_lang$core$Task$map,
+					F2(
+						function (v0, v1) {
+							return {ctor: '_Tuple2', _0: v0, _1: v1};
+						})(t),
+					getTask);
+			},
+			_elm_lang$core$Time$now));
+};
+var _kgashok$elmbox$Drop$Download = function (a) {
+	return {ctor: 'Download', _0: a};
+};
+var _kgashok$elmbox$Drop$getFileTask = function (model) {
+	var getTask = _elm_lang$http$Http$toTask(
+		_kgashok$elmbox$Drop$getFile(model));
+	return A2(
+		_elm_lang$core$Task$attempt,
+		_kgashok$elmbox$Drop$Download,
+		A2(
+			_elm_lang$core$Task$andThen,
+			function (result) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (time) {
+						return _elm_lang$core$Task$succeed(
+							{ctor: '_Tuple2', _0: time, _1: result});
+					},
+					_elm_lang$core$Time$now);
+			},
+			getTask));
+};
+var _kgashok$elmbox$Drop$update = F2(
+	function (msg, model) {
+		var _p13 = msg;
+		switch (_p13.ctor) {
+			case 'Refresh':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{contents: '', flashMessage: 'Downloading...be patient!'}),
+					{
+						ctor: '::',
+						_0: _kgashok$elmbox$Drop$getFileTask(model),
+						_1: {ctor: '[]'}
+					});
+			case 'Download':
+				if (_p13._0.ctor === 'Ok') {
+					var model_ = A2(
+						_kgashok$elmbox$Drop$setFlag,
+						true,
+						A2(
+							_kgashok$elmbox$Drop$updateContents,
+							_p13._0._0._1,
+							A2(_kgashok$elmbox$Drop$setTime, _p13._0._0._0, model)));
+					var _p14 = {ctor: '_Tuple2', _0: model.downloadFirst, _1: model.downloadSuccess};
+					if (_p14._0 === false) {
+						return A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model_,
+								{
+									flashMessage: A2(_elm_lang$core$Basics_ops['++'], model_.rev, ': Download successful (case 1)')
+								}),
+							{
+								ctor: '::',
+								_0: _kgashok$elmbox$Drop$focusUpdate,
+								_1: {ctor: '[]'}
+							});
+					} else {
+						if (_p14._1 === false) {
+							var model__ = A2(
+								_kgashok$elmbox$Drop$setFlashMessage,
+								'Download successful! (case 2)',
+								_kgashok$elmbox$Drop$appendPosts(model_));
+							return A2(
+								_elm_lang$core$Platform_Cmd_ops['!'],
+								model__,
+								{
+									ctor: '::',
+									_0: _kgashok$elmbox$Drop$sendFileTask(model__),
+									_1: {ctor: '[]'}
+								});
+						} else {
+							return A2(
+								_elm_lang$core$Platform_Cmd_ops['!'],
+								_elm_lang$core$Native_Utils.update(
+									model_,
+									{flashMessage: 'Download successful (case 3)'}),
+								{
+									ctor: '::',
+									_0: _kgashok$elmbox$Drop$sendFileTask(model),
+									_1: {ctor: '[]'}
+								});
+						}
+					}
+				} else {
+					var model_ = _elm_lang$core$Native_Utils.update(
+						model,
+						{downloadSuccess: false, downloadFirst: false});
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						A2(
+							_kgashok$elmbox$Drop$setFlashMessage,
+							_elm_lang$core$Basics$toString(_p13._0._0),
+							model_),
+						{ctor: '[]'});
+				}
+			case 'DownloadAndAppend':
+				if (_p13._0.ctor === 'Ok') {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						A2(
+							_kgashok$elmbox$Drop$setFlag,
+							true,
+							A2(
+								_kgashok$elmbox$Drop$setFlashMessage,
+								'Download/Append successful!',
+								_kgashok$elmbox$Drop$appendStatus(
+									A2(
+										_kgashok$elmbox$Drop$updateContents,
+										_p13._0._0._1,
+										A2(_kgashok$elmbox$Drop$setTime, _p13._0._0._0, model))))),
+						{
+							ctor: '::',
+							_0: _kgashok$elmbox$Drop$focusUpdate,
+							_1: {ctor: '[]'}
+						});
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						A2(
+							_kgashok$elmbox$Drop$setFlashMessage,
+							_elm_lang$core$Basics$toString(_p13._0._0),
+							model),
+						{ctor: '[]'});
+				}
+			case 'Append':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{
+						ctor: '::',
+						_0: A2(_elm_lang$core$Task$perform, _kgashok$elmbox$Drop$GetTimeAndAppend, _elm_lang$core$Time$now),
+						_1: {ctor: '[]'}
+					});
+			case 'GetTimeAndAppend':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					A2(
+						_kgashok$elmbox$Drop$setFlashMessage,
+						'Append successful!',
+						_kgashok$elmbox$Drop$appendStatus(
+							A2(_kgashok$elmbox$Drop$setTime, _p13._0, model))),
+					{
+						ctor: '::',
+						_0: _kgashok$elmbox$Drop$focusUpdate,
+						_1: {ctor: '[]'}
+					});
+			case 'UpdateStatus':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{status: _p13._0}),
+					{
+						ctor: '::',
+						_0: _kgashok$elmbox$Drop$focusUpdate,
+						_1: {
+							ctor: '::',
+							_0: _kgashok$elmbox$Drop$adjustTextAreaHeight('height-adjusting-textarea'),
+							_1: {ctor: '[]'}
+						}
+					});
+			case 'Upload':
+				var model_ = A2(_kgashok$elmbox$Drop$setFlashMessage, 'Uploading...please be patient!', model);
+				var _p15 = model_.downloadSuccess;
+				if (_p15 === true) {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						model_,
+						{
+							ctor: '::',
+							_0: _kgashok$elmbox$Drop$sendFileTask(model),
+							_1: {ctor: '[]'}
+						});
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model_,
+							{downloadFirst: true}),
+						{
+							ctor: '::',
+							_0: _kgashok$elmbox$Drop$getFileTask(model_),
+							_1: {ctor: '[]'}
+						});
+				}
+			case 'UploadStatus':
+				if (_p13._0.ctor === 'Ok') {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						A2(
+							_kgashok$elmbox$Drop$setDownloadFirst,
+							false,
+							A2(
+								_kgashok$elmbox$Drop$setFlashMessage,
+								'Upload successful!',
+								A2(_kgashok$elmbox$Drop$setTime, _p13._0._0._0, model))),
+						{
+							ctor: '::',
+							_0: _kgashok$elmbox$Drop$focusUpdate,
+							_1: {ctor: '[]'}
+						});
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						A2(
+							_kgashok$elmbox$Drop$setFlashMessage,
+							_elm_lang$core$Basics$toString(_p13._0._0),
+							model),
+						{ctor: '[]'});
+				}
+			case 'GetTime':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{
+						ctor: '::',
+						_0: _kgashok$elmbox$Drop$getTimeTask,
+						_1: {ctor: '[]'}
+					});
+			case 'NewTime':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					A2(_kgashok$elmbox$Drop$setTime, _p13._0, model),
+					{
+						ctor: '::',
+						_0: _kgashok$elmbox$Drop$focusUpdate,
+						_1: {ctor: '[]'}
+					});
+			case 'FocusDone':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'});
+			default:
+				var _p16 = _p13._0;
+				if (_p16 === 17) {
+					var model_ = _elm_lang$core$Native_Utils.update(
+						model,
+						{rawMode: !model.rawMode});
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						A2(_kgashok$elmbox$Drop$setFlashMessage, '<Ctrl-q> to toggle Markdown format!', model_),
+						{
+							ctor: '::',
+							_0: _kgashok$elmbox$Drop$focusUpdate,
+							_1: {ctor: '[]'}
+						});
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						model,
+						{
+							ctor: '::',
+							_0: _elm_lang$core$Platform_Cmd$none,
+							_1: {ctor: '[]'}
+						});
+				}
+		}
+	});
+var _kgashok$elmbox$Drop$updateWithStorage = F2(
+	function (msg, model) {
+		var _p17 = A2(_kgashok$elmbox$Drop$update, msg, model);
+		var nextModel = _p17._0;
+		var nextCmd = _p17._1;
+		return {
+			ctor: '_Tuple2',
+			_0: nextModel,
+			_1: _elm_lang$core$Platform_Cmd$batch(
+				{
+					ctor: '::',
+					_0: _kgashok$elmbox$Drop$setStorage(model),
+					_1: {
+						ctor: '::',
+						_0: nextCmd,
+						_1: {ctor: '[]'}
+					}
+				})
+		};
+	});
+var _kgashok$elmbox$Drop$Refresh = {ctor: 'Refresh'};
+var _kgashok$elmbox$Drop$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('example example-dotted'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$h1,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Daily Log'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _kgashok$elmbox$Drop$footer,
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$hr,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('style5'),
+									_1: {ctor: '[]'}
+								},
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$br,
+									{ctor: '[]'},
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: A2(_kgashok$elmbox$Drop$viewContents, model.contents, model.rawMode),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$id('titleContainer'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$hr,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('style8'),
+								_1: {ctor: '[]'}
+							},
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$h3,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											_kgashok$elmbox$Drop$formatTime(model.currentTime),
+											model.flashMessage)),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$textarea,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$classList(
+											{
+												ctor: '::',
+												_0: {ctor: '_Tuple2', _0: 'height-adjusting-textarea', _1: true},
+												_1: {
+													ctor: '::',
+													_0: {
+														ctor: '_Tuple2',
+														_0: 'yellowBack',
+														_1: !_elm_lang$core$Native_Utils.eq(model.appendsPending, false)
+													},
+													_1: {ctor: '[]'}
+												}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$id('update'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$placeholder('Update?'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onInput(_kgashok$elmbox$Drop$UpdateStatus),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$value(model.status),
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$button,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$id('button2'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(_kgashok$elmbox$Drop$Append),
+												_1: {ctor: '[]'}
+											}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Append'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$id('button3'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(_kgashok$elmbox$Drop$Upload),
+													_1: {ctor: '[]'}
+												}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('Upload!'),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$button,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$id('button3'),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Events$onClick(
+															_kgashok$elmbox$Drop$UpdateStatus('')),
+														_1: {ctor: '[]'}
+													}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Clear'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$button,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$id('button1'),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Events$onClick(_kgashok$elmbox$Drop$Refresh),
+															_1: {ctor: '[]'}
+														}
+													},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('Refresh!'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$button,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$id('button4'),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$html$Html_Events$onClick(
+																	_kgashok$elmbox$Drop$KeyMsg(17)),
+																_1: {ctor: '[]'}
+															}
+														},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text('MD'),
+															_1: {ctor: '[]'}
+														}),
+													_1: {
+														ctor: '::',
+														_0: _kgashok$elmbox$Drop$footer,
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _kgashok$elmbox$Drop$main = _elm_lang$html$Html$programWithFlags(
+	{init: _kgashok$elmbox$Drop$init, view: _kgashok$elmbox$Drop$view, update: _kgashok$elmbox$Drop$updateWithStorage, subscriptions: _kgashok$elmbox$Drop$subscriptions})(_elm_lang$core$Json_Decode$value);
