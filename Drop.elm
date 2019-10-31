@@ -479,10 +479,11 @@ viewContents : String -> Bool -> Html Msg
 viewContents contents rawMode =
     --div [] [ text contents]
     let
-        inmultiple_lines contents = 
+        inMultipleLines contents = 
           contents 
             |> String.split "\n"
-            |> String.map (\line -> ul )
+            |> List.map (\line -> ul [] [text line])
+            >> div []        
             
         rendersimple material =
             let
@@ -493,9 +494,9 @@ viewContents contents rawMode =
                     ts :: [ line ] ->
                         div [ class "answer" ]
                             [ ul [] [ text ts ]
-                            , ul [] [ text line] 
+                            , inMultipleLines line
                             ]
-
+                             
                     _ ->
                         div [ class "answer" ] [ ul [] [ text material ] ]
 
