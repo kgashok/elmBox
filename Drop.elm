@@ -1,23 +1,24 @@
 port module Drop exposing (..)
 
+import Date exposing (..)
+import Date.Format exposing (..)
+import Debug exposing (..)
+import Dict exposing (..)
+import Dom exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http exposing (..)
-import Dom exposing (..)
-import Task exposing (..)
-import Result exposing (..)
-import Time exposing (..)
-import Date exposing (..)
-import Date.Format exposing (..)
-import Markdown exposing (..)
-import Version exposing (..)
-import Json.Encode as Encode
-import Json.Decode as Decode exposing (decodeString, field, string, list, dict)
+import Json.Decode as Decode exposing (decodeString, dict, field, list, string)
 import Json.Decode.Pipeline as Pipeline exposing (..)
-import Dict exposing (..)
-import Debug exposing (..)
+import Json.Encode as Encode
 import Keyboard exposing (..)
+import Markdown exposing (..)
+import Result exposing (..)
+import Task exposing (..)
+import Time exposing (..)
+import Version exposing (..)
+
 
 
 --import ElmEscapeHtml exposing (..)
@@ -43,13 +44,14 @@ updateWithStorage msg model =
         ( nextModel, nextCmd ) =
             update msg model
     in
-        ( nextModel
-        , Cmd.batch
-            [ setStorage model
-              --, logExternal msg
-            , nextCmd
-            ]
-        )
+    ( nextModel
+    , Cmd.batch
+        [ setStorage model
+
+        --, logExternal msg
+        , nextCmd
+        ]
+    )
 
 
 
@@ -71,7 +73,8 @@ main =
         , view = view
         , update =
             updateWithStorage
-            --, update = update
+
+        --, update = update
         , subscriptions = subscriptions
         }
 
@@ -223,30 +226,30 @@ update msg model =
                         |> updateContents contents
                         |> setFlag True
             in
-                case ( model.downloadFirst, model.downloadSuccess ) of
-                    ( False, _ ) ->
-                        { model_ | flashMessage = model_.rev ++ ": Download successful (case 1)" }
-                            ! [ focusUpdate ]
+            case ( model.downloadFirst, model.downloadSuccess ) of
+                ( False, _ ) ->
+                    { model_ | flashMessage = model_.rev ++ ": Download successful (case 1)" }
+                        ! [ focusUpdate ]
 
-                    ( True, False ) ->
-                        let
-                            model__ =
-                                model_
-                                    |> appendPosts
-                                    |> setFlashMessage "Download successful! (case 2)"
-                        in
-                            model__ ! [ sendFileTask model__ ]
+                ( True, False ) ->
+                    let
+                        model__ =
+                            model_
+                                |> appendPosts
+                                |> setFlashMessage "Download successful! (case 2)"
+                    in
+                    model__ ! [ sendFileTask model__ ]
 
-                    ( _, True ) ->
-                        { model_ | flashMessage = "Download successful (case 3)" }
-                            ! [ sendFileTask model ]
+                ( _, True ) ->
+                    { model_ | flashMessage = "Download successful (case 3)" }
+                        ! [ sendFileTask model ]
 
         Download (Err error) ->
             let
                 model_ =
                     { model | downloadSuccess = False, downloadFirst = False }
             in
-                setFlashMessage (toString error) model_ ! []
+            setFlashMessage (toString error) model_ ! []
 
         DownloadAndAppend (Ok ( time, contents )) ->
             (model
@@ -281,13 +284,13 @@ update msg model =
                 model_ =
                     model |> setFlashMessage "Uploading...please be patient!"
             in
-                case model_.downloadSuccess of
-                    True ->
-                        model_ ! [ sendFileTask model ]
+            case model_.downloadSuccess of
+                True ->
+                    model_ ! [ sendFileTask model ]
 
-                    False ->
-                        { model_ | downloadFirst = True }
-                            ! [ getFileTask model_ ]
+                False ->
+                    { model_ | downloadFirst = True }
+                        ! [ getFileTask model_ ]
 
         UploadStatus (Ok ( time, contents )) ->
             (model
@@ -320,12 +323,12 @@ update msg model =
                         model_ =
                             { model | rawMode = not model.rawMode }
                     in
-                        (model_
-                            |> setFlashMessage
-                                -- ("Received keyboard " ++ toString code)
-                                ("<Ctrl-q> to toggle Markdown format!")
-                        )
-                            ! [ focusUpdate ]
+                    (model_
+                        |> setFlashMessage
+                            -- ("Received keyboard " ++ toString code)
+                            "<Ctrl-q> to toggle Markdown format!"
+                    )
+                        ! [ focusUpdate ]
 
                 _ ->
                     model ! [ Cmd.none ]
@@ -384,29 +387,29 @@ appendStatus model =
     case model.downloadSuccess of
         True ->
             { model
-                | contents = (timedPost model) ++ model.contents
+                | contents = timedPost model ++ model.contents
                 , appendsPending = True
             }
 
         False ->
             let
                 posts =
-                    (timedPost model)
-                        ++ (Maybe.withDefault "" model.postsToUpload)
+                    timedPost model
+                        ++ Maybe.withDefault "" model.postsToUpload
 
                 model_ =
                     { model | postsToUpload = Just posts }
             in
-                { model_
-                    | contents = Maybe.withDefault "" model_.postsToUpload
-                    , appendsPending = True
-                }
+            { model_
+                | contents = Maybe.withDefault "" model_.postsToUpload
+                , appendsPending = True
+            }
 
 
 appendPosts : Model -> Model
 appendPosts model =
     { model
-        | contents = (Maybe.withDefault "" model.postsToUpload) ++ model.contents
+        | contents = Maybe.withDefault "" model.postsToUpload ++ model.contents
         , postsToUpload = Nothing
     }
 
@@ -456,9 +459,10 @@ view model =
             , textarea
                 [ classList
                     [ ( "height-adjusting-textarea", True )
-                    , ( "yellowBack", (model.appendsPending /= False) )
+                    , ( "yellowBack", model.appendsPending /= False )
                     ]
-                  --class "height-adjusting-textarea"
+
+                --class "height-adjusting-textarea"
                 , id "update"
                 , placeholder "Update?"
                 , onInput UpdateStatus
@@ -479,60 +483,61 @@ viewContents : String -> Bool -> Html Msg
 viewContents contents rawMode =
     --div [] [ text contents]
     let
-        inMultipleLines contents = 
-          contents 
-            |> String.split "\n"
-            |> List.map (\line -> p [] [text line])
-            >> div []          
-            
+        inMultipleLines contents =
+            contents
+                |> String.split "\n"
+                |> List.map (\line -> pre [] [ text line ])
+                >> div []
+
         rendersimple material =
             let
                 tuple =
                     String.split "\t" material
             in
-                case tuple of
-                    ts :: [ line ] ->
-                        div [ class "answer" ]
-                            [ pre [] [ text ts ]
-                            , pre [] [ text line]
-                            -- , inMultipleLines line
-                            ]
-                             
-                    _ ->
-                        div [ class "answer" ] [ ul [] [ text material ] ]
+            case tuple of
+                ts :: [ line ] ->
+                    div [ class "answer" ]
+                        [ pre [] [ text ts ]
+                        , pre [] [ text line ]
+
+                        -- , inMultipleLines line
+                        ]
+
+                _ ->
+                    div [ class "answer" ] [ ul [] [ text material ] ]
 
         render material =
             let
                 tuple =
                     String.split "\t" material
             in
-                case tuple of
-                    ts :: [ line ] ->
-                        div [ class "answer" ]
-                            [ ul [] [ text ts ]
-                            , Markdown.toHtml [] line
-                            ]
+            case tuple of
+                ts :: [ line ] ->
+                    div [ class "answer" ]
+                        [ ul [] [ text ts ]
+                        , Markdown.toHtml [] line
+                        ]
 
-                    _ ->
-                        case rawMode of
-                            False ->
-                                Markdown.toHtml [ class "answer" ] material
+                _ ->
+                    case rawMode of
+                        False ->
+                            Markdown.toHtml [ class "answer" ] material
 
-                            True ->
-                                div [ class "answer" ] [ ul [] [ text material ] ]
+                        True ->
+                            div [ class "answer" ] [ ul [] [ text material ] ]
     in
-        contents
-            |> String.split "@@@\n"
-            |> List.take 100
-            |> (case rawMode of
-                    True ->
-                        List.map rendersimple
+    contents
+        |> String.split "@@@\n"
+        |> List.take 100
+        |> (case rawMode of
+                True ->
+                    List.map rendersimple
 
-                    False ->
-                        List.map render
-               )
-            |> List.reverse
-            >> div []
+                False ->
+                    List.map render
+           )
+        |> List.reverse
+        >> div []
 
 
 footer : Html Msg
@@ -555,7 +560,8 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Keyboard.presses KeyMsg
-          -- , Mouse.clicks MouseMsg
+
+        -- , Mouse.clicks MouseMsg
         ]
 
 
@@ -577,7 +583,7 @@ getFile model =
         --_ =
         --Debug.log "settings: " settings
     in
-        Http.request settings
+    Http.request settings
 
 
 getFileTask : Model -> Cmd Msg
@@ -589,13 +595,13 @@ getFileTask model =
         --_ =
         --Debug.log "model: " model
     in
-        getTask
-            |> Task.andThen
-                (\result ->
-                    Time.now
-                        |> Task.andThen (\time -> Task.succeed ( time, result ))
-                )
-            |> Task.attempt Download
+    getTask
+        |> Task.andThen
+            (\result ->
+                Time.now
+                    |> Task.andThen (\time -> Task.succeed ( time, result ))
+            )
+        |> Task.attempt Download
 
 
 
@@ -611,9 +617,9 @@ getFileAndAppend model =
         getTask =
             Http.toTask (getFile model)
     in
-        Time.now
-            |> Task.andThen (\t -> Task.map ((,) t) getTask)
-            |> Task.attempt DownloadAndAppend
+    Time.now
+        |> Task.andThen (\t -> Task.map ((,) t) getTask)
+        |> Task.attempt DownloadAndAppend
 
 
 
@@ -628,7 +634,7 @@ sendFile model posts =
             dropboxAPI ++ "/files/upload"
 
         contents =
-            model.contents ++ (Maybe.withDefault "" posts)
+            model.contents ++ Maybe.withDefault "" posts
 
         settings =
             { postSettings
@@ -639,7 +645,7 @@ sendFile model posts =
                 , body = stringBody "application/octet-stream" contents
             }
     in
-        Http.request settings
+    Http.request settings
 
 
 
@@ -684,9 +690,9 @@ sendFileTask model =
         sendTask =
             Http.toTask (sendFile model Nothing)
     in
-        Time.now
-            |> Task.andThen (\t -> Task.map ((,) t) sendTask)
-            |> Task.attempt UploadStatus
+    Time.now
+        |> Task.andThen (\t -> Task.map ((,) t) sendTask)
+        |> Task.attempt UploadStatus
 
 
 
@@ -750,11 +756,12 @@ postSettings =
     , body = emptyBody
     , expect =
         expectStringResponse dropboxResponse
-        -- , expect = expectString
-        -- , expect = expectJson decodeFileInfo
-        -- , expect = expectStringResponse expectRev
-        -- ,expect = expectStringResponse fileInfo
-        --, timeout = Just (2 * Time.millisecond)
+
+    -- , expect = expectString
+    -- , expect = expectJson decodeFileInfo
+    -- , expect = expectStringResponse expectRev
+    -- ,expect = expectStringResponse fileInfo
+    --, timeout = Just (2 * Time.millisecond)
     , timeout = Nothing
     , withCredentials = False
     }
@@ -822,20 +829,20 @@ expectRev response =
         _ =
             Debug.log "raw rev: " (toString revision)
     in
-        case revision of
-            Ok revString ->
-                let
-                    _ =
-                        Debug.log "success rev: " (toString revString)
-                in
-                    Decode.decodeString
-                        (decodeFileInfo "00")
-                        response.body
+    case revision of
+        Ok revString ->
+            let
+                _ =
+                    Debug.log "success rev: " (toString revString)
+            in
+            Decode.decodeString
+                (decodeFileInfo "00")
+                response.body
 
-            Err error ->
-                Decode.decodeString
-                    (decodeFileInfo "00")
-                    response.body
+        Err error ->
+            Decode.decodeString
+                (decodeFileInfo "00")
+                response.body
 
 
 decodeFileInfo res =
@@ -852,7 +859,7 @@ metadataUpdate response =
         _ =
             Debug.log "metadata: " response
     in
-        Decode.decodeString metadataDecoder response
+    Decode.decodeString metadataDecoder response
 
 
 metadataDecoder =
@@ -865,7 +872,7 @@ fileInfo response =
         _ =
             Debug.log "headers: " response
     in
-        Decode.decodeString fileInfoDecoder response.body
+    Decode.decodeString fileInfoDecoder response.body
 
 
 fileInfoDecoder : Decode.Decoder FileInfo
