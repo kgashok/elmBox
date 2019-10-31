@@ -10401,31 +10401,10 @@ var _kgashok$elmbox$Drop$viewContents = F2(
 				}
 			}
 		};
-		var inMultipleLines = function (contents) {
-			return function (_p3) {
-				return A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					A2(
-						_elm_lang$core$List$map,
-						function (line) {
-							return A2(
-								_elm_lang$html$Html$ul,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(line),
-									_1: {ctor: '[]'}
-								});
-						},
-						_p3));
-			}(
-				A2(_elm_lang$core$String$split, '\n', contents));
-		};
 		var rendersimple = function (material) {
 			var tuple = A2(_elm_lang$core$String$split, '\t', material);
-			var _p4 = tuple;
-			if (((_p4.ctor === '::') && (_p4._1.ctor === '::')) && (_p4._1._1.ctor === '[]')) {
+			var _p3 = tuple;
+			if (((_p3.ctor === '::') && (_p3._1.ctor === '::')) && (_p3._1._1.ctor === '[]')) {
 				return A2(
 					_elm_lang$html$Html$div,
 					{
@@ -10440,14 +10419,10 @@ var _kgashok$elmbox$Drop$viewContents = F2(
 							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text(_p4._0),
+								_0: _elm_lang$html$Html$text(_p3._0),
 								_1: {ctor: '[]'}
 							}),
-						_1: {
-							ctor: '::',
-							_0: inMultipleLines(_p4._1._0),
-							_1: {ctor: '[]'}
-						}
+						_1: {ctor: '[]'}
 					});
 			} else {
 				return A2(
@@ -10470,6 +10445,27 @@ var _kgashok$elmbox$Drop$viewContents = F2(
 						_1: {ctor: '[]'}
 					});
 			}
+		};
+		var inMultipleLines = function (contents) {
+			return function (_p4) {
+				return A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					A2(
+						_elm_lang$core$List$map,
+						function (line) {
+							return A2(
+								_elm_lang$html$Html$p,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(line),
+									_1: {ctor: '[]'}
+								});
+						},
+						_p4));
+			}(
+				A2(_elm_lang$core$String$split, '\n', contents));
 		};
 		return function (_p5) {
 			return A2(

@@ -482,7 +482,7 @@ viewContents contents rawMode =
         inMultipleLines contents = 
           contents 
             |> String.split "\n"
-            |> List.map (\line -> ul [] [text line])
+            |> List.map (\line -> p [] [text line])
             >> div []        
             
         rendersimple material =
@@ -494,7 +494,8 @@ viewContents contents rawMode =
                     ts :: [ line ] ->
                         div [ class "answer" ]
                             [ ul [] [ text ts ]
-                            , inMultipleLines line
+                            , p [] [ text line]
+                            -- , inMultipleLines line
                             ]
                              
                     _ ->
