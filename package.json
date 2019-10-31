@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "express": "^4.16.4",
-    "elm": "^2.0.0"
+    "elm": "^2.0.0",
+    "elm-format": "^0.8.2"
   },
   "devDependencies": {
     "elm-analyse": "^0.13.3"
