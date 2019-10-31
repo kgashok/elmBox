@@ -1,1 +1,50 @@
-views/index.html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link id="favicon" rel="icon" href="https://bit.ly/geniusIcon" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <script src="drop.js"></script>
+    <base target="_blank">
+
+  </head>
+  <body>
+    <main></main>
+    <script>
+        // Elm.Drop.fullscreen();
+        
+        (function(document, Elm) { 
+          var storedState = localStorage.getItem('model');
+          var startingState = storedState ? JSON.parse(storedState) : null;
+          
+          var main = document.querySelector("main"); 
+          var app = Elm.Drop.embed(main, startingState);
+
+          app.ports.setStorage.subscribe(function(state) {
+              localStorage.setItem('model', JSON.stringify(state));
+          });
+
+          app.ports.logExternalOut.subscribe(function (value) {
+              console.info("logs:", value);
+          });
+      
+          // receive something from Elm
+          app.ports.adjustTextAreaHeight.subscribe(function (className) { 
+            
+            var textArea = document.querySelector('.' + className); 
+            textArea.style = "height: 1px"; // hack to get the real height of the text 
+            var scrollHeight = textArea.scrollHeight;
+            textArea.style = "height: " + scrollHeight + "px;";
+            
+            
+            /*console.log ("adjusting height"); 
+            var s_height = document.getElementById(className).scrollHeight;
+            document.getElementById(className).setAttribute('style','height:'+s_height+'px');
+            */
+
+
+          });
+        }(document, Elm)); 
+    </script>
+  </body>
+</html>

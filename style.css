@@ -189,7 +189,10 @@ li .answer {
   font-weight: normal;
   color: blue; 
   height: 100%;
+<<<<<<< HEAD
   /* white-space: normal; */ 
+=======
+>>>>>>> ea153461fe06641a825be80bfe18f4fb50579657
 }
 
 li .answerP {

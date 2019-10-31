@@ -479,6 +479,7 @@ viewContents : String -> Bool -> Html Msg
 viewContents contents rawMode =
     --div [] [ text contents]
     let
+<<<<<<< HEAD
         inMultipleLines contents = 
           contents 
             |> String.split "\n"
@@ -500,6 +501,10 @@ viewContents contents rawMode =
                              
                     _ ->
                         div [ class "answer" ] [ ul [] [ text material ] ]
+=======
+        rendersimple material =
+            div [ class "answer" ] [ ul [] [ text material ] ]
+>>>>>>> ea153461fe06641a825be80bfe18f4fb50579657
 
         render material =
             let
