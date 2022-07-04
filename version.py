@@ -12,7 +12,7 @@ defaultRepo = "http://github.com/kgashok/qnaElm"
 #####################
 ## Get Version details
 ######################
-import commands
+import subprocess as commands
 
 status, repo = commands.getstatusoutput ("git ls-remote --get-url") 
 if status: 
@@ -26,9 +26,9 @@ status, version = commands.getstatusoutput ("git describe --tags --long")
 if not status: 
 	print ("Version: " + version)
 else: 
-	print "git describe returned bad status!"
-	print "The repo should have at least one release tag!"
-	print "Please see https://help.github.com/articles/creating-releases/"
+	print("git describe returned bad status!")
+	print("The repo should have at least one release tag!")
+	print("Please see https://help.github.com/articles/creating-releases/")
 	version = "NA"
 
 previous = None
