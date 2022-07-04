@@ -447,7 +447,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ div [ class "example example-dotted" ]
-            [ h1 [] [ text "Daily Log" ]
+            [ h1 [style "margin-bottom" "0px"] [ text "Daily Log" ]
             , footer
             , hr [ class "style5" ] []
             , br [] []
