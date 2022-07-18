@@ -606,7 +606,7 @@ getFileTask model =
 
 
 {--Time.now
-            |> Task.andThen (\t -> Task.map ((,) t) getTask)
+            |> Task.andThen (\t -> Task.map (Tuple.pair t) getTask)
             |> Task.attempt Download
         --}
 
@@ -618,7 +618,7 @@ getFileAndAppend model =
             Http.toTask (getFile model)
     in
     Time.now
-        |> Task.andThen (\t -> Task.map ((,) t) getTask)
+        |> Task.andThen (\t -> Task.map (Tuple.pair t) getTask)
         |> Task.attempt DownloadAndAppend
 
 
@@ -691,7 +691,7 @@ sendFileTask model =
             Http.toTask (sendFile model Nothing)
     in
     Time.now
-        |> Task.andThen (\t -> Task.map ((,) t) sendTask)
+        |> Task.andThen (\t -> Task.map (Tuple.pair t) sendTask)
         |> Task.attempt UploadStatus
 
 
@@ -818,7 +818,7 @@ expectRev response =
 
         revision =
             result
-                |> Decode.decodeString (Decode.map (,) (Decode.field "rev" Decode.string))
+                |> Decode.decodeString (Decode.map Tuple.pair (Decode.field "rev" Decode.string))
 
         _ =
             Debug.log "headers: " response.headers
@@ -883,9 +883,9 @@ fileInfoDecoder =
 
 
 
--- Decode.decodeString (Decode.map (,) (Decode.field "rev" Decode.string) ) (Maybe.withDefault "" res)
+-- Decode.decodeString (Decode.map Tuple.pair (Decode.field "rev" Decode.string) ) (Maybe.withDefault "" res)
 -- Decode.decodeString
--- (Decode.map (,) (Decode.field "headers" (Decode.dict Decode.string)) ) json
+-- (Decode.map Tuple.pair (Decode.field "headers" (Decode.dict Decode.string)) ) json
 {--
 encodeContents : String -> Encode.Value
 encodeContents contents =
