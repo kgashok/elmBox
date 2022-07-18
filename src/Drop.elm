@@ -1,19 +1,23 @@
 port module Drop exposing (..)
 
-import Date exposing (..)
-import Date.Format exposing (..)
+-- import Date exposing (..)
+-- import Date.Format exposing (..)
+-- import Keyboard exposing (..) (Browser.Events instead)
+
+import Browser
+import Browser.Dom as Dom
+import Browser.Events exposing (..)
+import DateFormat
 import Debug exposing (..)
 import Dict exposing (..)
-import Dom exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Html.Events as E
 import Http exposing (..)
-import Json.Decode as Decode exposing (decodeString, dict, field, list, string)
-import Json.Decode.Pipeline as Pipeline exposing (..)
+import Json.Decode as D exposing (decodeString, dict, field, list, string)
+import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
-import Keyboard exposing (..)
-import Markdown exposing (..)
+import Markdown
 import Result exposing (..)
 import Task exposing (..)
 import Time exposing (..)
@@ -24,7 +28,7 @@ import Version exposing (..)
 --import ElmEscapeHtml exposing (..)
 
 
-port setStorage : Model -> Cmd msg
+-- port setStorage : Model -> Cmd msg, -- TODO -> Fix that
 
 
 port adjustTextAreaHeight : String -> Cmd msg
@@ -46,10 +50,10 @@ updateWithStorage msg model =
     in
     ( nextModel
     , Cmd.batch
-        [ setStorage model
+        [ -- setStorage model, -- TODO -> Fix that
 
         --, logExternal msg
-        , nextCmd
+        nextCmd
         ]
     )
 
@@ -66,9 +70,9 @@ main =
 --}
 
 
-main : Program Decode.Value Model Msg
+main : Program D.Value Model Msg
 main =
-    Html.programWithFlags
+    Browser.element
         { init = init
         , view = view
         , update =
@@ -90,7 +94,7 @@ type Content
 
 
 type alias Post =
-    { timestamp : Time
+    { timestamp : Time.Posix
     , message : String
     }
 
@@ -102,7 +106,7 @@ type alias Model =
     , postsToUpload : Maybe String
     , appendsPending : Bool
     , status : String
-    , currentTime : Maybe Time
+    , currentTime : Maybe Time.Posix
     , flashMessage : String
     , downloadSuccess : Bool
     , downloadFirst : Bool
@@ -151,16 +155,16 @@ init savedModel =
 --}
 
 
-init : Decode.Value -> ( Model, Cmd Msg )
+init : D.Value -> ( Model, Cmd Msg )
 init flags =
     ( flagsToModel flags
     , getTimeTask
     )
 
 
-flagsToModel : Decode.Value -> Model
+flagsToModel : D.Value -> Model
 flagsToModel flags =
-    Decode.decodeValue modelDecoder flags
+    D.decodeValue modelDecoder flags
         |> Result.withDefault
             { initialModel
                 | flashMessage =
@@ -168,20 +172,20 @@ flagsToModel flags =
             }
 
 
-modelDecoder : Decode.Decoder Model
+modelDecoder : D.Decoder Model
 modelDecoder =
-    decode Model
-        |> Pipeline.required "filePath" Decode.string
-        |> Pipeline.required "contents" Decode.string
-        |> Pipeline.required "rev" Decode.string
-        |> Pipeline.required "postsToUpload" (Decode.nullable string)
-        |> Pipeline.required "appendsPending" Decode.bool
+    D.succeed Model
+        |> Pipeline.required "filePath" D.string
+        |> Pipeline.required "contents" D.string
+        |> Pipeline.required "rev" D.string
+        |> Pipeline.required "postsToUpload" (D.nullable string)
+        |> Pipeline.required "appendsPending" D.bool
         |> Pipeline.required "status" string
-        |> Pipeline.required "currentTime" (Decode.nullable Decode.float)
-        |> Pipeline.required "flashMessage" Decode.string
-        |> Pipeline.required "downloadSuccess" Decode.bool
-        |> Pipeline.required "downloadFirst" Decode.bool
-        |> Pipeline.required "rawMode" Decode.bool
+        |> Pipeline.required "currentTime" (D.nullable D.float)
+        |> Pipeline.required "flashMessage" D.string
+        |> Pipeline.required "downloadSuccess" D.bool
+        |> Pipeline.required "downloadFirst" D.bool
+        |> Pipeline.required "rawMode" D.bool
 
 
 
@@ -190,23 +194,23 @@ modelDecoder =
 
 type Msg
     = Refresh
-    | Download (Result Http.Error ( Time, FileInfo ))
+    | Download (Result Http.Error ( Time.Posix, FileInfo ))
       --| Download (Result Http.Error ( Time, String ))
-    | DownloadAndAppend (Result Http.Error ( Time, FileInfo ))
+    | DownloadAndAppend (Result Http.Error ( Time.Posix, FileInfo ))
       --| DownloadAndAppend (Result Http.Error ( Time, String ))
     | Append
-    | GetTimeAndAppend Time
+    | GetTimeAndAppend Time.Posix
     | UpdateStatus String
     | Upload
-    | UploadStatus (Result Http.Error ( Time, String ))
+    | UploadStatus (Result Http.Error ( Time.Posix, String ))
       --| UploadStatus (Result Http.Error ( Time, FileInfo ))
     | FocusDone (Result Dom.Error ())
     | GetTime
-    | NewTime Time
-    | KeyMsg Keyboard.KeyCode
+    | NewTime Time.Posix
 
 
 
+-- | KeyMsg Keyboard.KeyCode -- (TODO)
 --| UpdateMetadata (Result Http.Error Metadata)
 
 
@@ -214,8 +218,9 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Refresh ->
-            { model | contents = "", flashMessage = "Downloading...be patient!" }
-                ! [ getFileTask model ]
+            ( { model | contents = "", flashMessage = "Downloading...be patient!" }
+            , getFileTask model
+            )
 
         -- , getMetaTask model ]
         Download (Ok ( time, contents )) ->
@@ -228,8 +233,9 @@ update msg model =
             in
             case ( model.downloadFirst, model.downloadSuccess ) of
                 ( False, _ ) ->
-                    { model_ | flashMessage = model_.rev ++ ": Download successful (case 1)" }
-                        ! [ focusUpdate ]
+                    ( { model_ | flashMessage = model_.rev ++ ": Download successful (case 1)" }
+                    , focusUpdate
+                    )
 
                 ( True, False ) ->
                     let
@@ -238,46 +244,44 @@ update msg model =
                                 |> appendPosts
                                 |> setFlashMessage "Download successful! (case 2)"
                     in
-                    model__ ! [ sendFileTask model__ ]
+                    ( model__, sendFileTask model__ )
 
                 ( _, True ) ->
-                    { model_ | flashMessage = "Download successful (case 3)" }
-                        ! [ sendFileTask model ]
+                    ( { model_ | flashMessage = "Download successful (case 3)" }, sendFileTask model )
 
         Download (Err error) ->
             let
                 model_ =
                     { model | downloadSuccess = False, downloadFirst = False }
             in
-            setFlashMessage (toString error) model_ ! []
+            ( setFlashMessage (toString error) model_, Cmd.none )
 
         DownloadAndAppend (Ok ( time, contents )) ->
-            (model
+            ( model
                 |> setTime time
                 |> updateContents contents
                 |> appendStatus
                 |> setFlashMessage "Download/Append successful!"
                 |> setFlag True
+            , focusUpdate
             )
-                ! [ focusUpdate ]
 
         DownloadAndAppend (Err error) ->
-            setFlashMessage (toString error) model ! []
+            ( setFlashMessage (toString error) model, Cmd.none )
 
         Append ->
-            model ! [ Task.perform GetTimeAndAppend Time.now ]
+            ( model, Task.perform GetTimeAndAppend Time.now )
 
         GetTimeAndAppend time ->
-            (model
+            ( model
                 |> setTime time
                 |> appendStatus
                 |> setFlashMessage "Append successful!"
+            , focusUpdate
             )
-                ! [ focusUpdate ]
 
         UpdateStatus s ->
-            { model | status = s }
-                ! [ focusUpdate, adjustTextAreaHeight "height-adjusting-textarea" ]
+            ( { model | status = s }, Cmd.batch [ focusUpdate, adjustTextAreaHeight "height-adjusting-textarea" ] )
 
         Upload ->
             let
@@ -286,55 +290,54 @@ update msg model =
             in
             case model_.downloadSuccess of
                 True ->
-                    model_ ! [ sendFileTask model ]
+                    ( model_, sendFileTask model )
 
                 False ->
-                    { model_ | downloadFirst = True }
-                        ! [ getFileTask model_ ]
+                    ( { model_ | downloadFirst = True }, getFileTask model_ )
 
         UploadStatus (Ok ( time, contents )) ->
-            (model
+            ( model
                 |> setTime time
                 |> setFlashMessage "Upload successful!"
                 |> setDownloadFirst False
+            , focusUpdate
             )
-                ! [ focusUpdate ]
 
         UploadStatus (Err error) ->
-            (model
+            ( model
                 |> setFlashMessage (toString error)
+            , Cmd.none
             )
-                ! []
 
         GetTime ->
-            model ! [ getTimeTask ]
+            ( model
+            , getTimeTask
+            )
 
         NewTime time ->
-            (model |> setTime time) ! [ focusUpdate ]
+            ( model |> setTime time, focusUpdate )
 
         FocusDone _ ->
-            model ! []
-
-        KeyMsg code ->
-            case code of
-                17 ->
-                    -- Ctrl-q for toggling markdown format
-                    let
-                        model_ =
-                            { model | rawMode = not model.rawMode }
-                    in
-                    (model_
-                        |> setFlashMessage
-                            -- ("Received keyboard " ++ toString code)
-                            "<Ctrl-q> to toggle Markdown format!"
-                    )
-                        ! [ focusUpdate ]
-
-                _ ->
-                    model ! [ Cmd.none ]
+            ( model, Cmd.none )
 
 
 
+-- KeyMsg code -> -- TODO : handle the keyboard
+--     case code of
+--         17 ->
+--             -- Ctrl-q for toggling markdown format
+--             let
+--                 model_ =
+--                     { model | rawMode = not model.rawMode }
+--             in
+--             ((model_
+--                 |> setFlashMessage
+--                     -- ("Received keyboard " ++ toString code)
+--                     "<Ctrl-q> to toggle Markdown format!"
+--             ), focusUpdate )
+--         _ ->
+--             (model, Cmd.none
+--             )
 {- UpdateMetadata (Ok meta) ->
        { model | rev = meta.rev } ! [focusUpdate]
 
@@ -362,7 +365,7 @@ setFlashMessage message model =
     { model | flashMessage = message }
 
 
-setTime : Time -> Model -> Model
+setTime : Time.Posix -> Model -> Model
 setTime time model =
     { model | currentTime = Just time }
 
@@ -434,9 +437,9 @@ timedPost model =
     formatTime model.currentTime ++ "\t" ++ model.status ++ " @@@\n"
 
 
-formatTime : Maybe Time -> String
+formatTime : Maybe Time.Posix -> String
 formatTime time =
-    time |> Maybe.withDefault 0 |> fromTime |> format "%a %b/%d/%y %H:%M:%S "
+    time |> Maybe.withDefault (Time.millisToPosix 0) |> DateFormat.format [DateFormat.hourMilitaryFixed] Time.utc -- "%a %b/%d/%y %H:%M:%S "
 
 
 
@@ -447,7 +450,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ div [ class "example example-dotted" ]
-            [ h1 [style "margin-bottom" "0px"] [ text "Daily Log" ]
+            [ h1 [ style "margin-bottom" "0px" ] [ text "Daily Log" ]
             , footer
             , hr [ class "style5" ] []
             , br [] []
@@ -465,15 +468,15 @@ view model =
                 --class "height-adjusting-textarea"
                 , id "update"
                 , placeholder "Update?"
-                , onInput UpdateStatus
+                , E.onInput UpdateStatus
                 , value model.status
                 ]
                 []
-            , button [ id "button2", onClick Append ] [ text "Append" ]
-            , button [ id "button3", onClick Upload ] [ text "Upload!" ]
-            , button [ id "button3", onClick (UpdateStatus "") ] [ text "Clear" ]
-            , button [ id "button1", onClick Refresh ] [ text "Refresh!" ]
-            , button [ id "button4", onClick (KeyMsg 17) ] [ text "MD" ]
+            , button [ id "button2", E.onClick Append ] [ text "Append" ]
+            , button [ id "button3", E.onClick Upload ] [ text "Upload!" ]
+            , button [ id "button3", E.onClick (UpdateStatus "") ] [ text "Clear" ]
+            , button [ id "button1", E.onClick Refresh ] [ text "Refresh!" ]
+            -- , button [ id "button4", E.onClick (KeyMsg 17) ] [ text "MD" ]
             , footer
             ]
         ]
@@ -483,8 +486,8 @@ viewContents : String -> Bool -> Html Msg
 viewContents contents rawMode =
     --div [] [ text contents]
     let
-        inMultipleLines contents =
-            contents
+        inMultipleLines contents_ =
+            contents_
                 |> String.split "\n"
                 |> List.map (\line -> pre [] [ text line ])
                 >> div []
@@ -515,13 +518,13 @@ viewContents contents rawMode =
                 ts :: [ line ] ->
                     div [ class "answer" ]
                         [ ul [] [ text ts ]
-                        , Markdown.toHtml [] line
+                        , div [] (Markdown.toHtml Nothing line)
                         ]
 
                 _ ->
                     case rawMode of
                         False ->
-                            Markdown.toHtml [ class "answer" ] material
+                            div [] (Markdown.toHtml Nothing material) --[ class "answer" ] material
 
                         True ->
                             div [ class "answer" ] [ ul [] [ text material ] ]
@@ -559,9 +562,8 @@ footer =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Keyboard.presses KeyMsg
-
-        -- , Mouse.clicks MouseMsg
+        [-- Keyboard.presses KeyMsg
+         -- , Mouse.clicks MouseMsg
         ]
 
 
@@ -571,7 +573,7 @@ subscriptions model =
 --getFile : Model -> Http.Request String
 
 
-getFile : Model -> Http.Request FileInfo
+-- getFile : Model -> Http. FileInfo
 getFile model =
     let
         downloadURL =
@@ -590,7 +592,7 @@ getFileTask : Model -> Cmd Msg
 getFileTask model =
     let
         getTask =
-            Http.toTask (getFile model)
+            Http.task (getFile model)
 
         --_ =
         --Debug.log "model: " model
@@ -615,7 +617,7 @@ getFileAndAppend : Model -> Cmd Msg
 getFileAndAppend model =
     let
         getTask =
-            Http.toTask (getFile model)
+            Http.task (getFile model)
     in
     Time.now
         |> Task.andThen (\t -> Task.map (Tuple.pair t) getTask)
@@ -627,7 +629,7 @@ getFileAndAppend model =
 --sendFile : Model -> Maybe String -> Http.Request String
 
 
-sendFile : Model -> Maybe String -> Http.Request String
+sendFile : Model -> Maybe String -> Http.Response String
 sendFile model posts =
     let
         uploadURL =
@@ -688,7 +690,7 @@ sendFileTask : Model -> Cmd Msg
 sendFileTask model =
     let
         sendTask =
-            Http.toTask (sendFile model Nothing)
+            Http.task (sendFile model Nothing)
     in
     Time.now
         |> Task.andThen (\t -> Task.map (Tuple.pair t) sendTask)
@@ -748,44 +750,65 @@ uploadHeaders =
        ]
 -}
 
+type alias Req msg =
+    { method : String
+    , headers : List Header
+    , url : String
+    , body : Body
+    , expect : Expect msg
+    , timeout : Maybe Float
+    , tracker : Maybe String
+    } 
 
+postSettings : Req Msg
 postSettings =
     { method = "POST"
     , headers = downloadHeaders
     , url = ""
     , body = emptyBody
-    , expect =
-        expectStringResponse dropboxResponse
+    , expect = Http.expectStringResponse dropboxResponse
+        -- Http.expectStringResponse dropboxResponse
 
+    , timeout = Nothing
+    , tracker = Nothing
+    }
     -- , expect = expectString
     -- , expect = expectJson decodeFileInfo
     -- , expect = expectStringResponse expectRev
     -- ,expect = expectStringResponse fileInfo
     --, timeout = Just (2 * Time.millisecond)
-    , timeout = Nothing
-    , withCredentials = False
-    }
+    -- , withCredentials = False
 
 
 dropboxResponse : Http.Response String -> Result String FileInfo
 dropboxResponse response =
-    response.headers
-        |> Dict.get "dropbox-api-result"
-        |> Maybe.map (Decode.decodeString (responseDecoder response.body))
-        |> Maybe.withDefault (Err "no dropbox-api-result-header")
+    case response of
+        GoodStatus_ metaData body ->
+            metaData.headers
+                |> Dict.get "dropbox-api-result"
+                |> Maybe.map (D.decodeString (responseDecoder body))
+                |> Maybe.map (Result.mapError (\e -> "toto"))
+                |> Maybe.withDefault (Err "toto")
+                -- |> Maybe.map (Result.mapError (D.Field "toto" (Result.Err "Error")))
+                -- |> Maybe.withDefault Result.Err "Error"
+                -- |> Maybe.withDefault (D.Field "no dropbox-api-result-header")
+        _ ->    
+            -- Nothing
+            Err "Toto"
+            -- Result.Err "Error"
 
 
-responseDecoder : String -> Decode.Decoder FileInfo
+responseDecoder : String -> D.Decoder FileInfo
 responseDecoder body =
-    Decode.map2 FileInfo
-        (Decode.field "rev" Decode.string)
-        (Decode.succeed body)
+    D.map2 FileInfo
+        (D.field "rev" D.string)
+        (D.succeed body)
 
 
 
 {--
 \{ headers, body } ->
-    (Json.Decode.decodeString tableDataDecoder << toJsonObject)
+    (Json.D.decodeString tableDataDecoder << toJsonObject)
         [ ( "records", body )
         , ( "total", Dict.get "X-Total-Count" headers |> Maybe.withDefault "0" )
         ]
@@ -818,7 +841,7 @@ expectRev response =
 
         revision =
             result
-                |> Decode.decodeString (Decode.map Tuple.pair (Decode.field "rev" Decode.string))
+                |> D.decodeString (D.map Tuple.pair (D.field "rev" D.string))
 
         _ =
             Debug.log "headers: " response.headers
@@ -835,18 +858,18 @@ expectRev response =
                 _ =
                     Debug.log "success rev: " (toString revString)
             in
-            Decode.decodeString
+            D.decodeString
                 (decodeFileInfo "00")
                 response.body
 
         Err error ->
-            Decode.decodeString
+            D.decodeString
                 (decodeFileInfo "00")
                 response.body
 
 
 decodeFileInfo res =
-    Decode.map (FileInfo res) Decode.string
+    D.map (FileInfo res) D.string
 
 
 type alias Metadata =
@@ -859,12 +882,12 @@ metadataUpdate response =
         _ =
             Debug.log "metadata: " response
     in
-    Decode.decodeString metadataDecoder response
+    D.decodeString metadataDecoder response
 
 
 metadataDecoder =
-    decode Metadata
-        |> Pipeline.required "rev" Decode.string
+    D.succeed Metadata
+        |> Pipeline.required "rev" D.string
 
 
 fileInfo response =
@@ -872,20 +895,20 @@ fileInfo response =
         _ =
             Debug.log "headers: " response
     in
-    Decode.decodeString fileInfoDecoder response.body
+    D.decodeString fileInfoDecoder response.body
 
 
-fileInfoDecoder : Decode.Decoder FileInfo
+fileInfoDecoder : D.Decoder FileInfo
 fileInfoDecoder =
-    decode FileInfo
+    D.succeed FileInfo
         |> Pipeline.requiredAt [ "headers", "dropbox-api-result", "rev" ] string
         |> Pipeline.required "body" string
 
 
 
--- Decode.decodeString (Decode.map Tuple.pair (Decode.field "rev" Decode.string) ) (Maybe.withDefault "" res)
--- Decode.decodeString
--- (Decode.map Tuple.pair (Decode.field "headers" (Decode.dict Decode.string)) ) json
+-- D.decodeString (D.map Tuple.pair (D.field "rev" D.string) ) (Maybe.withDefault "" res)
+-- D.decodeString
+-- (D.map Tuple.pair (D.field "headers" (D.dict D.string)) ) json
 {--
 encodeContents : String -> Encode.Value
 encodeContents contents =
@@ -893,8 +916,8 @@ encodeContents contents =
     [ ("data", Encode.string contents)]
 
 
-decodeResponse : Decode.Decoder String
+decodeResponse : D.Decoder String
 decodeResponse =
-  Decode.string
+  D.string
 
 --}
